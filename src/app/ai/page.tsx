@@ -7,7 +7,7 @@ import { BottomNav } from "@/components/layout/BottomNav"
 import type { ChatMessage as ChatMessageType } from "@/lib/types"
 
 export default function AIPage() {
-  const { chatMessages, addChatMessage, isChatLoading, setChatLoading } = useAppStore()
+  const { currentTrip, chatMessages, addChatMessage, isChatLoading, setChatLoading } = useAppStore()
   const [input, setInput] = useState("")
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -39,7 +39,7 @@ export default function AIPage() {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text, history }),
+        body: JSON.stringify({ message: text, history, tripId: currentTrip?.id }),
       })
 
       if (!res.ok) throw new Error("Request failed")

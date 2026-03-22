@@ -1,11 +1,13 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useRouter } from "next/navigation"
 import { useOnboardingStore } from "@/store/useOnboardingStore"
+import { useAppStore } from "@/store/useAppStore"
+import type { DayItinerary, Trip } from "@/lib/types"
 
-const messages = [
+const LOADING_MESSAGES = [
   "Analizando tu destino...",
   "Optimizando rutas...",
   "Buscando los mejores sitios...",
@@ -13,30 +15,85 @@ const messages = [
   "¡Casi listo!",
 ]
 
+interface GenerateResponse {
+  trip: Trip
+  days: DayItinerary[]
+  tripId: string
+}
+
 export function GeneratingStep() {
   const router = useRouter()
-  const { completeOnboarding } = useOnboardingStore()
+  const { data, completeOnboarding } = useOnboardingStore()
+  const { setCurrentTrip, setGeneratedItinerary } = useAppStore()
   const [messageIndex, setMessageIndex] = useState(0)
+  const [error, setError] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  const generate = useCallback(async () => {
+    setError(null)
+    setIsLoading(true)
+    setMessageIndex(0)
+
+    const interval = setInterval(() => {
+      setMessageIndex((i) => (i < LOADING_MESSAGES.length - 1 ? i + 1 : i))
+    }, 1400)
+
+    try {
+      const res = await fetch("/api/itinerary/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      })
+
+      clearInterval(interval)
+
+      if (!res.ok) {
+        const errData = await res.json() as { error?: string }
+        throw new Error(errData.error ?? "Error generando itinerario")
+      }
+
+      const result = await res.json() as GenerateResponse
+
+      setCurrentTrip(result.trip)
+      setGeneratedItinerary(result.days)
+      setMessageIndex(LOADING_MESSAGES.length - 1)
+
+      setTimeout(() => {
+        completeOnboarding()
+        router.replace("/plan")
+      }, 600)
+    } catch (err) {
+      clearInterval(interval)
+      console.error("GeneratingStep error:", err)
+      setError(err instanceof Error ? err.message : "Error desconocido")
+      setIsLoading(false)
+    }
+  }, [data, completeOnboarding, router, setCurrentTrip, setGeneratedItinerary])
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setMessageIndex((i) => {
-        if (i < messages.length - 1) return i + 1
-        clearInterval(interval)
-        return i
-      })
-    }, 800)
+    generate()
+  }, [generate])
 
-    const timeout = setTimeout(() => {
-      completeOnboarding()
-      router.replace("/plan")
-    }, 4200)
-
-    return () => {
-      clearInterval(interval)
-      clearTimeout(timeout)
-    }
-  }, [completeOnboarding, router])
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen map-bg px-6">
+        <div className="w-24 h-24 rounded-3xl bg-red-500/20 border border-red-500/30 flex items-center justify-center mb-8">
+          <span className="material-symbols-outlined text-red-400 text-5xl">error</span>
+        </div>
+        <h1 className="text-xl font-bold text-[#e4e2e4] mb-2 text-center">
+          Algo salió mal
+        </h1>
+        <p className="text-sm text-[#c0c6d6] mb-8 text-center max-w-xs">{error}</p>
+        <button
+          onClick={generate}
+          className="px-6 py-3 rounded-2xl font-semibold text-white transition-all hover:scale-105 active:scale-95"
+          style={{ background: "#0A84FF" }}
+        >
+          Intentar de nuevo
+        </button>
+      </div>
+    )
+  }
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen map-bg px-6">
@@ -73,14 +130,14 @@ export function GeneratingStep() {
             transition={{ duration: 0.3 }}
             className="text-[#0A84FF] font-medium text-base"
           >
-            {messages[messageIndex]}
+            {LOADING_MESSAGES[messageIndex]}
           </motion.p>
         </AnimatePresence>
       </div>
 
       {/* Progress dots */}
       <div className="flex gap-2 mt-8">
-        {messages.map((_, i) => (
+        {LOADING_MESSAGES.map((_, i) => (
           <motion.div
             key={i}
             className="w-2 h-2 rounded-full"
@@ -92,6 +149,17 @@ export function GeneratingStep() {
           />
         ))}
       </div>
+
+      {/* Spinner for long waits */}
+      {isLoading && messageIndex === LOADING_MESSAGES.length - 1 && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="mt-8"
+        >
+          <div className="w-5 h-5 border-2 border-[#0A84FF]/30 border-t-[#0A84FF] rounded-full animate-spin" />
+        </motion.div>
+      )}
     </div>
   )
 }

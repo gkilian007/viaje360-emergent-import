@@ -12,8 +12,9 @@ import { TimelineItem } from "@/components/features/TimelineItem"
 import { demoItinerary } from "@/lib/demo-data"
 
 export default function PlanPage() {
-  const { pendingAchievement, currentTrip } = useAppStore()
-  const today = demoItinerary[0]
+  const { pendingAchievement, currentTrip, generatedItinerary } = useAppStore()
+  const itinerary = generatedItinerary ?? demoItinerary
+  const today = itinerary[0]
 
   return (
     <>
@@ -89,7 +90,7 @@ export default function PlanPage() {
                     <div className="h-1.5 rounded-full bg-white/10">
                       <div className="h-full w-[30%] rounded-full bg-gradient-to-r from-[#0A84FF] to-[#5856D6]" />
                     </div>
-                    <p className="text-[11px] text-[#c0c6d6] mt-1">Día 1 de 5</p>
+                    <p className="text-[11px] text-[#c0c6d6] mt-1">Día 1 de {itinerary.length}</p>
                   </div>
                   <div
                     className="p-3 rounded-2xl"

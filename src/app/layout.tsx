@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next"
 import { Inter } from "next/font/google"
+import { AppBootstrap } from "@/components/AppBootstrap"
 import "./globals.css"
 
 const inter = Inter({
@@ -36,6 +37,7 @@ export default function RootLayout({
         />
       </head>
       <body className="h-full overflow-hidden bg-[#131315] text-[#e4e2e4] font-[family-name:var(--font-inter)]">
+        <AppBootstrap />
         {children}
       </body>
     </html>

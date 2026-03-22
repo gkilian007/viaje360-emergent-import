@@ -1,8 +1,8 @@
 const GEMINI_API_URL =
   "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
 
-const SYSTEM_PROMPT =
-  "You are Viaje360, an AI travel companion for a trip to Barcelona. You give concise, contextual travel advice. Suggest restaurants, reroute for weather, recommend rest spots, give cultural insights. Be warm but brief. Answer in the same language the user writes."
+const BASE_SYSTEM_PROMPT =
+  "You are Viaje360, an AI travel companion. You give concise, contextual travel advice. Suggest restaurants, reroute for weather, recommend rest spots, give cultural insights. Be warm but brief. Answer in the same language the user writes."
 
 interface GeminiPart {
   text: string
@@ -34,10 +34,15 @@ interface GeminiResponse {
 
 export async function generateChatResponse(
   history: Array<{ role: "user" | "model"; text: string }>,
-  userMessage: string
+  userMessage: string,
+  extraContext?: string
 ): Promise<string> {
   const apiKey = process.env.GEMINI_API_KEY
   if (!apiKey) throw new Error("GEMINI_API_KEY not set")
+
+  const systemPrompt = extraContext
+    ? `${BASE_SYSTEM_PROMPT}\n\n${extraContext}`
+    : BASE_SYSTEM_PROMPT
 
   const contents: GeminiContent[] = [
     ...history.map((msg) => ({
@@ -49,7 +54,7 @@ export async function generateChatResponse(
 
   const body: GeminiRequest = {
     contents,
-    systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+    systemInstruction: { parts: [{ text: systemPrompt }] },
     generationConfig: { temperature: 0.8, maxOutputTokens: 512 },
   }
 
