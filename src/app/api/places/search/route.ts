@@ -1,100 +1,78 @@
 import { NextRequest } from "next/server"
 import { placesSearchRequestSchema } from "@/lib/api/contracts"
 import {
-  errorResponse,
   normalizeRouteError,
   parseJsonBody,
   successResponse,
 } from "@/lib/api/route-helpers"
-
-const GEMINI_API_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
-
-interface PlaceResult {
-  name: string
-  type: string
-  address: string
-  neighborhood: string
-  rating?: number
-  priceLevel?: string
-  notes: string
-  kidFriendly: boolean
-  petFriendly: boolean
-  accessible: boolean
-  dietaryOptions: string[]
-  openingHours?: string
-}
+import { searchPlaces } from "@/lib/services/places"
+import type { NormalizedPlace } from "@/lib/services/places"
+import { scorePlaces } from "@/lib/services/places/scoring"
+import { withRateLimit } from "@/lib/middleware/rate-limit"
+import { structuredLog } from "@/lib/ops/logger"
+import { getPlacesFromCache, placesCacheKey, setPlacesCache } from "@/lib/services/cache"
 
 export async function POST(req: NextRequest) {
+  const start = Date.now()
+  const requestId = crypto.randomUUID()
+  const route = "POST /api/places/search"
+
   try {
+    const rateLimitResult = await withRateLimit(req, "places-search")
+    if (rateLimitResult) return rateLimitResult
+
     const body = await parseJsonBody(req, placesSearchRequestSchema)
-    const apiKey = process.env.GEMINI_API_KEY
-    if (!apiKey) {
-      return errorResponse("INTERNAL_ERROR", "API key not configured", 500)
+    const cacheKey = placesCacheKey(body.location, body.query, body.filters)
+
+    const cached = await getPlacesFromCache(cacheKey)
+    const rawPlaces = cached
+      ? (cached as NormalizedPlace[])
+      : await searchPlaces({
+          query: body.query,
+          location: body.location,
+          lat: body.lat,
+          lng: body.lng,
+          filters: body.filters,
+        })
+
+    if (!cached && rawPlaces.length > 0) {
+      await setPlacesCache(cacheKey, body.location, body.query, rawPlaces, rawPlaces[0]?.source ?? "unknown")
     }
 
-    const filters = body.filters ?? {}
-    const filterText = [
-      filters.kidFriendly ? "kid-friendly" : "",
-      filters.petFriendly ? "pet-friendly" : "",
-      filters.accessible ? "wheelchair accessible" : "",
-      ...(filters.dietary ?? []),
-      filters.type ?? "",
-    ]
-      .filter(Boolean)
-      .join(", ")
-
-    const prompt = `You are a travel expert. Find places in ${body.location} matching: "${body.query}".
-${filterText ? `Required filters: ${filterText}` : ""}
-
-Return ONLY valid JSON array with 5 results:
-[
-  {
-    "name": "Place name",
-    "type": "restaurant|museum|monument|park|shopping|tour|hotel",
-    "address": "Full address",
-    "neighborhood": "Neighborhood",
-    "rating": 4.5,
-    "priceLevel": "€|€€|€€€|€€€€",
-    "notes": "Brief description and tips",
-    "kidFriendly": true,
-    "petFriendly": false,
-    "accessible": true,
-    "dietaryOptions": ["vegetarian", "vegan"],
-    "openingHours": "9:00-20:00"
-  }
-]`
-
-    const res = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ role: "user", parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.7, maxOutputTokens: 2048 },
-      }),
+    const places = scorePlaces(rawPlaces, {
+      accommodationLat: body.lat,
+      accommodationLng: body.lng,
+      weatherCondition: body.weatherCondition,
+      currentTime: body.currentTime,
+      filters: body.filters,
     })
 
-    if (!res.ok) {
-      return errorResponse("BAD_GATEWAY", "Search failed", 502)
-    }
+    structuredLog({
+      requestId,
+      route,
+      duration: Date.now() - start,
+      status: 200,
+      meta: {
+        cacheHit: Boolean(cached),
+        provider: places[0]?.source ?? "none",
+        resultCount: places.length,
+      },
+    })
 
-    const data = (await res.json()) as {
-      candidates: Array<{ content: { parts: Array<{ text: string }> } }>
-    }
-
-    const raw = data.candidates[0]?.content?.parts[0]?.text ?? "[]"
-    const cleaned = raw.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim()
-
-    let places: PlaceResult[]
-    try {
-      places = JSON.parse(cleaned) as PlaceResult[]
-    } catch {
-      places = []
-    }
-
-    return successResponse({ places })
+    return successResponse({ places }, 200, requestId)
   } catch (error) {
-    console.error("places/search error:", error)
-    return normalizeRouteError(error, "Failed to search places")
+    structuredLog({
+      requestId,
+      route,
+      duration: Date.now() - start,
+      status: 500,
+      error: error instanceof Error ? error.message : "Unknown error",
+    })
+
+    return normalizeRouteError(error, "Failed to search places", {
+      requestId,
+      route,
+      details: { endpoint: "places-search" },
+    })
   }
 }

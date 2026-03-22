@@ -4,6 +4,7 @@ export type ApiErrorCode =
   | "NOT_FOUND"
   | "INTERNAL_ERROR"
   | "BAD_GATEWAY"
+  | "TOO_MANY_REQUESTS"
 
 export interface ApiSuccessBody<T> {
   ok: true
@@ -17,16 +18,22 @@ export interface ApiErrorBody {
     message: string
     details?: unknown
   }
+  request_id?: string
 }
 
-export function createSuccessBody<T>(data: T): ApiSuccessBody<T> {
-  return { ok: true, data }
+export function createSuccessBody<T>(data: T, requestId?: string): ApiSuccessBody<T> & { request_id?: string } {
+  return {
+    ok: true,
+    data,
+    ...(requestId ? { request_id: requestId } : {}),
+  }
 }
 
 export function createErrorBody(
   code: ApiErrorCode,
   message: string,
-  details?: unknown
+  details?: unknown,
+  requestId?: string
 ): ApiErrorBody {
   return {
     ok: false,
@@ -35,5 +42,6 @@ export function createErrorBody(
       message,
       ...(details === undefined ? {} : { details }),
     },
+    ...(requestId ? { request_id: requestId } : {}),
   }
 }

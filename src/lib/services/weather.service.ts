@@ -1,3 +1,5 @@
+import { getFeatureFlag } from "@/lib/feature-flags"
+
 export interface WeatherData {
   temp: number
   condition: string
@@ -49,10 +51,16 @@ function decodeWMO(code: number): { condition: string; icon: string } {
   return WMO_CODES[code] ?? { condition: "Variable", icon: "partly_cloudy_day" }
 }
 
+function isWeatherProviderEnabled() {
+  return getFeatureFlag("OPEN_METEO")
+}
+
 export async function getCurrentWeather(
   lat: number,
   lng: number
 ): Promise<WeatherData | null> {
+  if (!isWeatherProviderEnabled()) return null
+
   try {
     const url = new URL("https://api.open-meteo.com/v1/forecast")
     url.searchParams.set("latitude", lat.toString())
@@ -63,7 +71,7 @@ export async function getCurrentWeather(
     const res = await fetch(url.toString(), { next: { revalidate: 1800 } })
     if (!res.ok) return null
 
-    const data = await res.json() as {
+    const data = (await res.json()) as {
       current: {
         temperature_2m: number
         relative_humidity_2m: number
@@ -91,6 +99,8 @@ export async function getForecast(
   lng: number,
   days: number = 7
 ): Promise<{ hourly: HourlyForecast[]; daily: DailyForecast[] }> {
+  if (!isWeatherProviderEnabled()) return { hourly: [], daily: [] }
+
   try {
     const url = new URL("https://api.open-meteo.com/v1/forecast")
     url.searchParams.set("latitude", lat.toString())
@@ -103,7 +113,7 @@ export async function getForecast(
     const res = await fetch(url.toString(), { next: { revalidate: 3600 } })
     if (!res.ok) return { hourly: [], daily: [] }
 
-    const data = await res.json() as {
+    const data = (await res.json()) as {
       hourly: {
         time: string[]
         temperature_2m: number[]

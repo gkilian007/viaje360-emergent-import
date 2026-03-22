@@ -179,6 +179,10 @@ export const adaptRequestSchema = z.object({
 export const placesSearchRequestSchema = z.object({
   query: z.string().trim().min(1, "query is required"),
   location: z.string().trim().min(1, "location is required"),
+  lat: z.number().finite().optional(),
+  lng: z.number().finite().optional(),
+  currentTime: z.string().trim().optional(),
+  weatherCondition: z.string().trim().optional(),
   filters: z
     .object({
       kidFriendly: z.boolean().optional(),
@@ -186,6 +190,7 @@ export const placesSearchRequestSchema = z.object({
       dietary: z.array(z.string()).optional(),
       accessible: z.boolean().optional(),
       type: z.string().optional(),
+      budget: z.string().optional(),
     })
     .optional(),
 })
