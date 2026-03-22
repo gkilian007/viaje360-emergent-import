@@ -1,6 +1,9 @@
 -- Cache tables for places and weather results
 -- TTL: places = 7 days, weather = 1 hour
 
+-- gen_random_uuid() depends on pgcrypto on a clean database.
+create extension if not exists pgcrypto;
+
 CREATE TABLE IF NOT EXISTS places_cache (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   cache_key text UNIQUE NOT NULL,

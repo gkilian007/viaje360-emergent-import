@@ -1,40 +1,55 @@
 # Supabase Setup
 
-## Running the Migration
+## Migration status
+
+Viaje360 expects **three** SQL migrations, in this order:
+
+1. `migrations/001_initial_schema.sql`
+2. `migrations/002_itinerary_versioning.sql`
+3. `migrations/003_cache_tables.sql`
+
+See the full step-by-step runbook here:
+- `docs/runbooks/2026-03-22-supabase-migrations-runbook.md`
+
+## Quick manual setup in Supabase dashboard
 
 1. Open your Supabase project dashboard at https://supabase.com/dashboard
-2. Navigate to **SQL Editor** (left sidebar)
-3. Click **New query**
-4. Copy and paste the contents of `migrations/001_initial_schema.sql`
-5. Click **Run** (or press Ctrl+Enter)
+2. Go to **SQL Editor**
+3. Run each migration file in order: `001`, then `002`, then `003`
+4. Run the verification queries from the runbook
 
-This will create all tables, enable Row Level Security, set up RLS policies, and add the trigger that auto-creates a profile when a user signs up.
-
-## Environment Variables
+## Environment variables
 
 Make sure your `.env.local` has:
 
-```
+```env
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 ```
 
-Find these in your Supabase dashboard under **Settings → API**.
+Find these in Supabase dashboard under **Settings → API**.
 
-## Tables
+## Tables expected by the app
 
-| Table | Description |
-|-------|-------------|
-| `profiles` | Extends auth.users with gamification data |
-| `onboarding_profiles` | Stores all 18-step wizard answers |
-| `trips` | Active and past trips |
-| `itinerary_days` | Day-by-day trip structure |
-| `activities` | Individual activities per day |
-| `chat_messages` | AI chat history per trip |
-| `achievements` | Unlocked achievements per user |
-| `monuments` | Collected monuments per user |
+### Core domain tables
+- `profiles`
+- `onboarding_profiles`
+- `trips`
+- `itinerary_days`
+- `activities`
+- `chat_messages`
+- `achievements`
+- `monuments`
 
-## Demo Mode
+### Versioning tables
+- `itinerary_versions`
+- `adaptation_events`
 
-When no authenticated user is present, the app uses demo data from `src/lib/demo-data.ts`. Supabase operations are skipped gracefully.
+### Cache tables
+- `places_cache`
+- `weather_cache`
+
+## Demo mode
+
+When no authenticated user is present, the app can use demo/fallback data depending on environment and feature flags. Supabase-backed operations fail closed or skip gracefully where designed.
