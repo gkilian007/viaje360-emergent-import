@@ -1,12 +1,19 @@
 import { createServiceClient } from "@/lib/supabase/server"
-import type { GeneratedItinerary, DbActivity } from "@/lib/supabase/database.types"
+import type {
+  DbActivity,
+  DbOnboardingProfile,
+  GeneratedItinerary,
+} from "@/lib/supabase/database.types"
 import type { OnboardingData } from "@/lib/onboarding-types"
 import type { DayItinerary, TimelineActivity, ActivityType, Trip } from "@/lib/types"
+import {
+  buildRepairHint,
+  mapDbDaysToGeneratedItinerary,
+  runReliableGenerationPipeline,
+} from "@/lib/services/itinerary-reliability"
 
 const GEMINI_API_URL =
   "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
-
-// ─── Prompt Builder ────────────────────────────────────────────────────────────
 
 function buildItineraryPrompt(data: OnboardingData): string {
   const startDate = new Date(data.startDate)
@@ -26,7 +33,7 @@ function buildItineraryPrompt(data: OnboardingData): string {
     data.pace > 66 ? "intenso (many activities, packed days)" :
     "moderado (balanced pace)"
 
-  const wakeHour = Math.round(7 + (data.wakeTime / 100) * 4) // 7am to 11am
+  const wakeHour = Math.round(7 + (data.wakeTime / 100) * 4)
   const kidsPets = data.kidsPets.length > 0 ? data.kidsPets.join(", ") : "ninguno"
   const interests = data.interests.length > 0 ? data.interests.join(", ") : "general"
   const dietary = data.dietary.length > 0 ? data.dietary.join(", ") : "ninguna"
@@ -60,6 +67,16 @@ User preferences:
 - Must avoid: ${data.mustAvoid || "not specified"}
 - Already booked: ${data.alreadyBooked || "nothing"}
 
+Hard requirements:
+- Return ONLY valid JSON with NO markdown, no code fences, no explanatory text
+- Every day date must be YYYY-MM-DD
+- Every activity time and endTime must be HH:MM in 24h format
+- Every activity duration must be a positive integer in minutes
+- Activities must not overlap within a day
+- Respect already booked tickets and their times when provided
+- If siesta is enabled, leave 14:00-16:00 free with no scheduled activities
+- Respect budget, mobility, kids/pets, and obvious feasibility constraints
+
 Rules:
 - Group activities by neighborhood to minimize travel
 - If kids: add stops every 2h (snacks, playgrounds, ice cream), only restaurants with kids menu, keep activities engaging
@@ -72,13 +89,12 @@ Rules:
 - If rest days enabled: insert a free/light day at the specified frequency
 - Slow pace = 3-4 activities/day, moderate = 5-6, intense = 7-8
 - Start times based on wake style (${wakeHour}:00 first activity)
-- If siesta: leave 14:00-16:00 free with no scheduled activities
 - Budget economico: free/cheap activities, street food, public transport
 - Budget premium: upscale restaurants, private tours, taxis
 - For instagrammer style: prioritize photogenic spots, golden hour locations
 - For cultural style: museums, historical sites, guided tours
 
-Return ONLY valid JSON with NO markdown, no code fences, no extra text. Use this exact structure:
+Use this exact structure:
 {
   "tripName": "...",
   "days": [
@@ -111,9 +127,42 @@ Return ONLY valid JSON with NO markdown, no code fences, no extra text. Use this
 }`
 }
 
-// ─── Gemini Call ───────────────────────────────────────────────────────────────
+function buildAdaptationPrompt(
+  trip: Record<string, unknown>,
+  onboarding: DbOnboardingProfile | null,
+  currentSchedule: GeneratedItinerary,
+  reason: string
+): string {
+  return `You are Viaje360 AI. Adapt this itinerary because: "${reason}".
 
-async function callGemini(prompt: string): Promise<GeneratedItinerary> {
+Trip:
+- Name: ${String(trip.name ?? "Viaje360 Trip")}
+- Destination: ${String(trip.destination ?? "")}
+- Dates: ${String(trip.start_date ?? "")} to ${String(trip.end_date ?? "")}
+- Budget: ${String(trip.budget ?? "0")}
+- Current schedule: ${JSON.stringify(currentSchedule)}
+
+Traveler constraints:
+- Companion: ${String(onboarding?.companion ?? "solo")}
+- Group size: ${String(onboarding?.group_size ?? 1)}
+- Kids/Pets: ${(onboarding?.kids_pets ?? []).join(", ") || "none"}
+- Mobility: ${String(onboarding?.mobility ?? "full")}
+- Budget level: ${String(onboarding?.budget_level ?? "moderado")}
+- Dietary: ${(onboarding?.dietary_restrictions ?? []).join(", ") || "none"}
+- Transport: ${(onboarding?.transport ?? []).join(", ") || "mix"}
+- Siesta: ${String(onboarding?.siesta ?? false)}
+- Booked tickets: ${String(onboarding?.booked_tickets ?? "none")}
+
+Hard requirements:
+- Return ONLY valid JSON
+- Keep the same dates/day count
+- Use HH:MM times and YYYY-MM-DD dates
+- Avoid overlaps and impossible timing
+- Respect booked tickets, siesta, budget, mobility, kids/pets
+- Prefer minimal, credible changes instead of rewriting everything`
+}
+
+async function callGeminiRaw(prompt: string): Promise<string> {
   const apiKey = process.env.GEMINI_API_KEY
   if (!apiKey) throw new Error("GEMINI_API_KEY not set")
 
@@ -122,7 +171,7 @@ async function callGemini(prompt: string): Promise<GeneratedItinerary> {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0.7, maxOutputTokens: 8192 },
+      generationConfig: { temperature: 0.4, maxOutputTokens: 8192 },
     }),
   })
 
@@ -132,17 +181,20 @@ async function callGemini(prompt: string): Promise<GeneratedItinerary> {
   }
 
   const data = await res.json() as {
-    candidates: Array<{ content: { parts: Array<{ text: string }> } }>
+    candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>
   }
 
-  const raw = data.candidates[0]?.content?.parts[0]?.text ?? ""
-  // Strip markdown code fences if present
-  const cleaned = raw.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim()
+  const raw = data.candidates?.[0]?.content?.parts?.map((part) => part.text ?? "").join("")?.trim() ?? ""
+  if (!raw) {
+    throw new Error("Gemini returned empty itinerary payload")
+  }
 
-  return JSON.parse(cleaned) as GeneratedItinerary
+  return raw
 }
 
-// ─── Map to App Types ──────────────────────────────────────────────────────────
+async function callGeminiWithRepair(prompt: string, reason: string): Promise<string> {
+  return callGeminiRaw(`${prompt}\n\n${buildRepairHint(reason)}`)
+}
 
 export function mapToAppTypes(
   itinerary: GeneratedItinerary,
@@ -159,7 +211,7 @@ export function mapToAppTypes(
       time: act.time ?? "09:00",
       duration: act.duration ?? 60,
       cost: act.cost ?? 0,
-      booked: false,
+      booked: /booked|ticket|reservation|entrada/i.test(`${act.name} ${act.notes ?? ""}`),
       notes: act.notes,
       icon: act.icon,
     })),
@@ -180,13 +232,25 @@ export function mapToAppTypes(
   return { trip, days }
 }
 
-// ─── Public Service Functions ──────────────────────────────────────────────────
-
 export async function generateItinerary(
   onboardingData: OnboardingData
 ): Promise<GeneratedItinerary> {
   const prompt = buildItineraryPrompt(onboardingData)
-  return callGemini(prompt)
+  const raw = await callGeminiRaw(prompt)
+  const result = await runReliableGenerationPipeline(
+    raw,
+    onboardingData,
+    {
+      mode: "generate",
+      maxAttempts: 3,
+      onAttempt: async (_attempt, reason) => callGeminiWithRepair(prompt, reason),
+      log: (message, meta) => console.warn(`[itinerary/generate] ${message}`, meta ?? {}),
+    },
+    { startDate: onboardingData.startDate, endDate: onboardingData.endDate },
+    onboardingData.destination
+  )
+
+  return result.itinerary
 }
 
 export async function getItinerary(tripId: string): Promise<{
@@ -268,12 +332,8 @@ export async function adaptItinerary(
   reason: string
 ): Promise<GeneratedItinerary | null> {
   try {
-    const apiKey = process.env.GEMINI_API_KEY
-    if (!apiKey) return null
-
     const supabase = createServiceClient()
 
-    // Fetch current trip + itinerary
     const { data: trip } = await supabase
       .from("trips")
       .select("*")
@@ -282,37 +342,76 @@ export async function adaptItinerary(
 
     if (!trip) return null
 
+    const { data: onboarding } = trip.onboarding_id
+      ? await supabase
+          .from("onboarding_profiles")
+          .select("*")
+          .eq("id", trip.onboarding_id)
+          .single()
+      : { data: null }
+
     const { data: days } = await supabase
       .from("itinerary_days")
       .select("*, activities(*)")
       .eq("trip_id", tripId)
       .order("day_number", { ascending: true })
 
-    const prompt = `You are Viaje360 AI. The user needs to adapt their trip itinerary for: "${reason}".
+    const currentSchedule = mapDbDaysToGeneratedItinerary(
+      (days ?? []) as Array<{ day_number: number; date: string; theme: string | null; is_rest_day: boolean; activities?: DbActivity[] }>,
+      String(trip.name ?? "Viaje360 Trip")
+    )
+    const prompt = buildAdaptationPrompt(trip as Record<string, unknown>, onboarding as DbOnboardingProfile | null, currentSchedule, reason)
+    const raw = await callGeminiRaw(prompt)
 
-Current trip: ${trip.name} to ${trip.destination}
-Current schedule: ${JSON.stringify(days, null, 2)}
+    const result = await runReliableGenerationPipeline(
+      raw,
+      (onboarding as DbOnboardingProfile | null) ?? {
+        destination: String(trip.destination ?? "Trip"),
+        start_date: String(trip.start_date ?? ""),
+        end_date: String(trip.end_date ?? ""),
+        companion: "solo",
+        group_size: 1,
+        kids_pets: [],
+        mobility: "full",
+        interests: [],
+        traveler_style: null,
+        rest_days: false,
+        rest_frequency: null,
+        wake_style: 30,
+        siesta: false,
+        budget_level: "moderado",
+        dietary_restrictions: [],
+        allergies: null,
+        transport: [],
+        weather_adaptation: true,
+        first_time: true,
+        must_see: null,
+        must_avoid: null,
+        booked_tickets: null,
+        id: "fallback-onboarding",
+        user_id: trip.user_id as string | null,
+        arrival_time: null,
+        departure_time: null,
+        accommodation_zone: null,
+        famous_local: "mix",
+        pace: 5,
+        splurge_categories: [],
+        created_at: new Date().toISOString(),
+      },
+      {
+        mode: "adapt",
+        maxAttempts: 3,
+        onAttempt: async (_attempt, failureReason) => callGeminiWithRepair(prompt, failureReason),
+        log: (message, meta) => console.warn(`[itinerary/adapt] ${message}`, meta ?? {}),
+      },
+      {
+        startDate: String(trip.start_date ?? ""),
+        endDate: String(trip.end_date ?? ""),
+      },
+      String(trip.destination ?? "Trip")
+    )
 
-Suggest modifications to make the itinerary work given the reason above.
-Return ONLY valid JSON with the same structure as the original itinerary but with adapted activities.`
-
-    const res = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ role: "user", parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.7, maxOutputTokens: 4096 },
-      }),
-    })
-
-    if (!res.ok) return null
-    const data = await res.json() as {
-      candidates: Array<{ content: { parts: Array<{ text: string }> } }>
-    }
-
-    const raw = data.candidates[0]?.content?.parts[0]?.text ?? ""
-    const cleaned = raw.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim()
-    return JSON.parse(cleaned) as GeneratedItinerary
+    return result.itinerary
   } catch (err) {
     console.error("adaptItinerary error:", err)
     return null

@@ -73,35 +73,49 @@ export const onboardingRequestSchema = z.object({
   alreadyBooked: z.string(),
 })
 
+const generatedActivityTypeSchema = z.enum([
+  "museum",
+  "restaurant",
+  "monument",
+  "park",
+  "shopping",
+  "tour",
+  "hotel",
+  "transport",
+])
+
+const hhmmSchema = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Expected HH:MM time")
+const isoDateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Expected YYYY-MM-DD date")
+
 export const generatedActivitySchema = z.object({
-  name: z.string(),
-  type: z.string(),
-  location: z.string().default(""),
-  address: z.string().optional(),
-  time: z.string(),
-  endTime: z.string().optional(),
-  duration: z.number(),
-  cost: z.number(),
-  notes: z.string().optional(),
-  icon: z.string().optional(),
+  name: z.string().trim().min(1),
+  type: generatedActivityTypeSchema,
+  location: z.string().trim().default(""),
+  address: z.string().trim().min(1).optional(),
+  time: hhmmSchema,
+  endTime: hhmmSchema,
+  duration: z.number().int().min(15).max(600),
+  cost: z.number().min(0).max(10000),
+  notes: z.string().trim().min(1).optional(),
+  icon: z.string().trim().min(1).optional(),
   indoor: z.boolean().optional(),
   weatherDependent: z.boolean().optional(),
   kidFriendly: z.boolean().optional(),
   petFriendly: z.boolean().optional(),
-  dietaryTags: z.array(z.string()).optional(),
+  dietaryTags: z.array(z.string().trim().min(1)).optional(),
 })
 
 export const generatedDaySchema = z.object({
   dayNumber: z.number().int().positive(),
-  date: z.string(),
-  theme: z.string(),
+  date: isoDateSchema,
+  theme: z.string().trim().min(1),
   isRestDay: z.boolean(),
   activities: z.array(generatedActivitySchema),
 })
 
 export const generatedItinerarySchema = z.object({
-  tripName: z.string(),
-  days: z.array(generatedDaySchema),
+  tripName: z.string().trim().min(1),
+  days: z.array(generatedDaySchema).min(1),
 })
 
 export const tripSchema = z.object({
