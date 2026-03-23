@@ -184,7 +184,11 @@ export interface GeneratedActivity {
   duration: number
   cost: number
   notes?: string
+  description?: string
   icon?: string
+  url?: string
+  pricePerPerson?: number
+  imageQuery?: string
   indoor?: boolean
   weatherDependent?: boolean
   kidFriendly?: boolean

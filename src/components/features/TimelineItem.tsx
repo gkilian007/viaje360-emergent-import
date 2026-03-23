@@ -8,9 +8,10 @@ interface TimelineItemProps {
   isFirst?: boolean
   isLast?: boolean
   isCurrent?: boolean
+  onClick?: (activity: TimelineActivity) => void
 }
 
-export function TimelineItem({ activity, isFirst = false, isLast = false, isCurrent = false }: TimelineItemProps) {
+export function TimelineItem({ activity, isFirst = false, isLast = false, isCurrent = false, onClick }: TimelineItemProps) {
   const icon = activity.icon ?? ACTIVITY_ICONS[activity.type] ?? "place"
 
   return (
@@ -61,8 +62,10 @@ export function TimelineItem({ activity, isFirst = false, isLast = false, isCurr
       </div>
 
       {/* Right: content */}
-      <div
-        className={`flex-1 p-3 rounded-xl mb-3 ${isCurrent ? "bg-[#0A84FF]/10 border border-[#0A84FF]/20" : "bg-[#1f1f21]/60 border border-white/[0.04]"}`}
+      <button
+        type="button"
+        onClick={() => onClick?.(activity)}
+        className={`flex-1 p-3 rounded-xl mb-3 text-left cursor-pointer transition-all hover:scale-[1.01] active:scale-[0.99] ${isCurrent ? "bg-[#0A84FF]/10 border border-[#0A84FF]/20" : "bg-[#1f1f21]/60 border border-white/[0.04] hover:bg-[#1f1f21]"}`}
       >
         <div className="flex items-start justify-between gap-2">
           <div>
@@ -94,7 +97,7 @@ export function TimelineItem({ activity, isFirst = false, isLast = false, isCurr
             {activity.duration} min
           </p>
         )}
-      </div>
+      </button>
     </div>
   )
 }

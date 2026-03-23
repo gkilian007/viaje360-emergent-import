@@ -10,6 +10,8 @@ import { DesktopLayout } from "@/components/layout/DesktopLayout"
 import { MapView } from "@/components/features/MapView"
 import { TimelineItem } from "@/components/features/TimelineItem"
 import { demoItinerary } from "@/lib/demo-data"
+import { ActivityDetailModal } from "@/components/features/ActivityDetailModal"
+import type { TimelineActivity } from "@/lib/types"
 
 function DaySelector({
   days,
@@ -84,6 +86,7 @@ export default function PlanPage() {
   const itinerary = generatedItinerary ?? demoItinerary
   const [selectedDay, setSelectedDay] = useState(1)
   const [hydrated, setHydrated] = useState(false)
+  const [selectedActivity, setSelectedActivity] = useState<TimelineActivity | null>(null)
 
   useEffect(() => {
     setHydrated(true)
@@ -160,6 +163,7 @@ export default function PlanPage() {
                 isFirst={i === 0}
                 isLast={i === today.activities.length - 1}
                 isCurrent={i === 0}
+                onClick={setSelectedActivity}
               />
             ))}
             {(!today || today.activities.length === 0) && (
@@ -210,6 +214,7 @@ export default function PlanPage() {
                     isFirst={i === 0}
                     isLast={i === today.activities.length - 1}
                     isCurrent={i === 0}
+                    onClick={setSelectedActivity}
                   />
                 ))}
               </div>
@@ -223,6 +228,12 @@ export default function PlanPage() {
           rightPanel={<MapView />}
         />
       </div>
+
+      {/* Activity detail modal */}
+      <ActivityDetailModal
+        activity={selectedActivity}
+        onClose={() => setSelectedActivity(null)}
+      />
 
       {/* Achievement overlay */}
       {pendingAchievement && <AchievementOverlay achievement={pendingAchievement} />}

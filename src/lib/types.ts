@@ -52,8 +52,15 @@ export interface TimelineActivity {
   cost: number
   booked: boolean
   notes?: string
+  description?: string
   icon?: string
   friendAvatars?: string[]
+  /** Ticket/booking URL or restaurant menu URL */
+  url?: string
+  /** Average price per person (restaurants) */
+  pricePerPerson?: number
+  /** Search query for fetching a photo */
+  imageQuery?: string
 }
 
 export interface DayItinerary {

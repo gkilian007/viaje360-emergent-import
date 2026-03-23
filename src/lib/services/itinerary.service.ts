@@ -39,8 +39,19 @@ function buildItineraryPrompt(data: OnboardingData): string {
 Traveler: ${data.companion ?? "solo"}, ${data.groupSize} people. Budget: ${data.budget ?? "moderado"}. Pace: ${paceActivities} activities/day. Start at ${wakeHour}:00.
 Interests: ${data.interests.join(", ") || "general"}.${data.wantsSiesta ? " Leave 14:00-16:00 free (siesta)." : ""}${data.firstTime ? " First visit — include highlights." : " Returning — focus on hidden gems."}${data.mustSee ? ` Must see: ${data.mustSee}.` : ""}${data.mustAvoid ? ` Avoid: ${data.mustAvoid}.` : ""}${data.dietary.length > 0 ? ` Dietary: ${data.dietary.join(", ")}.` : ""}
 
-Return ONLY this JSON structure, no comments, no markdown:
-{"tripName":"...","days":[{"dayNumber":1,"date":"YYYY-MM-DD","theme":"...","isRestDay":false,"activities":[{"name":"...","type":"restaurant|museum|monument|park|shopping|tour","location":"...","time":"HH:MM","endTime":"HH:MM","duration":90,"cost":0,"notes":"..."}]}]}`
+EVERY activity MUST include ALL of these fields (no exceptions):
+- name, type (restaurant|museum|monument|park|shopping|tour), location (full address), time (HH:MM), endTime (HH:MM), duration (minutes), cost (entry fee €, 0 if free)
+- description: 1-2 sentence summary of what to see/do/eat
+- url: official website, ticket purchase page, or restaurant menu/TripAdvisor link (a real working URL)
+- pricePerPerson: average € per person for restaurants (0 for non-restaurants)
+- imageQuery: search term for Google Images (e.g. "Real Alcázar Sevilla gardens")
+- notes: practical tip for the visitor
+
+For restaurants: use REAL names that exist. url = menu page or TripAdvisor link. Mention a signature dish in description.
+For museums/monuments: url = official ticket page. cost = real entry fee.
+
+Return ONLY JSON, no comments, no markdown:
+{"tripName":"...","days":[{"dayNumber":1,"date":"YYYY-MM-DD","theme":"...","isRestDay":false,"activities":[{"name":"...","type":"...","location":"...","time":"HH:MM","endTime":"HH:MM","duration":90,"cost":0,"pricePerPerson":0,"url":"https://...","description":"...","imageQuery":"...","notes":"..."}]}]}`
 }
 
 function buildAdaptationPrompt(
@@ -128,7 +139,11 @@ export function mapToAppTypes(
       cost: act.cost ?? 0,
       booked: /booked|ticket|reservation|entrada/i.test(`${act.name} ${act.notes ?? ""}`),
       notes: act.notes,
+      description: act.description,
       icon: act.icon,
+      url: act.url,
+      pricePerPerson: act.pricePerPerson,
+      imageQuery: act.imageQuery,
     })),
   }))
 
