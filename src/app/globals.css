@@ -107,6 +107,9 @@ html, body {
 .page-enter {
   animation: fadeInUp 0.3s ease forwards;
 }
+.animate-fadeInUp {
+  animation: fadeInUp 0.3s ease forwards;
+}
 
 /* Pulse dot */
 @keyframes pulse-blue {

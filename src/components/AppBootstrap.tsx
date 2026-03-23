@@ -32,6 +32,7 @@ export function AppBootstrap() {
   useEffect(() => {
     if (pathname?.startsWith("/onboarding")) return
     if (hasFetchedRef.current) return
+    // Skip hydration if we already have local data (from localStorage)
     if (currentTrip && generatedItinerary?.length) return
 
     hasFetchedRef.current = true
@@ -42,6 +43,10 @@ export function AppBootstrap() {
         if (!res.ok) return
 
         const payload = (await res.json()) as ActiveTripEnvelope
+        
+        // Only hydrate if remote has data and local doesn't
+        if (!payload.data.trip) return
+
         const nextState = selectHydratedAppState({
           local: {
             currentTrip,
@@ -55,7 +60,10 @@ export function AppBootstrap() {
         setGeneratedItinerary(nextState.generatedItinerary)
         replaceChatMessages(nextState.chatMessages)
       } catch (err) {
-        console.warn("Could not hydrate active trip:", err)
+        // Silently ignore network errors - localStorage data will be used
+        if (process.env.NODE_ENV === "development") {
+          console.warn("Could not hydrate active trip:", err)
+        }
       }
     }
 

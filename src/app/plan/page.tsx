@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import { BottomNav } from "@/components/layout/BottomNav"
 import { TopAppBar } from "@/components/layout/TopAppBar"
 import { AssistantPill } from "@/components/features/AssistantPill"
@@ -10,6 +11,7 @@ import { DesktopLayout } from "@/components/layout/DesktopLayout"
 import { MapView } from "@/components/features/MapView"
 import { TimelineItem } from "@/components/features/TimelineItem"
 import { ActivityDetailModal } from "@/components/features/ActivityDetailModal"
+import { DiaryPromptCard } from "@/components/features/diary"
 import type { TimelineActivity } from "@/lib/types"
 
 function DaySelector({
@@ -82,14 +84,28 @@ function MobileStats({ trip, totalDays }: { trip: NonNullable<ReturnType<typeof 
 
 export default function PlanPage() {
   const { pendingAchievement, currentTrip, generatedItinerary } = useAppStore()
+  const searchParams = useSearchParams()
   const itinerary = generatedItinerary ?? []
   const [selectedDay, setSelectedDay] = useState(1)
   const [hydrated, setHydrated] = useState(false)
   const [selectedActivity, setSelectedActivity] = useState<TimelineActivity | null>(null)
+  const [showDiarySaved, setShowDiarySaved] = useState(false)
 
   useEffect(() => {
     setHydrated(true)
   }, [])
+
+  // Check if diary was just saved
+  useEffect(() => {
+    const diarySaved = searchParams.get("diary")
+    const savedDay = searchParams.get("day")
+    if (diarySaved === "saved" && savedDay) {
+      setShowDiarySaved(true)
+      setSelectedDay(parseInt(savedDay, 10))
+      // Clear the toast after 3 seconds
+      setTimeout(() => setShowDiarySaved(false), 3000)
+    }
+  }, [searchParams])
 
   if (!hydrated) {
     return (
@@ -192,6 +208,11 @@ export default function PlanPage() {
             )}
           </div>
 
+          {/* Diary Prompt */}
+          {today && (
+            <DiaryPromptCard dayNumber={selectedDay} />
+          )}
+
           {/* Assistant pill */}
           <div className="px-5 pt-4 pb-2">
             <AssistantPill />
@@ -255,6 +276,31 @@ export default function PlanPage() {
 
       {/* Achievement overlay */}
       {pendingAchievement && <AchievementOverlay achievement={pendingAchievement} />}
+
+      {/* Diary saved toast */}
+      {showDiarySaved && (
+        <div
+          className="fixed bottom-24 left-4 right-4 lg:left-auto lg:right-8 lg:w-80 p-4 rounded-2xl z-50 animate-fadeInUp"
+          style={{
+            background: "rgba(48,209,88,0.15)",
+            border: "1px solid rgba(48,209,88,0.3)",
+            backdropFilter: "blur(20px)",
+          }}
+        >
+          <div className="flex items-center gap-3">
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center"
+              style={{ background: "rgba(48,209,88,0.2)" }}
+            >
+              <span className="material-symbols-outlined text-[20px] text-[#30D158]">check_circle</span>
+            </div>
+            <div>
+              <p className="text-[14px] font-semibold text-white">¡Diario guardado!</p>
+              <p className="text-[11px] text-[#c0c6d6]">Tus impresiones del Día {selectedDay} se han guardado</p>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   )
 }
