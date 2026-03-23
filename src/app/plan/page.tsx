@@ -9,7 +9,6 @@ import { useAppStore } from "@/store/useAppStore"
 import { DesktopLayout } from "@/components/layout/DesktopLayout"
 import { MapView } from "@/components/features/MapView"
 import { TimelineItem } from "@/components/features/TimelineItem"
-import { demoItinerary } from "@/lib/demo-data"
 import { ActivityDetailModal } from "@/components/features/ActivityDetailModal"
 import type { TimelineActivity } from "@/lib/types"
 
@@ -83,7 +82,7 @@ function MobileStats({ trip, totalDays }: { trip: NonNullable<ReturnType<typeof 
 
 export default function PlanPage() {
   const { pendingAchievement, currentTrip, generatedItinerary } = useAppStore()
-  const itinerary = generatedItinerary ?? demoItinerary
+  const itinerary = generatedItinerary ?? []
   const [selectedDay, setSelectedDay] = useState(1)
   const [hydrated, setHydrated] = useState(false)
   const [selectedActivity, setSelectedActivity] = useState<TimelineActivity | null>(null)
@@ -102,6 +101,25 @@ export default function PlanPage() {
 
   const today = itinerary[selectedDay - 1]
   const totalDays = itinerary.length
+
+  if (!currentTrip || totalDays === 0) {
+    return (
+      <div className="min-h-screen bg-[#0f1117] flex flex-col items-center justify-center px-6 text-center">
+        <span className="material-symbols-outlined text-[56px] text-[#0A84FF] mb-4">travel_explore</span>
+        <h1 className="text-[22px] font-bold text-white mb-2">Aún no hay itinerario</h1>
+        <p className="text-[#c0c6d6] max-w-sm mb-6">
+          Genera un viaje desde el onboarding y aquí verás tu plan detallado día a día.
+        </p>
+        <a
+          href="/onboarding"
+          className="px-5 py-3 rounded-2xl font-semibold text-white"
+          style={{ background: "linear-gradient(135deg, #0A84FF, #5856D6)" }}
+        >
+          Crear itinerario
+        </a>
+      </div>
+    )
+  }
 
   return (
     <>

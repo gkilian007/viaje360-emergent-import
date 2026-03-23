@@ -3,13 +3,7 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
 import type { Trip, User, Monument, Achievement, ChatMessage, QuizQuestion, DayItinerary } from "@/lib/types"
-import {
-  demoUser,
-  demoTrip,
-  demoMonuments,
-  demoAchievements,
-  demoChatMessages,
-} from "@/lib/demo-data"
+import { demoUser } from "@/lib/demo-data"
 
 interface AppState {
   // Core
@@ -54,12 +48,12 @@ interface AppState {
 export const useAppStore = create<AppState>()(
   persist(
     (set) => ({
-      user: demoUser,
-      currentTrip: demoTrip,
+      user: { ...demoUser, name: "Kilian", level: 1, xp: 0, title: "Viajero" },
+      currentTrip: null,
       generatedItinerary: null,
-      monuments: demoMonuments,
-      achievements: demoAchievements,
-      chatMessages: demoChatMessages,
+      monuments: [],
+      achievements: [],
+      chatMessages: [],
       isChatLoading: false,
       currentQuiz: null,
       isQuizLoading: false,
