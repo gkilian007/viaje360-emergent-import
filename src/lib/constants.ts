@@ -60,7 +60,8 @@ export const XP_PER_LEVEL = 500
 
 export const NAV_TABS = [
   { id: "explore", label: "Explorar", icon: "explore", href: "/explore" },
-  { id: "plan", label: "Plan", icon: "map", href: "/plan" },
+  { id: "plan", label: "Plan", icon: "event_note", href: "/plan" },
+  { id: "mapa", label: "Mapa", icon: "map", href: "/mapa" },
   { id: "status", label: "Logros", icon: "emoji_events", href: "/status" },
   { id: "ai", label: "IA", icon: "smart_toy", href: "/ai" },
 ] as const
