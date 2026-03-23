@@ -118,6 +118,7 @@ export default function MapaPage() {
           accessToken={mapboxToken}
           showList={showList}
           onToggleList={() => setShowList(!showList)}
+          destination={currentTrip?.destination}
         />
 
         {/* Header overlay */}

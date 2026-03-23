@@ -64,6 +64,25 @@ export const BARCELONA_COORDS: Record<string, Coordinate> = {
   default: { lng: 2.1734, lat: 41.3851 },
 }
 
+// City center coordinates for fallback
+export const CITY_CENTERS: Record<string, Coordinate> = {
+  "barcelona": { lng: 2.1734, lat: 41.3851 },
+  "madrid": { lng: -3.7038, lat: 40.4168 },
+  "paris": { lng: 2.3522, lat: 48.8566 },
+  "roma": { lng: 12.4964, lat: 41.9028 },
+  "londres": { lng: -0.1276, lat: 51.5074 },
+  "nueva york": { lng: -74.0060, lat: 40.7128 },
+  "tokio": { lng: 139.6917, lat: 35.6895 },
+  "default": { lng: 2.1734, lat: 41.3851 },
+}
+
+// Get city center from destination name
+export function getCityCenter(destination?: string): Coordinate {
+  if (!destination) return CITY_CENTERS.default
+  const normalizedDest = destination.toLowerCase().trim()
+  return CITY_CENTERS[normalizedDest] || CITY_CENTERS.default
+}
+
 // Activity type to color mapping
 export const ACTIVITY_COLORS: Record<string, string> = {
   hotel: "#8B5CF6",
@@ -81,25 +100,37 @@ export function getActivityColor(type: string): string {
   return ACTIVITY_COLORS[type] || ACTIVITY_COLORS.default
 }
 
-// Get coordinates for an activity (with fallback)
-export function getActivityCoordinates(activity: TimelineActivity): Coordinate {
-  // Check if activity has real coordinates
+// Get coordinates for an activity (with dynamic fallback based on destination)
+export function getActivityCoordinates(activity: TimelineActivity, destination?: string): Coordinate {
+  // Check if activity has real coordinates (from API like Google Places)
   if ((activity as any).coordinates) {
-    return (activity as any).coordinates
+    const coords = (activity as any).coordinates
+    if (typeof coords.lng === "number" && typeof coords.lat === "number") {
+      return coords
+    }
   }
   
-  // Check for predefined coords by name
+  // Check if activity has lat/lng properties directly
+  if ((activity as any).lat && (activity as any).lng) {
+    return { lng: (activity as any).lng, lat: (activity as any).lat }
+  }
+  
+  // Check for predefined coords by name (Barcelona specific)
   const predefined = BARCELONA_COORDS[activity.name]
   if (predefined) return predefined
   
+  // Get city center for dynamic offset
+  const cityCenter = getCityCenter(destination)
+  
   // Generate deterministic offset based on activity id
+  // This ensures same activity always gets same coords
   const hash = activity.id.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0)
   const offsetLng = ((hash % 100) - 50) * 0.0004
   const offsetLat = (((hash * 7) % 100) - 50) * 0.0003
   
   return {
-    lng: BARCELONA_COORDS.default.lng + offsetLng,
-    lat: BARCELONA_COORDS.default.lat + offsetLat,
+    lng: cityCenter.lng + offsetLng,
+    lat: cityCenter.lat + offsetLat,
   }
 }
 

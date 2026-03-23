@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { motion } from "framer-motion"
 import { useAppStore } from "@/store/useAppStore"
@@ -25,7 +25,7 @@ interface DiaryData {
   }[]
 }
 
-export default function DiaryPage() {
+function DiaryPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { currentTrip, generatedItinerary } = useAppStore()
@@ -165,5 +165,17 @@ export default function DiaryPage() {
         </div>
       </div>
     </>
+  )
+}
+
+export default function DiaryPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#0f1117] flex items-center justify-center">
+        <div className="text-[#c0c6d6] text-sm">Cargando...</div>
+      </div>
+    }>
+      <DiaryPageContent />
+    </Suspense>
   )
 }

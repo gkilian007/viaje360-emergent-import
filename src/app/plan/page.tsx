@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { BottomNav } from "@/components/layout/BottomNav"
 import { TopAppBar } from "@/components/layout/TopAppBar"
@@ -12,7 +12,7 @@ import { MapView } from "@/components/features/MapView"
 import { TimelineItem } from "@/components/features/TimelineItem"
 import { ActivityDetailModal } from "@/components/features/ActivityDetailModal"
 import { DiaryPromptCard } from "@/components/features/diary"
-import type { TimelineActivity } from "@/lib/types"
+import type { TimelineActivity, Trip } from "@/lib/types"
 
 function DaySelector({
   days,
@@ -42,7 +42,7 @@ function DaySelector({
   )
 }
 
-function MobileStats({ trip, totalDays }: { trip: NonNullable<ReturnType<typeof useAppStore>["currentTrip"]>; totalDays: number }) {
+function MobileStats({ trip, totalDays }: { trip: Trip; totalDays: number }) {
   return (
     <div className="flex gap-3 overflow-x-auto no-scrollbar">
       {/* Budget */}
@@ -82,7 +82,7 @@ function MobileStats({ trip, totalDays }: { trip: NonNullable<ReturnType<typeof 
   )
 }
 
-export default function PlanPage() {
+function PlanPageContent() {
   const { pendingAchievement, currentTrip, generatedItinerary } = useAppStore()
   const searchParams = useSearchParams()
   const itinerary = generatedItinerary ?? []
@@ -302,5 +302,17 @@ export default function PlanPage() {
         </div>
       )}
     </>
+  )
+}
+
+export default function PlanPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen map-bg flex items-center justify-center">
+        <div className="text-[#c0c6d6] text-sm">Cargando itinerario...</div>
+      </div>
+    }>
+      <PlanPageContent />
+    </Suspense>
   )
 }

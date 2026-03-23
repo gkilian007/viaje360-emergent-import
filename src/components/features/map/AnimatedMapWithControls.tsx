@@ -9,6 +9,7 @@ import {
   type AvatarPosition,
   getActivityCoordinates,
   getActivityColor,
+  getCityCenter,
 } from "./types"
 import { useRouteAnimation } from "./useRouteAnimation"
 import { createAvatarMarkerElement, updateAvatarMarker } from "./TravelerAvatar"
@@ -31,6 +32,7 @@ interface AnimatedMapWithControlsProps {
   accessToken: string
   showList: boolean
   onToggleList: () => void
+  destination?: string // City name for coordinate fallback
 }
 
 // Direction step component
@@ -129,6 +131,7 @@ export function AnimatedMapWithControls({
   accessToken,
   showList,
   onToggleList,
+  destination,
 }: AnimatedMapWithControlsProps) {
   const mapContainer = useRef<HTMLDivElement>(null)
   const map = useRef<any>(null)
@@ -147,11 +150,14 @@ export function AnimatedMapWithControls({
   const dayData = itinerary[selectedDay - 1]
   const rawActivities = dayData?.activities ?? []
   
-  // Enrich activities with coordinates
+  // Enrich activities with coordinates based on destination
   const activities: ActivityWithCoords[] = rawActivities.map((activity) => ({
     ...activity,
-    coordinates: getActivityCoordinates(activity),
+    coordinates: getActivityCoordinates(activity, destination),
   }))
+  
+  // Get default center for map initialization
+  const defaultCenter = getCityCenter(destination)
 
   // Handle position updates
   const handlePositionChange = useCallback((position: AvatarPosition) => {
@@ -213,7 +219,7 @@ export function AnimatedMapWithControls({
       style: "mapbox://styles/mapbox/dark-v11",
       center: activities.length > 0 
         ? [activities[0].coordinates.lng, activities[0].coordinates.lat]
-        : [2.1734, 41.3851],
+        : [defaultCenter.lng, defaultCenter.lat],
       zoom: 14,
       pitch: 50,
       bearing: -17.6,

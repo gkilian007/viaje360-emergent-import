@@ -109,6 +109,7 @@ export function useRouteAnimation({
   }, [activities, config.easing])
 
   const animate = useCallback((timestamp: number) => {
+    // Guard: only animate when playing and not paused at a stop
     if (stateRef.current !== "playing" || isPausedAtStopRef.current) {
       return
     }
@@ -116,23 +117,28 @@ export function useRouteAnimation({
     const segments = segmentsRef.current
     if (segments.length === 0) {
       setState("finished")
+      stateRef.current = "finished"
       onAnimationComplete?.()
       return
     }
     
-    // Calculate delta time
-    const deltaTime = lastTimeRef.current ? (timestamp - lastTimeRef.current) / 16.67 : 1
+    // Calculate delta time (normalize to ~60fps)
+    const deltaTime = lastTimeRef.current > 0 ? Math.min((timestamp - lastTimeRef.current) / 16.67, 3) : 1
     lastTimeRef.current = timestamp
     
-    const currentSegment = segments[currentSegmentIndexRef.current]
+    const segmentIndex = currentSegmentIndexRef.current
+    const currentSegment = segments[segmentIndex]
+    
     if (!currentSegment) {
       setState("finished")
+      stateRef.current = "finished"
       onAnimationComplete?.()
       return
     }
     
-    // Advance progress
-    const progressIncrement = (config.speed / currentSegment.distance) * deltaTime
+    // Advance progress - use higher speed for smoother animation
+    const speedFactor = config.speed * 100 // Scale up for visible movement
+    const progressIncrement = (speedFactor / Math.max(currentSegment.distance, 0.001)) * deltaTime * 0.01
     segmentProgressRef.current = Math.min(1, segmentProgressRef.current + progressIncrement)
     
     // Calculate and update position
@@ -145,7 +151,7 @@ export function useRouteAnimation({
     
     // Check if segment complete
     if (segmentProgressRef.current >= 1) {
-      const nextActivityIndex = currentSegmentIndexRef.current + 1
+      const nextActivityIndex = segmentIndex + 1
       
       // Pause at stop
       isPausedAtStopRef.current = true
@@ -156,13 +162,15 @@ export function useRouteAnimation({
         isPausedAtStopRef.current = false
         
         // Move to next segment
-        if (currentSegmentIndexRef.current < segments.length - 1) {
-          currentSegmentIndexRef.current++
+        if (segmentIndex < segments.length - 1) {
+          currentSegmentIndexRef.current = segmentIndex + 1
           segmentProgressRef.current = 0
+          lastTimeRef.current = 0 // Reset time for next segment
           animationFrameRef.current = requestAnimationFrame(animate)
         } else {
           // Animation complete
           setState("finished")
+          stateRef.current = "finished"
           onAnimationComplete?.()
         }
       }, config.pauseAtStops)
@@ -170,6 +178,7 @@ export function useRouteAnimation({
       return
     }
     
+    // Continue animation loop
     animationFrameRef.current = requestAnimationFrame(animate)
   }, [config.speed, config.pauseAtStops, calculateAvatarPosition, onPositionChange, onActivityReached, onAnimationComplete])
 
@@ -276,37 +285,55 @@ export function useRouteAnimation({
     stateRef.current = "paused"
   }, [activities, pause, onPositionChange])
 
-  // Build segments when activities change
-  const activitiesKey = JSON.stringify(activities.map(a => a.id))
+  // Build segments when activities change - use stable key
+  const activitiesKey = activities.map(a => a.id).join(",")
+  const activitiesRef = useRef(activities)
+  activitiesRef.current = activities
   
   useEffect(() => {
-    if (activities.length >= 2) {
-      segmentsRef.current = buildRouteSegments(activities)
+    const currentActivities = activitiesRef.current
+    
+    // Build segments
+    if (currentActivities.length >= 2) {
+      segmentsRef.current = buildRouteSegments(currentActivities)
     } else {
       segmentsRef.current = []
     }
     
-    // Initialize position
-    if (activities.length > 0) {
-      const initialPosition: AvatarPosition = {
-        coordinate: activities[0].coordinates,
-        bearing: segmentsRef.current[0]?.bearing || 0,
-        progress: 0,
-        currentSegmentIndex: 0,
-        isAtStop: true,
-        currentActivityIndex: 0,
-      }
-      setPosition(initialPosition)
-    }
-    
-    // Reset state
-    setState("idle")
-    stateRef.current = "idle"
+    // Reset refs (no state updates to avoid loops)
     currentSegmentIndexRef.current = 0
     segmentProgressRef.current = 0
+    isPausedAtStopRef.current = false
+    lastTimeRef.current = 0
+    
+    // Cancel any running animation
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current)
+      animationFrameRef.current = null
+    }
+    if (pauseTimeoutRef.current) {
+      clearTimeout(pauseTimeoutRef.current)
+      pauseTimeoutRef.current = null
+    }
+    
+    // Batch state updates together
+    const initialPosition: AvatarPosition | null = currentActivities.length > 0
+      ? {
+          coordinate: currentActivities[0].coordinates,
+          bearing: segmentsRef.current[0]?.bearing || 0,
+          progress: 0,
+          currentSegmentIndex: 0,
+          isAtStop: true,
+          currentActivityIndex: 0,
+        }
+      : null
+    
+    // Single batched update
+    setState("idle")
+    stateRef.current = "idle"
     setCurrentActivityIndex(0)
     setProgress(0)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    setPosition(initialPosition)
   }, [activitiesKey])
 
   // Cleanup on unmount
