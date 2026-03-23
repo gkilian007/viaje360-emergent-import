@@ -31,108 +31,16 @@ function buildItineraryPrompt(data: OnboardingData): string {
     Math.round((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1
   )
 
-  const famousLocalLabel =
-    data.famousLocal < 33 ? "imprescindible (famous spots)" :
-    data.famousLocal > 66 ? "autentico (hidden local gems)" :
-    "mix (balance of both)"
-
-  const paceLabel =
-    data.pace < 33 ? "relajado (few activities, lots of downtime)" :
-    data.pace > 66 ? "intenso (many activities, packed days)" :
-    "moderado (balanced pace)"
-
+  const paceActivities = data.pace < 33 ? "3-4" : data.pace > 66 ? "7-8" : "5-6"
   const wakeHour = Math.round(7 + (data.wakeTime / 100) * 4)
-  const kidsPets = data.kidsPets.length > 0 ? data.kidsPets.join(", ") : "ninguno"
-  const interests = data.interests.length > 0 ? data.interests.join(", ") : "general"
-  const dietary = data.dietary.length > 0 ? data.dietary.join(", ") : "ninguna"
-  const transport = data.transport.length > 0 ? data.transport.join(", ") : "mix"
-  const splurge = data.splurge.length > 0 ? data.splurge.join(", ") : "ninguno"
 
-  return `You are Viaje360, an expert AI travel planner. Generate a detailed day-by-day itinerary in JSON format.
+  return `Generate a ${numDays}-day travel itinerary for ${data.destination} (${data.startDate} to ${data.endDate}).
 
-User preferences:
-- Destination: ${data.destination}
-- Dates: ${data.startDate} to ${data.endDate} (${numDays} days)
-- Traveling: ${data.companion ?? "solo"} (${data.groupSize} people)
-- Kids/Pets: ${kidsPets}
-- Mobility: ${data.mobility ?? "full"}
-- Accommodation zone: ${data.accommodationZone || "not specified"}
-- Interests: ${interests}
-- Traveler style: ${data.travelerStyle ?? "experiencial"}
-- Famous vs local: ${famousLocalLabel}
-- Pace: ${paceLabel}
-- Rest days: ${data.wantsRestDays} (frequency: ${data.restDayFrequency ?? "none"})
-- Wake time: ${wakeHour}:00 (${data.wakeTime < 33 ? "early bird" : data.wakeTime > 66 ? "night owl" : "normal"})
-- Siesta: ${data.wantsSiesta}
-- Budget: ${data.budget ?? "moderado"}
-- Splurge on: ${splurge}
-- Dietary restrictions: ${dietary}
-- Allergies: ${data.allergies || "none"}
-- Transport: ${transport}
-- Weather adaptation: ${data.weatherAdaptation}
-- First time visiting: ${data.firstTime}
-- Must see: ${data.mustSee || "not specified"}
-- Must avoid: ${data.mustAvoid || "not specified"}
-- Already booked: ${data.alreadyBooked || "nothing"}
+Traveler: ${data.companion ?? "solo"}, ${data.groupSize} people. Budget: ${data.budget ?? "moderado"}. Pace: ${paceActivities} activities/day. Start at ${wakeHour}:00.
+Interests: ${data.interests.join(", ") || "general"}.${data.wantsSiesta ? " Leave 14:00-16:00 free (siesta)." : ""}${data.firstTime ? " First visit — include highlights." : " Returning — focus on hidden gems."}${data.mustSee ? ` Must see: ${data.mustSee}.` : ""}${data.mustAvoid ? ` Avoid: ${data.mustAvoid}.` : ""}${data.dietary.length > 0 ? ` Dietary: ${data.dietary.join(", ")}.` : ""}
 
-Hard requirements:
-- Return ONLY valid JSON with NO markdown, no code fences, no explanatory text
-- Every day date must be YYYY-MM-DD
-- Every activity time and endTime must be HH:MM in 24h format
-- Every activity duration must be a positive integer in minutes
-- Activities must not overlap within a day
-- Respect already booked tickets and their times when provided
-- If siesta is enabled, leave 14:00-16:00 free with no scheduled activities
-- Respect budget, mobility, kids/pets, and obvious feasibility constraints
-
-Rules:
-- Group activities by neighborhood to minimize travel
-- If kids: add stops every 2h (snacks, playgrounds, ice cream), only restaurants with kids menu, keep activities engaging
-- If pets: only pet-friendly venues, add water/shade breaks
-- If mobility issues (wheelchair/reduced): accessible routes only, no stairs, elevator access
-- If dietary restrictions: only compatible restaurants
-- Respect already booked tickets in the schedule at their likely times
-- If first time: include main highlights; if returning: focus on hidden gems and local favorites
-- Schedule popular attractions at off-peak times (early morning or late afternoon)
-- If rest days enabled: insert a free/light day at the specified frequency
-- Slow pace = 3-4 activities/day, moderate = 5-6, intense = 7-8
-- Start times based on wake style (${wakeHour}:00 first activity)
-- Budget economico: free/cheap activities, street food, public transport
-- Budget premium: upscale restaurants, private tours, taxis
-- For instagrammer style: prioritize photogenic spots, golden hour locations
-- For cultural style: museums, historical sites, guided tours
-
-Use this exact structure:
-{
-  "tripName": "...",
-  "days": [
-    {
-      "dayNumber": 1,
-      "date": "YYYY-MM-DD",
-      "theme": "...",
-      "isRestDay": false,
-      "activities": [
-        {
-          "name": "...",
-          "type": "restaurant|museum|monument|park|shopping|tour|transport|hotel",
-          "location": "Neighborhood name",
-          "address": "Full address if known",
-          "time": "09:00",
-          "endTime": "10:30",
-          "duration": 90,
-          "cost": 15,
-          "notes": "Brief tip or context",
-          "icon": "material_symbol_name",
-          "indoor": true,
-          "weatherDependent": false,
-          "kidFriendly": true,
-          "petFriendly": false,
-          "dietaryTags": ["vegetarian-friendly"]
-        }
-      ]
-    }
-  ]
-}`
+Return ONLY this JSON structure, no comments, no markdown:
+{"tripName":"...","days":[{"dayNumber":1,"date":"YYYY-MM-DD","theme":"...","isRestDay":false,"activities":[{"name":"...","type":"restaurant|museum|monument|park|shopping|tour","location":"...","time":"HH:MM","endTime":"HH:MM","duration":90,"cost":0,"notes":"..."}]}]}`
 }
 
 function buildAdaptationPrompt(
@@ -178,7 +86,7 @@ async function callGeminiRaw(prompt: string): Promise<string> {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0.4, maxOutputTokens: 8192 },
+      generationConfig: { temperature: 0.4, maxOutputTokens: 8192, responseMimeType: "application/json" },
     }),
   })
 

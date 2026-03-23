@@ -226,13 +226,17 @@ function normalizeActivityType(value: unknown): ActivityType {
 }
 
 function extractJsonObject(raw: string): string {
+  // Strip markdown fences
   const cleaned = raw.replace(/```json\s*/gi, "").replace(/```\s*/g, "").trim()
   const firstBrace = cleaned.indexOf("{")
   const lastBrace = cleaned.lastIndexOf("}")
   if (firstBrace === -1 || lastBrace === -1 || lastBrace <= firstBrace) {
     throw new Error("No JSON object found in model output")
   }
-  return cleaned.slice(firstBrace, lastBrace + 1)
+  let json = cleaned.slice(firstBrace, lastBrace + 1)
+  // Fix trailing commas before ] or } (common Gemini issue)
+  json = json.replace(/,\s*([}\]])/g, "$1")
+  return json
 }
 
 export function buildRepairHint(reason: string): string {

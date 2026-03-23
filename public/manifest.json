@@ -1,0 +1,10 @@
+{
+  "name": "Viaje360",
+  "short_name": "Viaje360",
+  "description": "Tu compañero de viaje inteligente",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f1117",
+  "theme_color": "#0A84FF",
+  "icons": []
+}

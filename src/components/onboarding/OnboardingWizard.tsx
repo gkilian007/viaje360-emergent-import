@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 import { useOnboardingStore } from "@/store/useOnboardingStore"
 import { ProgressBar } from "./ui/ProgressBar"
@@ -71,6 +71,19 @@ export function OnboardingWizard() {
   } = useOnboardingStore()
 
   const [generating, setGenerating] = useState(false)
+  const [hydrated, setHydrated] = useState(false)
+
+  useEffect(() => {
+    setHydrated(true)
+  }, [])
+
+  if (!hydrated) {
+    return (
+      <div className="min-h-screen map-bg flex items-center justify-center">
+        <div className="text-[#c0c6d6] text-sm">Cargando...</div>
+      </div>
+    )
+  }
 
   const progress = getProgress()
   const currentIndex = getCurrentStepIndex()
