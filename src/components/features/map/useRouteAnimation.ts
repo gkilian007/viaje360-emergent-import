@@ -289,8 +289,15 @@ export function useRouteAnimation({
   const activitiesKey = activities.map(a => a.id).join(",")
   const activitiesRef = useRef(activities)
   activitiesRef.current = activities
+  const hasInitializedRef = useRef(false)
   
   useEffect(() => {
+    // Prevent double initialization in strict mode
+    if (hasInitializedRef.current && activitiesKey === activitiesRef.current.map(a => a.id).join(",")) {
+      return
+    }
+    hasInitializedRef.current = true
+    
     const currentActivities = activitiesRef.current
     
     // Build segments
@@ -300,11 +307,12 @@ export function useRouteAnimation({
       segmentsRef.current = []
     }
     
-    // Reset refs (no state updates to avoid loops)
+    // Reset all refs
     currentSegmentIndexRef.current = 0
     segmentProgressRef.current = 0
     isPausedAtStopRef.current = false
     lastTimeRef.current = 0
+    stateRef.current = "idle"
     
     // Cancel any running animation
     if (animationFrameRef.current) {
@@ -316,7 +324,7 @@ export function useRouteAnimation({
       pauseTimeoutRef.current = null
     }
     
-    // Batch state updates together
+    // Calculate initial position
     const initialPosition: AvatarPosition | null = currentActivities.length > 0
       ? {
           coordinate: currentActivities[0].coordinates,
@@ -328,12 +336,13 @@ export function useRouteAnimation({
         }
       : null
     
-    // Single batched update
-    setState("idle")
-    stateRef.current = "idle"
-    setCurrentActivityIndex(0)
-    setProgress(0)
-    setPosition(initialPosition)
+    // Use requestAnimationFrame to batch state updates in next frame
+    requestAnimationFrame(() => {
+      setState("idle")
+      setCurrentActivityIndex(0)
+      setProgress(0)
+      setPosition(initialPosition)
+    })
   }, [activitiesKey])
 
   // Cleanup on unmount

@@ -11,7 +11,7 @@ Continuar el proyecto Viaje360 - una aplicación de viajes con AI que genera iti
 - **Database**: Supabase (PostgreSQL + Auth + RLS)
 - **State**: Zustand (persisted to localStorage)
 - **Data Fetching**: TanStack React Query
-- **Forms**: React Hook Form + Zod validation
+- **Maps**: Mapbox GL JS v3 with Directions API
 
 ## Core Architecture
 ```
@@ -19,112 +19,71 @@ src/
 ├── app/                    # Next.js App Router pages
 │   ├── api/               # API routes
 │   │   ├── chat/          # Conversational AI
-│   │   ├── diary/         # Travel diary endpoints (NEW)
+│   │   ├── diary/         # Travel diary endpoints
 │   │   ├── itinerary/     # Itinerary generation
 │   │   ├── places/        # Places search
+│   │   ├── trips/active/  # Active trip data (mock)
 │   │   └── weather/       # Weather data
 │   ├── explore/           # Discover destinations
+│   ├── mapa/              # Interactive map page
 │   ├── onboarding/        # 18-step wizard
 │   ├── plan/              # Itinerary view
-│   │   └── diary/         # Travel diary page (NEW)
+│   │   └── diary/         # Travel diary page
 │   └── status/            # Trip status
 ├── components/
 │   ├── features/          # Domain components
-│   │   └── diary/         # Diary components (NEW)
+│   │   ├── diary/         # Diary components
+│   │   └── map/           # Map components
 │   ├── layout/            # Navigation
 │   ├── onboarding/        # Wizard steps
 │   └── ui/                # Base components
 ├── lib/
 │   ├── services/          # Business logic
-│   │   └── trip-learning.ts # Self-learning memory
 │   └── supabase/          # Database
 └── store/                 # Zustand stores
 ```
-
-## User Personas
-1. **Viajero Frecuente** - Busca optimizar tiempo y descubrir lugares únicos
-2. **Viajero Planificador** - Quiere todo detallado y organizado
-3. **Viajero Espontáneo** - Prefiere flexibilidad con sugerencias inteligentes
-4. **Familia Viajera** - Necesita actividades kid-friendly y accesibles
 
 ## What's Been Implemented
 
 ### Session 1 - March 23, 2026
 
-#### ✅ Travel Diary (End-of-Day Journal) - PRIORITY 1
-Complete implementation of the end-of-day travel diary feature:
+#### Travel Diary (End-of-Day Journal) - COMPLETE
+- Conversational UI for daily trip logging
+- Mood selector, energy/pace sliders
+- Activity feedback (like/dislike, would repeat)
+- API route for saving diary entries
+- Success toast and navigation flow
 
-**Frontend Components Created:**
-- `/src/components/features/diary/MoodSelector.tsx` - 5 emoji-based mood options
-- `/src/components/features/diary/EnergyPaceSlider.tsx` - Energy and pace rating sliders (1-5)
-- `/src/components/features/diary/ActivityFeedbackCard.tsx` - Like/dislike and would-repeat for each activity
-- `/src/components/features/diary/DiaryConversation.tsx` - Main guided conversation UI
-- `/src/components/features/diary/DiaryPromptCard.tsx` - Entry point card on plan page
-- `/src/components/features/diary/index.ts` - Barrel export
+#### Interactive Map - COMPLETE (with fixes)
+- Mapbox GL JS integration with dark style
+- Activity markers with color-coded types
+- Animated avatar with route following
+- Transport mode selector (walk/bike/car)
+- Real Mapbox Directions API for routes
+- Turn-by-turn navigation instructions
+- Dynamic city support (Barcelona, Madrid, Paris, etc.)
 
-**Pages Created:**
-- `/src/app/plan/diary/page.tsx` - Diary page with full conversation flow
+### Bug Fixes Applied - March 23, 2026
+1. **Fixed "Maximum update depth exceeded" React error**
+   - Optimized useRouteAnimation hook with requestAnimationFrame batching
+   - Added hasInitializedRef to prevent double initialization
+   - Error no longer appears in console
 
-**API Routes Created:**
-- `/src/app/api/diary/route.ts` - POST to save diary, GET to fetch existing diary
+2. **Fixed map not updating for different cities**
+   - Added getCityCenter function with coordinates for major cities
+   - Updated getActivityCoordinates to accept destination parameter
+   - Fallback coordinates now use city center instead of hardcoded Barcelona
 
-**Plan Page Updated:**
-- Added DiaryPromptCard after timeline
-- Added success toast notification for saved diary
+3. **Fixed TypeScript errors**
+   - Updated plan/page.tsx with proper Trip type import
+   - Added Suspense boundaries for useSearchParams
 
-**Flow:**
-1. User sees "¿Cómo ha ido el día?" card at end of plan page
-2. Clicks to open guided diary conversation
-3. Selects mood (5 options with emojis)
-4. Rates energy and pace (1-5 sliders)
-5. Gives feedback on each activity (like/dislike, would repeat)
-6. Optional: writes free-text summary
-7. Saves diary - shows success toast and redirects to plan
-
-**Testing Status:**
-- Backend: 100% passing
-- Frontend: 95% passing (minor navigation URL cosmetic issue)
-
-#### ✅ Interactive Map with Animated Avatar - PRIORITY 2
-Complete implementation of the interactive map with route visualization and animated avatar:
-
-**Frontend Components Created:**
-- `/src/components/features/map/types.ts` - TypeScript types, coordinates, colors
-- `/src/components/features/map/useRouteAnimation.ts` - Animation state machine hook
-- `/src/components/features/map/TravelerAvatar.tsx` - Animated avatar component
-- `/src/components/features/map/AnimatedMapWithControls.tsx` - Main map component with controls
-
-**Page Created:**
-- `/src/app/mapa/page.tsx` - Full map page with all controls
-
-**Navigation Updated:**
-- Added "Mapa" tab to NAV_TABS in constants.ts
-
-**Features:**
-1. Mapbox GL JS integration with dark style
-2. Activity markers with color-coded types (hotel=purple, park=green, restaurant=orange)
-3. Numbered badges on markers (1, 2, 3...)
-4. Route line connecting all activities
-5. Animated avatar (hiking icon with pulse effect)
-6. Animation controls (play, pause, reset)
-7. Progress bar showing animation progress
-8. Day selector to switch between days
-9. Activity list panel (toggleable)
-10. Jump to activity functionality
-11. Camera follows avatar during animation
-12. Stats badge showing number of stops
-13. **Transport mode selector** (Walking, Cycling, Driving)
-14. **Real route directions** via Mapbox Directions API
-15. **Time/distance estimates** for total route and between stops
-16. **Dynamic colors** matching transport mode
-
-**Testing Status:**
-- Frontend: 90% passing
-- Fixed: React state update loop issue
+4. **Fixed Next.js build errors**
+   - Wrapped components using useSearchParams in Suspense boundaries
 
 ## Prioritized Backlog
 
-### P0 - Critical (Next Session)
+### P0 - Critical (Next)
 1. **Weather Adaptation** - Automatic indoor alternatives when rain forecasted
 2. **PWA + Offline** - Service worker for offline trip access
 
@@ -136,18 +95,21 @@ Complete implementation of the interactive map with route visualization and anim
 ### P2 - Nice to Have
 6. **Dark Mode** - Toggle theme (CSS variables ready)
 7. **Push Notifications** - Upcoming activity reminders
-8. **Walking/Driving Routes** - Real route directions between activities
-9. **3D Avatar** - Enhanced avatar with sprite animations
+8. **Live GPS Navigation** - Use device GPS for real-time tracking
 
-## Next Tasks
-1. Add weather-based activity suggestions (rainy day alternatives)
-2. Implement PWA with service worker for offline mode
-3. Add export functionality (PDF, Google Calendar)
-4. Complete Supabase persistence for diary and map data
-5. Add real destination photos to explore page
+## API Endpoints
+- `POST /api/diary` - Save diary entry
+- `GET /api/trips/active` - Get active trip (mock data)
+- `POST /api/chat` - AI conversation
+- `POST /api/itinerary/generate` - Generate itinerary
+
+## Known Limitations
+- Trip data is MOCKED (localStorage + mock API)
+- Supabase integration not active in current flow
+- Map coordinates for activities outside Barcelona/Madrid/Paris are generated deterministically from activity ID
 
 ## Notes
+- Frontend runs on port 3001 (Next.js)
 - Mobile-first design with responsive desktop layout
 - Uses Material Symbols for icons
 - Glassmorphism and gradient aesthetics throughout
-- Framer Motion for all animations
