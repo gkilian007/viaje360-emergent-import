@@ -142,6 +142,120 @@ export interface DbAdaptationEvent {
   created_at: string
 }
 
+export interface DbActivityKnowledge {
+  id: string
+  canonical_name: string
+  normalized_name: string
+  destination: string
+  country: string | null
+  category: string
+  address: string | null
+  latitude: number | null
+  longitude: number | null
+  source_kind: string
+  official_url: string | null
+  booking_url: string | null
+  menu_url: string | null
+  price_per_person: number | null
+  ticket_price: number | null
+  image_query: string | null
+  tags: string[]
+  metadata: Record<string, unknown> | null
+  created_at: string
+  updated_at: string
+}
+
+export interface DbTripActivityEvent {
+  id: string
+  trip_id: string
+  activity_id: string
+  activity_knowledge_id: string | null
+  user_id: string | null
+  event_type: string
+  event_value: string | null
+  metadata: Record<string, unknown> | null
+  created_at: string
+}
+
+export interface DbDiaryMessage {
+  role: "assistant" | "user"
+  content: string
+}
+
+export interface DbTripDayJournal {
+  id: string
+  trip_id: string
+  user_id: string | null
+  day_number: number
+  date: string
+  conversation: DbDiaryMessage[]
+  free_text_summary: string | null
+  mood: string | null
+  energy_score: number | null
+  pace_score: number | null
+  would_repeat: boolean | null
+  created_at: string
+  updated_at: string
+}
+
+export interface DbTripDayActivityFeedback {
+  id: string
+  trip_day_journal_id: string
+  trip_id: string
+  activity_id: string | null
+  activity_knowledge_id: string | null
+  rating: number | null
+  liked: boolean | null
+  notes: string | null
+  would_repeat: boolean | null
+  would_recommend: boolean | null
+  discovered_outside_plan: boolean
+  created_at: string
+}
+
+export interface DbUserDestinationMemory {
+  id: string
+  user_id: string
+  destination: string
+  country: string | null
+  visit_count: number
+  last_trip_id: string | null
+  summary: string | null
+  liked_tags: string[]
+  disliked_tags: string[]
+  favorite_activity_ids: string[]
+  skipped_activity_ids: string[]
+  unfinished_activity_ids: string[]
+  discovered_places: unknown[]
+  updated_at: string
+  created_at: string
+}
+
+export interface DbUserPreferenceSignal {
+  id: string
+  user_id: string
+  signal_type: string
+  signal_key: string
+  signal_value: number
+  context: Record<string, unknown> | null
+  updated_at: string
+  created_at: string
+}
+
+export interface DbDestinationAggregateSignal {
+  id: string
+  destination: string
+  country: string | null
+  segment_key: string
+  category: string
+  entity_key: string
+  score: number
+  sample_size: number
+  metadata: Record<string, unknown> | null
+  updated_at: string
+  created_at: string
+}
+
 export interface DbAchievement {
   id: string
   user_id: string
