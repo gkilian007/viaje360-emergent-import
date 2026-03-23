@@ -4,13 +4,38 @@ import { useAppStore } from "@/store/useAppStore"
 import { XP_PER_LEVEL } from "@/lib/constants"
 
 export function BentoStats() {
-  const { user, currentTrip } = useAppStore()
+  const { user, currentTrip, generatedItinerary } = useAppStore()
   const xpProgress = (user.xp % XP_PER_LEVEL) / XP_PER_LEVEL
-  const budgetProgress = currentTrip ? currentTrip.spent / currentTrip.budget : 0
+  const budgetProgress = currentTrip && currentTrip.budget > 0 ? currentTrip.spent / currentTrip.budget : 0
+
+  const totalDays = generatedItinerary?.length ?? 0
+  const destination = currentTrip?.destination ?? "tu destino"
+
+  // Calculate current day based on trip start date
+  const currentDay = (() => {
+    if (!currentTrip?.startDate) return 1
+    const start = new Date(currentTrip.startDate)
+    const now = new Date()
+    const diff = Math.floor((now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24))
+    return Math.max(1, Math.min(diff + 1, totalDays || 1))
+  })()
+
+  // Get next activity from today's itinerary
+  const todayItinerary = generatedItinerary?.[currentDay - 1]
+  const nextActivity = (() => {
+    if (!todayItinerary?.activities?.length) return null
+    const now = new Date()
+    const currentMinutes = now.getHours() * 60 + now.getMinutes()
+    const upcoming = todayItinerary.activities.find((a) => {
+      const [h, m] = (a.time ?? "00:00").split(":").map(Number)
+      return h * 60 + (m || 0) > currentMinutes
+    })
+    return upcoming ?? todayItinerary.activities[0]
+  })()
 
   return (
     <div className="grid grid-cols-2 gap-3">
-      {/* Walk time remaining */}
+      {/* Next activity */}
       <div
         className="p-4 rounded-2xl flex flex-col gap-2"
         style={{
@@ -19,13 +44,23 @@ export function BentoStats() {
         }}
       >
         <div className="flex items-center gap-1.5">
-          <span className="material-symbols-outlined text-[18px] text-[#0A84FF]">directions_walk</span>
+          <span className="material-symbols-outlined text-[18px] text-[#0A84FF]">schedule</span>
           <span className="text-[10px] uppercase tracking-widest text-[#c0c6d6] font-medium">
-            A pie
+            Siguiente
           </span>
         </div>
-        <p className="text-[22px] font-bold text-white leading-none">12 min</p>
-        <p className="text-[11px] text-[#c0c6d6]">hasta Sagrada Família</p>
+        {nextActivity ? (
+          <>
+            <p className="text-[15px] font-bold text-white leading-tight line-clamp-2">
+              {nextActivity.name}
+            </p>
+            <p className="text-[11px] text-[#c0c6d6]">
+              {nextActivity.time} · {nextActivity.location}
+            </p>
+          </>
+        ) : (
+          <p className="text-[13px] text-[#c0c6d6]">Sin actividades pendientes</p>
+        )}
       </div>
 
       {/* XP progress */}
@@ -49,7 +84,6 @@ export function BentoStats() {
           {user.xp % XP_PER_LEVEL}
           <span className="text-[13px] text-[#c0c6d6] font-normal">/{XP_PER_LEVEL}</span>
         </p>
-        {/* Progress bar */}
         <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
           <div
             className="h-full rounded-full transition-all duration-500"
@@ -106,8 +140,8 @@ export function BentoStats() {
             Días
           </span>
         </div>
-        <p className="text-[22px] font-bold text-white leading-none">Día 1</p>
-        <p className="text-[11px] text-[#c0c6d6]">de 5 en Barcelona</p>
+        <p className="text-[22px] font-bold text-white leading-none">Día {currentDay}</p>
+        <p className="text-[11px] text-[#c0c6d6]">de {totalDays} en {destination}</p>
       </div>
     </div>
   )
