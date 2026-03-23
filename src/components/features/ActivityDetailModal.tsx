@@ -127,16 +127,26 @@ export function ActivityDetailModal({ activity, onClose }: ActivityDetailModalPr
 
               {/* Description */}
               {activity.description && (
-                <p className="text-[14px] text-[#e4e2e4] leading-relaxed mb-4">
-                  {activity.description}
-                </p>
+                <div className="mb-4">
+                  <p className="text-[11px] uppercase tracking-widest text-[#c0c6d6] font-medium mb-2">
+                    Qué hacer
+                  </p>
+                  <p className="text-[14px] text-[#e4e2e4] leading-relaxed">
+                    {activity.description}
+                  </p>
+                </div>
               )}
 
               {/* Notes */}
-              {activity.notes && !activity.description && (
-                <p className="text-[14px] text-[#e4e2e4] leading-relaxed mb-4">
-                  {activity.notes}
-                </p>
+              {activity.notes && (
+                <div className="mb-4 p-3 rounded-2xl border border-white/8 bg-white/[0.03]">
+                  <p className="text-[11px] uppercase tracking-widest text-[#0A84FF] font-medium mb-1.5">
+                    Tip práctico
+                  </p>
+                  <p className="text-[13px] text-[#d7d9df] leading-relaxed">
+                    {activity.notes}
+                  </p>
+                </div>
               )}
 
               {/* Price section */}

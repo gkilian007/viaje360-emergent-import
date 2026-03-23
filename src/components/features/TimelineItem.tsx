@@ -68,7 +68,7 @@ export function TimelineItem({ activity, isFirst = false, isLast = false, isCurr
         className={`flex-1 p-3 rounded-xl mb-3 text-left cursor-pointer transition-all hover:scale-[1.01] active:scale-[0.99] ${isCurrent ? "bg-[#0A84FF]/10 border border-[#0A84FF]/20" : "bg-[#1f1f21]/60 border border-white/[0.04] hover:bg-[#1f1f21]"}`}
       >
         <div className="flex items-start justify-between gap-2">
-          <div>
+          <div className="min-w-0 flex-1">
             <p className={`text-[13px] font-semibold ${isCurrent ? "text-white" : "text-[#e4e2e4]"}`}>
               {activity.name}
             </p>
@@ -76,10 +76,18 @@ export function TimelineItem({ activity, isFirst = false, isLast = false, isCurr
               <span className="material-symbols-outlined text-[12px]">location_on</span>
               {activity.location}
             </p>
+            {(activity.description || activity.notes) && (
+              <p className="text-[11px] text-[#d7d9df] mt-2 leading-relaxed line-clamp-3">
+                {activity.description ?? activity.notes}
+              </p>
+            )}
           </div>
-          <div className="flex flex-col items-end gap-1 shrink-0">
-            {activity.cost > 0 && (
-              <span className="text-[11px] text-[#c0c6d6]">€{activity.cost}</span>
+          <div className="flex flex-col items-end gap-1 shrink-0 pl-2">
+            {(activity.pricePerPerson ?? activity.cost) > 0 && (
+              <span className="text-[11px] text-[#c0c6d6] whitespace-nowrap">
+                €{activity.pricePerPerson ?? activity.cost}
+                {activity.pricePerPerson ? "/p" : ""}
+              </span>
             )}
             {activity.booked && (
               <span
@@ -91,12 +99,17 @@ export function TimelineItem({ activity, isFirst = false, isLast = false, isCurr
             )}
           </div>
         </div>
-        {activity.duration > 0 && (
-          <p className="text-[10px] text-[#c0c6d6] mt-1.5 flex items-center gap-1">
-            <span className="material-symbols-outlined text-[12px]">schedule</span>
-            {activity.duration} min
-          </p>
-        )}
+        <div className="mt-2 flex items-center justify-between gap-3">
+          {activity.duration > 0 && (
+            <p className="text-[10px] text-[#c0c6d6] flex items-center gap-1">
+              <span className="material-symbols-outlined text-[12px]">schedule</span>
+              {activity.duration} min
+            </p>
+          )}
+          <span className="text-[10px] text-[#0A84FF] font-medium">
+            Ver detalle
+          </span>
+        </div>
       </button>
     </div>
   )

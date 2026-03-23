@@ -23,6 +23,50 @@ import type { ItineraryVersionSource } from "@/lib/services/itinerary-versioning
 const GEMINI_API_URL =
   "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
 
+const GEMINI_ITINERARY_RESPONSE_SCHEMA = {
+  type: "OBJECT",
+  properties: {
+    tripName: { type: "STRING" },
+    days: {
+      type: "ARRAY",
+      items: {
+        type: "OBJECT",
+        properties: {
+          dayNumber: { type: "NUMBER" },
+          date: { type: "STRING" },
+          theme: { type: "STRING" },
+          isRestDay: { type: "BOOLEAN" },
+          activities: {
+            type: "ARRAY",
+            items: {
+              type: "OBJECT",
+              properties: {
+                name: { type: "STRING" },
+                type: { type: "STRING" },
+                location: { type: "STRING" },
+                address: { type: "STRING" },
+                time: { type: "STRING" },
+                endTime: { type: "STRING" },
+                duration: { type: "NUMBER" },
+                cost: { type: "NUMBER" },
+                pricePerPerson: { type: "NUMBER" },
+                url: { type: "STRING" },
+                description: { type: "STRING" },
+                imageQuery: { type: "STRING" },
+                notes: { type: "STRING" },
+                icon: { type: "STRING" }
+              },
+              required: ["name", "type", "location", "time", "endTime", "duration", "cost", "pricePerPerson", "url", "description", "imageQuery", "notes"]
+            }
+          }
+        },
+        required: ["dayNumber", "date", "theme", "isRestDay", "activities"]
+      }
+    }
+  },
+  required: ["tripName", "days"]
+} as const
+
 function buildItineraryPrompt(data: OnboardingData): string {
   const startDate = new Date(data.startDate)
   const endDate = new Date(data.endDate)
@@ -41,17 +85,40 @@ Interests: ${data.interests.join(", ") || "general"}.${data.wantsSiesta ? " Leav
 
 EVERY activity MUST include ALL of these fields (no exceptions):
 - name, type (restaurant|museum|monument|park|shopping|tour), location (full address), time (HH:MM), endTime (HH:MM), duration (minutes), cost (entry fee €, 0 if free)
-- description: 1-2 sentence summary of what to see/do/eat
+- description: 2 short sentences MAX explaining EXACTLY what to do there in practical terms (what to see, what to order, where to enter, what makes it worth it)
 - url: official website, ticket purchase page, or restaurant menu/TripAdvisor link (a real working URL)
 - pricePerPerson: average € per person for restaurants (0 for non-restaurants)
 - imageQuery: search term for Google Images (e.g. "Real Alcázar Sevilla gardens")
-- notes: practical tip for the visitor
+- notes: one practical operational tip (best entrance, what to book, what dish to ask for, what to avoid, how early to arrive)
 
-For restaurants: use REAL names that exist. url = menu page or TripAdvisor link. Mention a signature dish in description.
-For museums/monuments: url = official ticket page. cost = real entry fee.
+Make it ACTIONABLE, not generic. Bad: "Visit the cathedral." Good: "Enter through the Puerta del Lagarto, go first to the main nave, then climb the Giralda for city views before the midday queue."
+For restaurants: use REAL names that exist. url = menu page or TripAdvisor link. Mention a signature dish and why it fits the user's dietary needs.
+For museums/monuments: url = official ticket page. cost = real entry fee. Say what the user should prioritize inside.
 
 Return ONLY JSON, no comments, no markdown:
 {"tripName":"...","days":[{"dayNumber":1,"date":"YYYY-MM-DD","theme":"...","isRestDay":false,"activities":[{"name":"...","type":"...","location":"...","time":"HH:MM","endTime":"HH:MM","duration":90,"cost":0,"pricePerPerson":0,"url":"https://...","description":"...","imageQuery":"...","notes":"..."}]}]}`
+}
+
+function enumerateDates(startDate: string, endDate: string): string[] {
+  const dates: string[] = []
+  const current = new Date(startDate)
+  const end = new Date(endDate)
+
+  while (current <= end) {
+    dates.push(current.toISOString().slice(0, 10))
+    current.setDate(current.getDate() + 1)
+  }
+
+  return dates
+}
+
+function buildSingleDayPrompt(data: OnboardingData, date: string, dayNumber: number, totalDays: number): string {
+  const singleDayData = { ...data, startDate: date, endDate: date }
+  return `${buildItineraryPrompt(singleDayData)}
+
+IMPORTANT: This is ONLY for day ${dayNumber} of ${totalDays} of the full trip.
+Return exactly 1 day in the days array.
+That day must use date ${date} and dayNumber ${dayNumber}.`
 }
 
 function buildAdaptationPrompt(
@@ -97,7 +164,12 @@ async function callGeminiRaw(prompt: string): Promise<string> {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0.4, maxOutputTokens: 8192, responseMimeType: "application/json" },
+      generationConfig: {
+        temperature: 0.2,
+        maxOutputTokens: 8192,
+        responseMimeType: "application/json",
+        responseSchema: GEMINI_ITINERARY_RESPONSE_SCHEMA,
+      },
     }),
   })
 
@@ -165,22 +237,48 @@ export function mapToAppTypes(
 export async function generateItinerary(
   onboardingData: OnboardingData
 ): Promise<GeneratedItinerary> {
-  const prompt = buildItineraryPrompt(onboardingData)
-  const raw = await callGeminiRaw(prompt)
-  const result = await runReliableGenerationPipeline(
-    raw,
-    onboardingData,
-    {
-      mode: "generate",
-      maxAttempts: 3,
-      onAttempt: async (_attempt, reason) => callGeminiWithRepair(prompt, reason),
-      log: (message, meta) => console.warn(`[itinerary/generate] ${message}`, meta ?? {}),
-    },
-    { startDate: onboardingData.startDate, endDate: onboardingData.endDate },
-    onboardingData.destination
-  )
+  const dates = enumerateDates(onboardingData.startDate, onboardingData.endDate)
+  const tripName = `${onboardingData.destination} Detailed Plan`
+  const days: GeneratedItinerary["days"] = []
 
-  return result.itinerary
+  for (let index = 0; index < dates.length; index += 1) {
+    const date = dates[index]
+    const dayNumber = index + 1
+    const prompt = buildSingleDayPrompt(onboardingData, date, dayNumber, dates.length)
+    const raw = await callGeminiRaw(prompt)
+    const result = await runReliableGenerationPipeline(
+      raw,
+      { ...onboardingData, startDate: date, endDate: date },
+      {
+        mode: "generate",
+        maxAttempts: 3,
+        onAttempt: async (_attempt, reason) => callGeminiWithRepair(prompt, reason),
+        log: (message, meta) => console.warn(`[itinerary/generate/day-${dayNumber}] ${message}`, meta ?? {}),
+      },
+      { startDate: date, endDate: date },
+      onboardingData.destination
+    )
+
+    if (result.usedFallback) {
+      throw new Error(`No se pudo generar un plan detallado real para el día ${dayNumber}. La IA devolvió un resultado inválido varias veces.`)
+    }
+
+    const generatedDay = result.itinerary.days[0]
+    if (!generatedDay) {
+      throw new Error(`La IA no devolvió actividades para el día ${dayNumber}.`)
+    }
+
+    days.push({
+      ...generatedDay,
+      dayNumber,
+      date,
+    })
+  }
+
+  return {
+    tripName,
+    days,
+  }
 }
 
 export async function getItinerary(tripId: string): Promise<{
