@@ -10,7 +10,7 @@ export function RootRedirect() {
 
   useEffect(() => {
     if (onboardingComplete) {
-      router.replace("/plan")
+      router.replace("/home")
     } else {
       router.replace("/onboarding")
     }
