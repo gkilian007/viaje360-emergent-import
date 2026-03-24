@@ -11,7 +11,7 @@ export function getStripeClient(): Stripe {
   }
 
   return new Stripe(secretKey, {
-    apiVersion: "2025-08-27.basil",
+    apiVersion: "2026-02-25.clover",
   })
 }
 

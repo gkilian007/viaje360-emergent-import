@@ -5,6 +5,9 @@ export type ApiErrorCode =
   | "INTERNAL_ERROR"
   | "BAD_GATEWAY"
   | "TOO_MANY_REQUESTS"
+  | "PAYMENT_INCOMPLETE"
+  | "INVALID_SESSION"
+  | "CONFIG_ERROR"
 
 export interface ApiSuccessBody<T> {
   ok: true
