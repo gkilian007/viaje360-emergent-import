@@ -1,7 +1,6 @@
 "use client"
 
-import { useState, useCallback } from "react"
-import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js"
+import { useCallback, useState } from "react"
 
 interface PaywallModalProps {
   destination: string
@@ -9,25 +8,47 @@ interface PaywallModalProps {
   onPaymentComplete: () => void
 }
 
-type PaywallView = "options" | "pay-trip" | "pay-annual" | "success"
+type PaywallView = "options" | "pay-trip" | "pay-annual"
 
-const PAYPAL_CLIENT_ID = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID ?? ""
-const PAYPAL_PLAN_ID = process.env.NEXT_PUBLIC_PAYPAL_ANNUAL_PLAN_ID ?? ""
-
-export function PaywallModal({
-  destination,
-  onClose,
-  onPaymentComplete,
-}: PaywallModalProps) {
+export function PaywallModal({ destination, onClose }: PaywallModalProps) {
   const [view, setView] = useState<PaywallView>("options")
   const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
 
   const handleBackdrop = useCallback(
     (e: React.MouseEvent) => {
-      if (e.target === e.currentTarget) onClose()
+      if (e.target === e.currentTarget && !loading) onClose()
     },
-    [onClose]
+    [onClose, loading]
   )
+
+  async function startStripeCheckout(kind: "trip" | "annual") {
+    try {
+      setLoading(true)
+      setError(null)
+
+      const res = await fetch("/api/stripe/create-checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ kind, destination }),
+      })
+
+      const payload = await res.json().catch(() => null)
+      if (!res.ok) {
+        throw new Error(payload?.error?.message ?? "No se pudo iniciar Stripe Checkout")
+      }
+
+      const url = payload?.data?.url
+      if (!url) {
+        throw new Error("Stripe no devolvió una URL de checkout")
+      }
+
+      window.location.href = url
+    } catch (err: any) {
+      setLoading(false)
+      setError(err.message ?? "Error iniciando pago con Stripe")
+    }
+  }
 
   return (
     <div
@@ -43,33 +64,8 @@ export function PaywallModal({
           boxShadow: "0 24px 64px rgba(0,0,0,0.5)",
         }}
       >
-        {/* ── Success view ── */}
-        {view === "success" && (
-          <div className="px-6 py-12 text-center">
-            <div className="text-[56px] mb-4">🎉</div>
-            <h2 className="text-[22px] font-bold text-white mb-2">
-              ¡Pago completado!
-            </h2>
-            <p className="text-[14px] text-[#9ca3af] mb-8">
-              Ya tienes acceso completo. Disfruta de tu viaje.
-            </p>
-            <button
-              onClick={() => {
-                onPaymentComplete()
-                onClose()
-              }}
-              className="px-8 py-3 rounded-2xl font-semibold text-white"
-              style={{ background: "linear-gradient(135deg, #0A84FF, #5856D6)" }}
-            >
-              Continuar
-            </button>
-          </div>
-        )}
-
-        {/* ── Options view (default) ── */}
         {view === "options" && (
           <>
-            {/* Header */}
             <div className="px-6 pt-8 pb-4 text-center">
               <div
                 className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center"
@@ -77,7 +73,7 @@ export function PaywallModal({
                   background: "linear-gradient(135deg, rgba(10,132,255,0.2), rgba(88,86,214,0.2))",
                 }}
               >
-                <span className="text-[36px]">✈️</span>
+                <span className="text-[36px]">💳</span>
               </div>
               <h2 className="text-[22px] font-bold text-white mb-2">
                 Tu trial para {destination} ha terminado
@@ -88,9 +84,7 @@ export function PaywallModal({
               </p>
             </div>
 
-            {/* Plans */}
             <div className="px-6 pb-6 space-y-3">
-              {/* Per-trip purchase */}
               <button
                 onClick={() => setView("pay-trip")}
                 className="w-full p-4 rounded-2xl text-left transition-all hover:scale-[1.01] active:scale-[0.99]"
@@ -99,21 +93,20 @@ export function PaywallModal({
                   border: "1px solid rgba(255,255,255,0.08)",
                 }}
               >
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[20px]">🎫</span>
-                    <span className="text-[15px] font-semibold text-white">
+                <div className="flex items-center justify-between mb-2 gap-3">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="text-[20px] shrink-0">🎫</span>
+                    <span className="text-[15px] font-semibold text-white truncate">
                       Solo {destination}
                     </span>
                   </div>
-                  <span className="text-[18px] font-bold text-white">€4.99</span>
+                  <span className="text-[18px] font-bold text-white shrink-0">€4.99</span>
                 </div>
                 <p className="text-[12px] text-[#888]">
                   Pago único · Acceso permanente a este destino
                 </p>
               </button>
 
-              {/* Annual subscription */}
               <button
                 onClick={() => setView("pay-annual")}
                 className="w-full p-4 rounded-2xl text-left overflow-hidden transition-all hover:scale-[1.01] active:scale-[0.99]"
@@ -148,11 +141,11 @@ export function PaywallModal({
               </button>
             </div>
 
-            {/* Footer */}
             <div className="px-6 pb-6">
               <button
                 onClick={onClose}
                 className="w-full py-3 text-[13px] text-[#666] hover:text-[#999] transition-colors"
+                disabled={loading}
               >
                 Seguir en modo gratuito
               </button>
@@ -160,13 +153,15 @@ export function PaywallModal({
           </>
         )}
 
-        {/* ── PayPal payment views ── */}
         {(view === "pay-trip" || view === "pay-annual") && (
           <div className="px-6 py-8">
-            {/* Back button */}
             <button
-              onClick={() => { setView("options"); setError(null) }}
+              onClick={() => {
+                setView("options")
+                setError(null)
+              }}
               className="flex items-center gap-1 text-[13px] text-[#0A84FF] mb-6 hover:underline"
+              disabled={loading}
             >
               <span className="material-symbols-outlined text-[16px]">arrow_back</span>
               Volver
@@ -175,102 +170,46 @@ export function PaywallModal({
             <div className="text-center mb-6">
               <span className="text-[32px]">{view === "pay-trip" ? "🎫" : "🌍"}</span>
               <h3 className="text-[18px] font-bold text-white mt-2">
-                {view === "pay-trip" ? `${destination} — €4.99` : "Todos los destinos — €29.99/año"}
+                {view === "pay-trip"
+                  ? `${destination} — €4.99`
+                  : "Todos los destinos — €29.99/año"}
               </h3>
               <p className="text-[12px] text-[#888] mt-1">
-                {view === "pay-trip" ? "Pago único, acceso permanente" : "Suscripción anual, sin límites"}
+                {view === "pay-trip"
+                  ? "Pago único con Stripe Checkout"
+                  : "Suscripción anual con Stripe Checkout"}
               </p>
             </div>
 
             {error && (
-              <div className="mb-4 p-3 rounded-xl text-[12px] text-[#FF453A]"
-                style={{ background: "rgba(255,69,58,0.1)", border: "1px solid rgba(255,69,58,0.2)" }}
+              <div
+                className="mb-4 p-3 rounded-xl text-[12px] text-[#FF453A]"
+                style={{
+                  background: "rgba(255,69,58,0.1)",
+                  border: "1px solid rgba(255,69,58,0.2)",
+                }}
               >
                 {error}
               </div>
             )}
 
-            {/* PayPal buttons */}
-            {PAYPAL_CLIENT_ID ? (
-              <PayPalScriptProvider
-                options={{
-                  clientId: PAYPAL_CLIENT_ID,
-                  currency: "EUR",
-                  intent: view === "pay-trip" ? "capture" : "subscription",
-                  vault: view === "pay-annual" ? true : undefined,
-                }}
-              >
-                {view === "pay-trip" ? (
-                  <PayPalButtons
-                    style={{ layout: "vertical", color: "black", shape: "pill", label: "pay" }}
-                    createOrder={async () => {
-                      const res = await fetch("/api/paypal/create-order", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ destination, amount: "4.99", currency: "EUR" }),
-                      })
-                      const data = await res.json()
-                      if (!data.data?.orderId) throw new Error("Failed to create order")
-                      return data.data.orderId
-                    }}
-                    onApprove={async (data) => {
-                      const res = await fetch("/api/paypal/capture-order", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ orderId: data.orderID, destination }),
-                      })
-                      const result = await res.json()
-                      if (result.data?.status === "completed") {
-                        setView("success")
-                      } else {
-                        setError("El pago no se completó. Inténtalo de nuevo.")
-                      }
-                    }}
-                    onError={(err) => {
-                      console.error("PayPal error:", err)
-                      setError("Error en el pago. Inténtalo de nuevo.")
-                    }}
-                  />
-                ) : (
-                  <PayPalButtons
-                    style={{ layout: "vertical", color: "black", shape: "pill", label: "subscribe" }}
-                    createSubscription={async (_data, actions) => {
-                      if (!PAYPAL_PLAN_ID) {
-                        setError("Plan de suscripción no configurado aún")
-                        throw new Error("No plan ID")
-                      }
-                      return actions.subscription.create({ plan_id: PAYPAL_PLAN_ID })
-                    }}
-                    onApprove={async (data) => {
-                      const res = await fetch("/api/paypal/confirm-subscription", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ subscriptionId: data.subscriptionID }),
-                      })
-                      const result = await res.json()
-                      if (result.data?.status === "active") {
-                        setView("success")
-                      } else {
-                        setError("La suscripción no se activó. Inténtalo de nuevo.")
-                      }
-                    }}
-                    onError={(err) => {
-                      console.error("PayPal subscription error:", err)
-                      setError("Error en la suscripción. Inténtalo de nuevo.")
-                    }}
-                  />
-                )}
-              </PayPalScriptProvider>
-            ) : (
-              <div className="text-center py-8">
-                <p className="text-[14px] text-[#888]">
-                  PayPal no está configurado todavía.
-                </p>
-                <p className="text-[12px] text-[#666] mt-1">
-                  Configura NEXT_PUBLIC_PAYPAL_CLIENT_ID en .env.local
-                </p>
-              </div>
-            )}
+            <button
+              onClick={() => startStripeCheckout(view === "pay-trip" ? "trip" : "annual")}
+              disabled={loading}
+              className="w-full py-3.5 rounded-2xl font-semibold text-white transition-all disabled:opacity-60"
+              style={{ background: "linear-gradient(135deg, #635BFF, #0A84FF)" }}
+            >
+              {loading
+                ? "Abriendo Stripe…"
+                : view === "pay-trip"
+                ? "Pagar con Stripe"
+                : "Suscribirme con Stripe"}
+            </button>
+
+            <p className="text-[11px] text-[#666] text-center mt-4 leading-relaxed">
+              Checkout seguro alojado por Stripe. Podrás pagar con tarjeta,
+              Apple Pay o Google Pay según disponibilidad.
+            </p>
           </div>
         )}
       </div>
