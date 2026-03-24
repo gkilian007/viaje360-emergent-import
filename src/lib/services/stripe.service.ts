@@ -16,6 +16,7 @@ export function getStripeClient(): Stripe {
 }
 
 export function buildDestinationCheckoutSessionParams(input: {
+  priceId: string
   destination: string
   userId: string
   successUrl: string
@@ -34,15 +35,8 @@ export function buildDestinationCheckoutSessionParams(input: {
     },
     line_items: [
       {
+        price: input.priceId,
         quantity: 1,
-        price_data: {
-          currency: "eur",
-          unit_amount: 499,
-          product_data: {
-            name: `Viaje360 — ${input.destination}`,
-            description: `Acceso permanente al destino ${input.destination}`,
-          },
-        },
       },
     ],
   }

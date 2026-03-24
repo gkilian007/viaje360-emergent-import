@@ -32,9 +32,18 @@ export async function POST(req: NextRequest) {
     const successUrl = `${baseUrl}/billing/success?session_id={CHECKOUT_SESSION_ID}`
     const cancelUrl = `${baseUrl}/plan`
 
+    if (kind === "trip" && !process.env.STRIPE_TRIP_PRICE_ID) {
+      return errorResponse("CONFIG_ERROR", "STRIPE_TRIP_PRICE_ID is not configured", 500)
+    }
+
+    if (kind === "annual" && !process.env.STRIPE_ANNUAL_PRICE_ID) {
+      return errorResponse("CONFIG_ERROR", "STRIPE_ANNUAL_PRICE_ID is not configured", 500)
+    }
+
     const params =
       kind === "trip"
         ? buildDestinationCheckoutSessionParams({
+            priceId: process.env.STRIPE_TRIP_PRICE_ID ?? "",
             destination: destination ?? "Trip",
             userId: identity.userId,
             successUrl,
@@ -46,10 +55,6 @@ export async function POST(req: NextRequest) {
             successUrl,
             cancelUrl,
           })
-
-    if (kind === "annual" && !process.env.STRIPE_ANNUAL_PRICE_ID) {
-      return errorResponse("CONFIG_ERROR", "STRIPE_ANNUAL_PRICE_ID is not configured", 500)
-    }
 
     const session = await stripe.checkout.sessions.create(params)
 

@@ -7,6 +7,7 @@ import {
 
 test("buildDestinationCheckoutSessionParams creates one-time payment session for destination", () => {
   const params = buildDestinationCheckoutSessionParams({
+    priceId: "price_trip_123",
     destination: "Tokyo",
     userId: "user-123",
     successUrl: "https://app.test/billing/success?session_id={CHECKOUT_SESSION_ID}",
@@ -20,8 +21,8 @@ test("buildDestinationCheckoutSessionParams creates one-time payment session for
   assert.equal(params.metadata?.destination, "tokyo")
   assert.equal(params.metadata?.userId, "user-123")
   assert.equal(params.line_items?.length, 1)
-  assert.equal(params.line_items?.[0]?.price_data?.unit_amount, 499)
-  assert.equal(params.line_items?.[0]?.price_data?.currency, "eur")
+  assert.equal(params.line_items?.[0]?.price, "price_trip_123")
+  assert.equal(params.line_items?.[0]?.quantity, 1)
 })
 
 test("buildAnnualCheckoutSessionParams creates subscription session for annual plan", () => {
