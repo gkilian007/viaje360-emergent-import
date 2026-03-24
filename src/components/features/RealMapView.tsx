@@ -4,7 +4,6 @@ import { useEffect, useMemo, useRef } from "react"
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from "react-leaflet"
 import L from "leaflet"
 import "leaflet/dist/leaflet.css"
-import { ACTIVITY_ICONS } from "@/lib/constants"
 
 interface GeocodedActivity {
   activity: {
@@ -30,8 +29,46 @@ interface RealMapViewProps {
   onMarkerClick?: (activityId: string) => void
 }
 
-// Create numbered marker icons
-function createNumberedIcon(index: number, isSelected: boolean, isFirst: boolean, isLast: boolean) {
+// Type → emoji mapping
+const TYPE_EMOJI: Record<string, string> = {
+  museum: "🏛️",
+  restaurant: "🍴",
+  monument: "🏰",
+  park: "🌳",
+  shopping: "🛍️",
+  tour: "🚶",
+  hotel: "🏨",
+  transport: "🚇",
+  nightlife: "🌙",
+  beach: "🏖️",
+  entertainment: "🎭",
+  cafe: "☕",
+}
+
+// Type → readable label
+const TYPE_LABEL: Record<string, string> = {
+  museum: "Museo",
+  restaurant: "Restaurante",
+  monument: "Monumento",
+  park: "Parque",
+  shopping: "Compras",
+  tour: "Tour",
+  hotel: "Hotel",
+  transport: "Transporte",
+  nightlife: "Nocturno",
+  beach: "Playa",
+  entertainment: "Entretenimiento",
+  cafe: "Café",
+}
+
+// Create marker icon with emoji by type + number badge
+function createActivityIcon(
+  index: number,
+  type: string,
+  isSelected: boolean,
+  isFirst: boolean,
+  isLast: boolean
+) {
   const color = isSelected
     ? "#0A84FF"
     : isFirst
@@ -40,32 +77,100 @@ function createNumberedIcon(index: number, isSelected: boolean, isFirst: boolean
     ? "#FF453A"
     : "#5856D6"
 
-  const size = isSelected ? 36 : 28
-  const fontSize = isSelected ? 14 : 11
+  const emoji = TYPE_EMOJI[type] ?? "📍"
+  const size = isSelected ? 44 : 36
+  const emojiSize = isSelected ? 20 : 16
+  const badgeSize = 16
+  const dimmed = !isSelected && false // placeholder for future dim logic
 
   return L.divIcon({
     className: "custom-marker",
     html: `
       <div style="
+        position: relative;
         width: ${size}px;
         height: ${size}px;
         border-radius: 50%;
-        background: ${color};
-        border: 2px solid white;
+        background: ${color}18;
+        border: 2.5px solid ${color};
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: ${fontSize}px;
-        font-weight: 700;
-        color: white;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.4)${isSelected ? `, 0 0 16px ${color}80` : ""};
-        transition: all 0.2s ease;
-      ">${index + 1}</div>
+        font-size: ${emojiSize}px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.5)${isSelected ? `, 0 0 20px ${color}60` : ""};
+        transition: all 0.3s cubic-bezier(.4,0,.2,1);
+        opacity: ${dimmed ? 0.5 : 1};
+        ${isSelected ? `animation: marker-pulse 1.5s ease-in-out infinite;` : ""}
+      ">
+        ${emoji}
+        <div style="
+          position: absolute;
+          top: -4px;
+          right: -4px;
+          width: ${badgeSize}px;
+          height: ${badgeSize}px;
+          border-radius: 50%;
+          background: ${color};
+          border: 1.5px solid #131315;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 9px;
+          font-weight: 800;
+          color: white;
+          line-height: 1;
+        ">${index + 1}</div>
+      </div>
     `,
     iconSize: [size, size],
     iconAnchor: [size / 2, size / 2],
-    popupAnchor: [0, -size / 2 - 4],
+    popupAnchor: [0, -size / 2 - 6],
   })
+}
+
+// Inject keyframes for pulse animation (once)
+const STYLE_ID = "viaje360-map-styles"
+function injectMapStyles() {
+  if (typeof document === "undefined") return
+  if (document.getElementById(STYLE_ID)) return
+  const style = document.createElement("style")
+  style.id = STYLE_ID
+  style.textContent = `
+    @keyframes marker-pulse {
+      0%, 100% { box-shadow: 0 2px 10px rgba(0,0,0,0.5), 0 0 20px rgba(10,132,255,0.35); }
+      50% { box-shadow: 0 2px 14px rgba(0,0,0,0.5), 0 0 32px rgba(10,132,255,0.55); }
+    }
+    .leaflet-popup-content-wrapper {
+      background: #1c1c1e !important;
+      color: #e5e7eb !important;
+      border-radius: 14px !important;
+      border: 1px solid rgba(255,255,255,0.08) !important;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5) !important;
+      backdrop-filter: blur(16px);
+      padding: 0 !important;
+    }
+    .leaflet-popup-tip {
+      background: #1c1c1e !important;
+      border: 1px solid rgba(255,255,255,0.08) !important;
+      box-shadow: none !important;
+    }
+    .leaflet-popup-close-button {
+      color: #888 !important;
+      font-size: 18px !important;
+      top: 6px !important;
+      right: 8px !important;
+    }
+    .leaflet-popup-close-button:hover {
+      color: #fff !important;
+    }
+    .leaflet-popup-content {
+      margin: 0 !important;
+    }
+    .custom-marker > div {
+      cursor: pointer;
+    }
+  `
+  document.head.appendChild(style)
 }
 
 // Auto-fit map bounds when markers change
@@ -112,6 +217,9 @@ export function RealMapView({
   onMarkerClick,
 }: RealMapViewProps) {
   const defaultCenter = center ?? { lat: 40.4168, lng: -3.7038 } // Madrid fallback
+
+  // Inject dark-popup & pulse styles once
+  useEffect(() => injectMapStyles(), [])
 
   // Route polyline
   const routePositions = useMemo(
@@ -163,32 +271,90 @@ export function RealMapView({
           const isSelected = geo.activity.id === selectedActivityId
           const isFirst = index === 0
           const isLast = index === geocoded.length - 1
+          const emoji = TYPE_EMOJI[geo.activity.type] ?? "📍"
+          const typeLabel = TYPE_LABEL[geo.activity.type] ?? geo.activity.type
+
+          const accentColor = isSelected
+            ? "#0A84FF"
+            : isFirst
+            ? "#30D158"
+            : isLast
+            ? "#FF453A"
+            : "#5856D6"
 
           return (
             <Marker
               key={geo.activity.id}
               position={[geo.lat, geo.lng]}
-              icon={createNumberedIcon(index, isSelected, isFirst, isLast)}
+              icon={createActivityIcon(index, geo.activity.type, isSelected, isFirst, isLast)}
               eventHandlers={{
                 click: () => onMarkerClick?.(geo.activity.id),
               }}
             >
               <Popup>
-                <div style={{ minWidth: 180 }}>
-                  <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>
+                <div style={{ minWidth: 200, padding: "12px 14px" }}>
+                  {/* Header: badge + name */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                    <div style={{
+                      padding: "3px 8px",
+                      borderRadius: 8,
+                      background: `${accentColor}20`,
+                      border: `1px solid ${accentColor}40`,
+                      fontSize: 11,
+                      fontWeight: 600,
+                      color: accentColor,
+                      whiteSpace: "nowrap",
+                    }}>
+                      {emoji} {typeLabel}
+                    </div>
+                    <span style={{
+                      fontSize: 10,
+                      color: "#888",
+                      fontWeight: 600,
+                    }}>#{index + 1}</span>
+                  </div>
+
+                  {/* Name */}
+                  <div style={{
+                    fontWeight: 700,
+                    fontSize: 14,
+                    color: "#f0f0f0",
+                    marginBottom: 6,
+                    lineHeight: 1.3,
+                  }}>
                     {geo.activity.name}
                   </div>
-                  <div style={{ fontSize: 12, color: "#666", marginBottom: 2 }}>
-                    🕐 {geo.activity.time} · {geo.activity.duration}min
+
+                  {/* Details row */}
+                  <div style={{
+                    display: "flex",
+                    gap: 10,
+                    fontSize: 11,
+                    color: "#9ca3af",
+                    marginBottom: geo.activity.cost > 0 ? 4 : 0,
+                  }}>
+                    <span>🕐 {geo.activity.time}</span>
+                    <span>⏱ {geo.activity.duration}min</span>
                   </div>
-                  <div style={{ fontSize: 12, color: "#666" }}>
-                    📍 {geo.activity.location}
-                  </div>
+
+                  {/* Cost */}
                   {geo.activity.cost > 0 && (
-                    <div style={{ fontSize: 12, color: "#666", marginTop: 2 }}>
+                    <div style={{ fontSize: 11, color: "#9ca3af" }}>
                       💰 €{geo.activity.cost}
                     </div>
                   )}
+
+                  {/* Location */}
+                  <div style={{
+                    fontSize: 10,
+                    color: "#6b7280",
+                    marginTop: 6,
+                    paddingTop: 6,
+                    borderTop: "1px solid rgba(255,255,255,0.06)",
+                    lineHeight: 1.4,
+                  }}>
+                    📍 {geo.activity.location}
+                  </div>
                 </div>
               </Popup>
             </Marker>
