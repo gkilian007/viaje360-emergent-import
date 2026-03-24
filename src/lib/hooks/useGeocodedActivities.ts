@@ -77,11 +77,20 @@ export function useGeocodedActivities(
           continue
         }
 
-        // If location already contains a full address, use it; otherwise combine name + destination
-        const query = hasFullAddress
-          ? activity.location
-          : `${activity.name}, ${destination}`
-        const coords = await geocodeClient(query)
+        // Try full address first, then name + destination as fallback
+        const queries = hasFullAddress
+          ? [activity.location, `${activity.name}, ${destination}`]
+          : [`${activity.name}, ${destination}`]
+
+        let coords: { lat: number; lng: number } | null = null
+        for (const query of queries) {
+          coords = await geocodeClient(query)
+          if (coords) break
+          // Rate limit between retries too
+          if (!abortRef.current) {
+            await new Promise((r) => setTimeout(r, 1100))
+          }
+        }
         cache.set(cacheKey, coords)
 
         if (coords && !abortRef.current) {

@@ -1,173 +1,102 @@
-import { successResponse } from "@/lib/api/route-helpers"
+import { NextRequest } from "next/server"
+import { normalizeRouteError, successResponse } from "@/lib/api/route-helpers"
+import { resolveRequestIdentity } from "@/lib/auth/server"
+import { getActiveTrip, getChatHistory, mapDbChatMessagesToAppMessages } from "@/lib/services/trip.service"
+import { createServiceClient } from "@/lib/supabase/server"
 
-// Helper to get test city from query params or default to Barcelona
-function getMockDataForCity(city: string) {
-  const cities: Record<string, { 
-    trip: any
-    days: any[]
-    chatMessages: any[]
-  }> = {
-    barcelona: {
-      trip: {
-        id: "trip-barcelona",
-        name: "Barcelona Adventure",
-        destination: "Barcelona",
-        country: "España",
-        startDate: "2026-03-22",
-        endDate: "2026-03-25",
-        budget: 1500,
-        spent: 0,
-        status: "active"
-      },
-      days: [
-        {
-          date: "2026-03-22",
-          dayNumber: 1,
-          activities: [
-            {
-              id: "bcn-a1",
-              name: "Check-in Hotel Arts",
-              type: "hotel",
-              location: "Marina",
-              time: "14:00",
-              duration: 60,
-              cost: 0
-            },
-            {
-              id: "bcn-a2",
-              name: "Paseo por la Barceloneta",
-              type: "park",
-              location: "Beach",
-              time: "16:00",
-              duration: 90,
-              cost: 0
-            },
-            {
-              id: "bcn-a3",
-              name: "Cena en El Nacional",
-              type: "restaurant",
-              location: "Gracia",
-              time: "20:30",
-              duration: 90,
-              cost: 45
-            }
-          ]
-        }
-      ],
-      chatMessages: []
-    },
-    madrid: {
-      trip: {
-        id: "trip-madrid",
-        name: "Madrid Escapada",
-        destination: "Madrid",
-        country: "España",
-        startDate: "2026-04-01",
-        endDate: "2026-04-04",
-        budget: 1200,
-        spent: 0,
-        status: "active"
-      },
-      days: [
-        {
-          date: "2026-04-01",
-          dayNumber: 1,
-          activities: [
-            {
-              id: "mad-a1",
-              name: "Check-in Hotel Ritz",
-              type: "hotel",
-              location: "Plaza de la Lealtad",
-              time: "14:00",
-              duration: 60,
-              cost: 0
-            },
-            {
-              id: "mad-a2",
-              name: "Visita Museo del Prado",
-              type: "museum",
-              location: "Paseo del Prado",
-              time: "16:00",
-              duration: 180,
-              cost: 15
-            },
-            {
-              id: "mad-a3",
-              name: "Paseo por Retiro",
-              type: "park",
-              location: "Parque del Retiro",
-              time: "20:00",
-              duration: 90,
-              cost: 0
-            }
-          ]
-        }
-      ],
-      chatMessages: []
-    },
-    paris: {
-      trip: {
-        id: "trip-paris",
-        name: "París Romántico",
-        destination: "Paris",
-        country: "Francia",
-        startDate: "2026-05-01",
-        endDate: "2026-05-05",
-        budget: 2000,
-        spent: 0,
-        status: "active"
-      },
-      days: [
-        {
-          date: "2026-05-01",
-          dayNumber: 1,
-          activities: [
-            {
-              id: "par-a1",
-              name: "Check-in Hotel Le Marais",
-              type: "hotel",
-              location: "Le Marais",
-              time: "14:00",
-              duration: 60,
-              cost: 0
-            },
-            {
-              id: "par-a2",
-              name: "Tour Eiffel",
-              type: "monument",
-              location: "Champ de Mars",
-              time: "17:00",
-              duration: 120,
-              cost: 26
-            },
-            {
-              id: "par-a3",
-              name: "Cena en Le Comptoir",
-              type: "restaurant",
-              location: "Saint-Germain",
-              time: "20:30",
-              duration: 90,
-              cost: 65
-            }
-          ]
-        }
-      ],
-      chatMessages: []
-    }
-  }
-
-  return cities[city.toLowerCase()] || cities.barcelona
-}
-
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
-    const city = searchParams.get("city") || "barcelona"
-    
-    const mockData = getMockDataForCity(city)
-    return successResponse(mockData)
+    const identity = await resolveRequestIdentity()
+
+    if (!identity.userId) {
+      return successResponse({ trip: null, days: [], chatMessages: [] })
+    }
+
+    const dbTrip = await getActiveTrip(identity.userId)
+
+    if (!dbTrip) {
+      return successResponse({ trip: null, days: [], chatMessages: [] })
+    }
+
+    const supabase = createServiceClient()
+
+    // Fetch itinerary days + activities
+    const { data: dbDays, error: daysError } = await supabase
+      .from("itinerary_days")
+      .select("*")
+      .eq("trip_id", dbTrip.id)
+      .order("day_number", { ascending: true })
+
+    if (daysError) {
+      console.warn("Failed to fetch itinerary days:", daysError)
+      return successResponse({ trip: null, days: [], chatMessages: [] })
+    }
+
+    const { data: dbActivities, error: activitiesError } = await supabase
+      .from("activities")
+      .select("*")
+      .eq("trip_id", dbTrip.id)
+      .order("sort_order", { ascending: true })
+
+    if (activitiesError) {
+      console.warn("Failed to fetch activities:", activitiesError)
+    }
+
+    // Map DB rows → app types
+    const activitiesByDay = new Map<string, typeof dbActivities>()
+    for (const act of dbActivities ?? []) {
+      const dayId = act.day_id as string
+      if (!activitiesByDay.has(dayId)) activitiesByDay.set(dayId, [])
+      activitiesByDay.get(dayId)!.push(act)
+    }
+
+    const days = (dbDays ?? []).map((day) => {
+      const dayActivities = activitiesByDay.get(day.id as string) ?? []
+      return {
+        date: day.date,
+        dayNumber: day.day_number,
+        theme: day.theme ?? undefined,
+        isRestDay: day.is_rest_day ?? false,
+        activities: dayActivities.map((act) => ({
+          id: act.id,
+          name: act.name,
+          type: act.type,
+          location: act.location ?? "",
+          time: act.time ?? "",
+          duration: act.duration ?? 60,
+          cost: act.cost ?? 0,
+          notes: act.notes ?? undefined,
+          description: act.notes ?? undefined,
+          icon: act.icon ?? undefined,
+          neighborhood: act.neighborhood ?? undefined,
+          indoor: act.indoor ?? false,
+          weatherDependent: act.weather_dependent ?? false,
+          kidFriendly: act.kid_friendly ?? false,
+          petFriendly: act.pet_friendly ?? false,
+          booked: act.booked ?? false,
+        })),
+      }
+    })
+
+    const trip = {
+      id: dbTrip.id,
+      name: dbTrip.name,
+      destination: dbTrip.destination,
+      country: (dbTrip as any).country ?? "",
+      startDate: dbTrip.start_date,
+      endDate: dbTrip.end_date,
+      budget: Number(dbTrip.budget ?? 0),
+      spent: Number(dbTrip.spent ?? 0),
+      status: dbTrip.status ?? "active",
+    }
+
+    // Fetch chat messages
+    const dbMessages = await getChatHistory(dbTrip.id as string)
+    const chatMessages = mapDbChatMessagesToAppMessages(dbMessages)
+
+    return successResponse({ trip, days, chatMessages })
   } catch (error) {
     console.error("trips/active error:", error)
-    return successResponse({ trip: null, days: [], chatMessages: [] })
+    return normalizeRouteError(error, "Failed to load active trip")
   }
 }
