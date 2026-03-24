@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { BottomNav } from "@/components/layout/BottomNav"
 import { TopAppBar } from "@/components/layout/TopAppBar"
-import { AssistantPill } from "@/components/features/AssistantPill"
+import { AdaptInput } from "@/components/features/AdaptInput"
 import { AchievementOverlay } from "@/components/features/AchievementOverlay"
 import { useAppStore } from "@/store/useAppStore"
 import { DesktopLayout } from "@/components/layout/DesktopLayout"
@@ -85,7 +85,7 @@ function MobileStats({ trip, totalDays }: { trip: Trip; totalDays: number }) {
 }
 
 function PlanPageContent() {
-  const { pendingAchievement, currentTrip, generatedItinerary } = useAppStore()
+  const { pendingAchievement, currentTrip, generatedItinerary, setGeneratedItinerary } = useAppStore()
   const searchParams = useSearchParams()
   const itinerary = generatedItinerary ?? []
   const [selectedDay, setSelectedDay] = useState(1)
@@ -222,9 +222,13 @@ function PlanPageContent() {
             <DiaryPromptCard dayNumber={selectedDay} hasExistingDiary={hasExistingDiary} />
           )}
 
-          {/* Assistant pill */}
+          {/* Adapt input */}
           <div className="px-5 pt-4 pb-2">
-            <AssistantPill />
+            <AdaptInput
+              tripId={currentTrip?.id ?? ""}
+              onAdapted={(days) => setGeneratedItinerary(days)}
+              disabled={!currentTrip?.id}
+            />
           </div>
         </div>
 
@@ -267,9 +271,13 @@ function PlanPageContent() {
                 ))}
               </div>
 
-              {/* Chat input */}
+              {/* Adapt input */}
               <div className="px-6 pb-6 pt-2 border-t border-white/5">
-                <AssistantPill />
+                <AdaptInput
+                  tripId={currentTrip?.id ?? ""}
+                  onAdapted={(days) => setGeneratedItinerary(days)}
+                  disabled={!currentTrip?.id}
+                />
               </div>
             </div>
           }
