@@ -7,6 +7,7 @@ import {
 } from "@/lib/api/route-helpers"
 import { resolveRequestIdentity } from "@/lib/auth/server"
 import { generateItinerary, mapToAppTypes } from "@/lib/services/itinerary.service"
+import { getPersonalRecommendationContext } from "@/lib/services/personal-recommendation"
 import { createTrip } from "@/lib/services/trip.service"
 import { createServiceClient } from "@/lib/supabase/server"
 
@@ -14,8 +15,13 @@ export async function POST(req: NextRequest) {
   try {
     const body = await parseJsonBody(req, onboardingRequestSchema)
     const identity = await resolveRequestIdentity()
+    const personalization = await getPersonalRecommendationContext({
+      userId: identity.userId,
+      destination: body.destination,
+      country: null,
+    })
 
-    const generatedItinerary = await generateItinerary(body)
+    const generatedItinerary = await generateItinerary(body, personalization)
     const localTripId = `trip-${Date.now()}`
     const { trip, days } = mapToAppTypes(generatedItinerary, localTripId)
 

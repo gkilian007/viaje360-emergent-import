@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
-import { buildTripDayJournalInsert, type DiaryMessage } from "@/lib/services/trip-learning"
+import { resolveRequestIdentity } from "@/lib/auth/server"
+import { getDiaryEntry, saveDiaryEntry } from "@/lib/services/diary.service"
+import type { DiaryMessage } from "@/lib/services/trip-learning"
 
 interface DiaryRequestBody {
   tripId: string
@@ -23,7 +25,6 @@ export async function POST(request: NextRequest) {
   try {
     const body = (await request.json()) as DiaryRequestBody
 
-    // Validate required fields
     if (!body.tripId || !body.dayNumber || !body.date) {
       return NextResponse.json(
         { ok: false, message: "Missing required fields: tripId, dayNumber, date" },
@@ -31,43 +32,26 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Build the journal insert object using existing service
-    const journalData = buildTripDayJournalInsert({
+    const identity = await resolveRequestIdentity()
+    const saved = await saveDiaryEntry({
       tripId: body.tripId,
-      userId: null, // Would come from auth in production
+      userId: identity.isAuthenticated ? identity.userId : null,
       dayNumber: body.dayNumber,
       date: body.date,
-      conversation: body.conversation,
-      freeTextSummary: body.freeTextSummary || null,
       mood: body.mood,
       energyScore: body.energyScore,
       paceScore: body.paceScore,
+      freeTextSummary: body.freeTextSummary,
       wouldRepeat: body.wouldRepeat,
-      createdAt: new Date().toISOString(),
+      conversation: body.conversation,
+      activityFeedback: body.activityFeedback,
     })
-
-    // In production, this would save to Supabase
-    // For now, we'll simulate the save and return success
-    // TODO: Implement actual Supabase integration when configured
-
-    console.log("[Diary API] Saving journal entry:", {
-      tripId: body.tripId,
-      dayNumber: body.dayNumber,
-      mood: body.mood,
-      activityFeedbackCount: body.activityFeedback.length,
-    })
-
-    // Simulate processing activity feedback
-    const processedFeedback = body.activityFeedback.map((feedback) => ({
-      ...feedback,
-      processedAt: new Date().toISOString(),
-    }))
 
     return NextResponse.json({
       ok: true,
       data: {
-        journal: journalData,
-        activityFeedback: processedFeedback,
+        journal: saved.journal,
+        activityFeedbackCount: saved.activityFeedbackCount,
         message: "Diario guardado correctamente",
       },
     })
@@ -93,14 +77,11 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // In production, this would fetch from Supabase
-    // For now, return null to indicate no existing diary
+    const diary = await getDiaryEntry(tripId, Number(dayNumber))
+
     return NextResponse.json({
       ok: true,
-      data: {
-        journal: null,
-        activityFeedback: [],
-      },
+      data: diary,
     })
   } catch (error) {
     console.error("[Diary API] Error:", error)

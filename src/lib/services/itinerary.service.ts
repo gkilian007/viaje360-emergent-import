@@ -18,6 +18,11 @@ import {
   ensureInitialItineraryVersion,
   replaceTripItinerary,
 } from "@/lib/services/trip.service"
+import {
+  buildPersonalRecommendationBrief,
+  getPersonalRecommendationContext,
+  type PersonalRecommendationContext,
+} from "@/lib/services/personal-recommendation"
 import type { ItineraryVersionSource } from "@/lib/services/itinerary-versioning"
 
 const GEMINI_API_URL =
@@ -67,7 +72,10 @@ const GEMINI_ITINERARY_RESPONSE_SCHEMA = {
   required: ["tripName", "days"]
 } as const
 
-function buildItineraryPrompt(data: OnboardingData): string {
+function buildItineraryPrompt(
+  data: OnboardingData,
+  personalization?: PersonalRecommendationContext | null
+): string {
   const startDate = new Date(data.startDate)
   const endDate = new Date(data.endDate)
   const numDays = Math.max(
@@ -78,11 +86,20 @@ function buildItineraryPrompt(data: OnboardingData): string {
   const paceActivities = data.pace < 33 ? "3-4" : data.pace > 66 ? "7-8" : "5-6"
   const wakeHour = Math.round(7 + (data.wakeTime / 100) * 4)
 
+  const personalizationBrief = personalization
+    ? buildPersonalRecommendationBrief({
+        destination: data.destination,
+        preferenceSignals: personalization.preferenceSignals,
+        destinationMemory: personalization.destinationMemory,
+        destinationKnowledge: personalization.destinationKnowledge,
+      })
+    : null
+
   return `Generate a ${numDays}-day travel itinerary for ${data.destination} (${data.startDate} to ${data.endDate}).
 
 Traveler: ${data.companion ?? "solo"}, ${data.groupSize} people. Budget: ${data.budget ?? "moderado"}. Pace: ${paceActivities} activities/day. Start at ${wakeHour}:00.
 Interests: ${data.interests.join(", ") || "general"}.${data.wantsSiesta ? " Leave 14:00-16:00 free (siesta)." : ""}${data.firstTime ? " First visit — include highlights." : " Returning — focus on hidden gems."}${data.mustSee ? ` Must see: ${data.mustSee}.` : ""}${data.mustAvoid ? ` Avoid: ${data.mustAvoid}.` : ""}${data.dietary.length > 0 ? ` Dietary: ${data.dietary.join(", ")}.` : ""}
-
+${personalizationBrief ? `\n${personalizationBrief}\n` : ""}
 EVERY activity MUST include ALL of these fields (no exceptions):
 - name, type (restaurant|museum|monument|park|shopping|tour), location (full address), time (HH:MM), endTime (HH:MM), duration (minutes), cost (entry fee €, 0 if free)
 - description: 2 short sentences MAX explaining EXACTLY what to do there in practical terms (what to see, what to order, where to enter, what makes it worth it)
@@ -112,9 +129,15 @@ function enumerateDates(startDate: string, endDate: string): string[] {
   return dates
 }
 
-function buildSingleDayPrompt(data: OnboardingData, date: string, dayNumber: number, totalDays: number): string {
+function buildSingleDayPrompt(
+  data: OnboardingData,
+  date: string,
+  dayNumber: number,
+  totalDays: number,
+  personalization?: PersonalRecommendationContext | null
+): string {
   const singleDayData = { ...data, startDate: date, endDate: date }
-  return `${buildItineraryPrompt(singleDayData)}
+  return `${buildItineraryPrompt(singleDayData, personalization)}
 
 IMPORTANT: This is ONLY for day ${dayNumber} of ${totalDays} of the full trip.
 Return exactly 1 day in the days array.
@@ -125,8 +148,18 @@ function buildAdaptationPrompt(
   trip: Record<string, unknown>,
   onboarding: DbOnboardingProfile | null,
   currentSchedule: GeneratedItinerary,
-  reason: string
+  reason: string,
+  personalization?: PersonalRecommendationContext | null
 ): string {
+  const personalizationBrief = personalization
+    ? buildPersonalRecommendationBrief({
+        destination: String(trip.destination ?? onboarding?.destination ?? "Trip"),
+        preferenceSignals: personalization.preferenceSignals,
+        destinationMemory: personalization.destinationMemory,
+        destinationKnowledge: personalization.destinationKnowledge,
+      })
+    : null
+
   return `You are Viaje360 AI. Adapt this itinerary because: "${reason}".
 
 Trip:
@@ -146,7 +179,9 @@ Traveler constraints:
 - Transport: ${(onboarding?.transport ?? []).join(", ") || "mix"}
 - Siesta: ${String(onboarding?.siesta ?? false)}
 - Booked tickets: ${String(onboarding?.booked_tickets ?? "none")}
-
+${personalizationBrief ? `
+${personalizationBrief}
+` : ""}
 Hard requirements:
 - Return ONLY valid JSON
 - Keep the same dates/day count
@@ -235,7 +270,8 @@ export function mapToAppTypes(
 }
 
 export async function generateItinerary(
-  onboardingData: OnboardingData
+  onboardingData: OnboardingData,
+  personalization?: PersonalRecommendationContext | null
 ): Promise<GeneratedItinerary> {
   const dates = enumerateDates(onboardingData.startDate, onboardingData.endDate)
   const tripName = `${onboardingData.destination} Detailed Plan`
@@ -244,7 +280,7 @@ export async function generateItinerary(
   for (let index = 0; index < dates.length; index += 1) {
     const date = dates[index]
     const dayNumber = index + 1
-    const prompt = buildSingleDayPrompt(onboardingData, date, dayNumber, dates.length)
+    const prompt = buildSingleDayPrompt(onboardingData, date, dayNumber, dates.length, personalization)
     const raw = await callGeminiRaw(prompt)
     const result = await runReliableGenerationPipeline(
       raw,
@@ -358,7 +394,8 @@ export function mapDbItineraryToAppTypes(
 export async function adaptItinerary(
   tripId: string,
   reason: string,
-  source: ItineraryVersionSource = "manual"
+  source: ItineraryVersionSource = "manual",
+  personalization?: PersonalRecommendationContext | null
 ): Promise<GeneratedItinerary | null> {
   try {
     const supabase = createServiceClient()
@@ -385,6 +422,12 @@ export async function adaptItinerary(
       .eq("trip_id", tripId)
       .order("day_number", { ascending: true })
 
+    const resolvedPersonalization = personalization ?? await getPersonalRecommendationContext({
+      userId: (trip.user_id as string | null) ?? null,
+      destination: String(trip.destination ?? ""),
+      country: (trip.country as string | null) ?? null,
+    })
+
     const currentSchedule = mapDbDaysToGeneratedItinerary(
       (days ?? []) as Array<{ day_number: number; date: string; theme: string | null; is_rest_day: boolean; activities?: DbActivity[] }>,
       String(trip.name ?? "Viaje360 Trip")
@@ -396,7 +439,13 @@ export async function adaptItinerary(
       reason: "Initial generated itinerary",
       source: "generate",
     })
-    const prompt = buildAdaptationPrompt(trip as Record<string, unknown>, onboarding as DbOnboardingProfile | null, currentSchedule, reason)
+    const prompt = buildAdaptationPrompt(
+      trip as Record<string, unknown>,
+      onboarding as DbOnboardingProfile | null,
+      currentSchedule,
+      reason,
+      resolvedPersonalization
+    )
     const raw = await callGeminiRaw(prompt)
 
     const result = await runReliableGenerationPipeline(

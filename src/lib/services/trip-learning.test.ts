@@ -4,7 +4,10 @@ import assert from "node:assert/strict"
 import {
   buildActivityKnowledgeUpsert,
   buildTripActivityEventInsert,
+  buildTripDayActivityFeedbackInsert,
   buildTripDayJournalInsert,
+  deriveDestinationMemoryInputFromFeedback,
+  derivePreferenceSignalUpdatesFromFeedback,
   summarizeDestinationMemoryUpdate,
 } from "./trip-learning"
 import type { GeneratedActivity } from "@/lib/supabase/database.types"
@@ -105,6 +108,92 @@ test("buildTripDayJournalInsert stores both free text and structured diary score
     { role: "assistant", content: "¿Qué tal fue hoy?" },
     { role: "user", content: "Muy bien, me encantó el museo pero caminamos demasiado." },
   ])
+})
+
+test("buildTripDayActivityFeedbackInsert maps diary feedback into a reusable DB row", () => {
+  const payload = buildTripDayActivityFeedbackInsert({
+    journalId: "journal-1",
+    tripId: "trip-1",
+    activityId: "activity-1",
+    activityKnowledgeId: "knowledge-1",
+    liked: true,
+    notes: "Volvería mañana mismo",
+    wouldRepeat: true,
+    discoveredOutsidePlan: false,
+  })
+
+  assert.deepEqual(payload, {
+    trip_day_journal_id: "journal-1",
+    trip_id: "trip-1",
+    activity_id: "activity-1",
+    activity_knowledge_id: "knowledge-1",
+    rating: 1,
+    liked: true,
+    notes: "Volvería mañana mismo",
+    would_repeat: true,
+    would_recommend: true,
+    discovered_outside_plan: false,
+  })
+})
+
+test("derivePreferenceSignalUpdatesFromFeedback converts explicit likes and dislikes into weighted signal deltas", () => {
+  const updates = derivePreferenceSignalUpdatesFromFeedback([
+    {
+      activityId: "activity-1",
+      activityKnowledgeId: "knowledge-1",
+      category: "museum",
+      tags: ["museum", "indoor"],
+      liked: true,
+      wouldRepeat: true,
+    },
+    {
+      activityId: "activity-2",
+      activityKnowledgeId: "knowledge-2",
+      category: "nightlife",
+      tags: ["nightlife", "crowded"],
+      liked: false,
+      wouldRepeat: false,
+    },
+  ])
+
+  assert.deepEqual(updates, [
+    { signalType: "category", signalKey: "museum", delta: 1.5 },
+    { signalType: "tag", signalKey: "museum", delta: 0.75 },
+    { signalType: "tag", signalKey: "indoor", delta: 0.75 },
+    { signalType: "category", signalKey: "nightlife", delta: -1.5 },
+    { signalType: "tag", signalKey: "nightlife", delta: -0.75 },
+    { signalType: "tag", signalKey: "crowded", delta: -0.75 },
+  ])
+})
+
+test("deriveDestinationMemoryInputFromFeedback extracts favorites, skipped activities and tag memories", () => {
+  const memoryInput = deriveDestinationMemoryInputFromFeedback([
+    {
+      activityId: "activity-1",
+      activityKnowledgeId: "knowledge-1",
+      category: "museum",
+      tags: ["museum", "indoor"],
+      liked: true,
+      wouldRepeat: true,
+    },
+    {
+      activityId: "activity-2",
+      activityKnowledgeId: "knowledge-2",
+      category: "nightlife",
+      tags: ["nightlife", "crowded"],
+      liked: false,
+      wouldRepeat: false,
+    },
+  ])
+
+  assert.deepEqual(memoryInput, {
+    likedTags: ["museum", "indoor"],
+    dislikedTags: ["nightlife", "crowded"],
+    favoriteActivityIds: ["knowledge-1"],
+    skippedActivityIds: ["knowledge-2"],
+    unfinishedActivityIds: [],
+    discoveredPlaces: [],
+  })
 })
 
 test("summarizeDestinationMemoryUpdate merges liked, disliked, favorites, skipped, unfinished and discoveries without duplicates", () => {

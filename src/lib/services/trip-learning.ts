@@ -48,6 +48,28 @@ export interface DbTripDayJournalInsert {
   created_at: string
 }
 
+export interface DbTripDayActivityFeedbackInsert {
+  trip_day_journal_id: string
+  trip_id: string
+  activity_id: string | null
+  activity_knowledge_id: string | null
+  rating: number | null
+  liked: boolean | null
+  notes: string | null
+  would_repeat: boolean | null
+  would_recommend: boolean | null
+  discovered_outside_plan: boolean
+}
+
+export interface FeedbackLearningInput {
+  activityId: string | null
+  activityKnowledgeId?: string | null
+  category: string
+  tags?: string[]
+  liked: boolean | null
+  wouldRepeat: boolean | null
+}
+
 function unique<T>(values: T[]): T[] {
   return Array.from(new Set(values))
 }
@@ -155,6 +177,104 @@ export function buildTripDayJournalInsert(input: {
     pace_score: input.paceScore ?? null,
     would_repeat: input.wouldRepeat ?? null,
     created_at: input.createdAt,
+  }
+}
+
+export function buildTripDayActivityFeedbackInsert(input: {
+  journalId: string
+  tripId: string
+  activityId?: string | null
+  activityKnowledgeId?: string | null
+  liked?: boolean | null
+  notes?: string | null
+  wouldRepeat?: boolean | null
+  discoveredOutsidePlan?: boolean
+}): DbTripDayActivityFeedbackInsert {
+  const rating = input.liked == null ? null : input.liked ? 1 : -1
+
+  return {
+    trip_day_journal_id: input.journalId,
+    trip_id: input.tripId,
+    activity_id: input.activityId ?? null,
+    activity_knowledge_id: input.activityKnowledgeId ?? null,
+    rating,
+    liked: input.liked ?? null,
+    notes: input.notes?.trim() ? input.notes.trim() : null,
+    would_repeat: input.wouldRepeat ?? null,
+    would_recommend: input.liked === true ? true : input.liked === false ? false : null,
+    discovered_outside_plan: input.discoveredOutsidePlan ?? false,
+  }
+}
+
+function normalizedFeedbackTags(input: FeedbackLearningInput): string[] {
+  return unique([input.category, ...(input.tags ?? [])].map(normalizeName))
+}
+
+export function derivePreferenceSignalUpdatesFromFeedback(
+  feedbackEntries: FeedbackLearningInput[]
+): Array<{ signalType: string; signalKey: string; delta: number }> {
+  const aggregated = new Map<string, number>()
+
+  for (const feedback of feedbackEntries) {
+    if (feedback.liked == null) continue
+
+    const repeatBonus = feedback.wouldRepeat == null ? 0 : feedback.wouldRepeat ? 0.5 : -0.5
+    const categoryDelta = (feedback.liked ? 1 : -1) + repeatBonus
+    const tagsDelta = categoryDelta / 2
+
+    aggregated.set(`category:${normalizeName(feedback.category)}`, (aggregated.get(`category:${normalizeName(feedback.category)}`) ?? 0) + categoryDelta)
+
+    for (const tag of normalizedFeedbackTags(feedback)) {
+      aggregated.set(`tag:${tag}`, (aggregated.get(`tag:${tag}`) ?? 0) + tagsDelta)
+    }
+  }
+
+  return Array.from(aggregated.entries()).map(([key, delta]) => {
+    const [signalType, signalKey] = key.split(":")
+    return {
+      signalType,
+      signalKey,
+      delta: Number(delta.toFixed(2)),
+    }
+  })
+}
+
+export function deriveDestinationMemoryInputFromFeedback(
+  feedbackEntries: FeedbackLearningInput[]
+): {
+  likedTags: string[]
+  dislikedTags: string[]
+  favoriteActivityIds: string[]
+  skippedActivityIds: string[]
+  unfinishedActivityIds: string[]
+  discoveredPlaces: string[]
+} {
+  const likedTags = new Set<string>()
+  const dislikedTags = new Set<string>()
+  const favoriteActivityIds = new Set<string>()
+  const skippedActivityIds = new Set<string>()
+
+  for (const feedback of feedbackEntries) {
+    const tags = normalizedFeedbackTags(feedback)
+
+    if (feedback.liked === true) {
+      tags.forEach((tag) => likedTags.add(tag))
+      if (feedback.activityKnowledgeId) favoriteActivityIds.add(feedback.activityKnowledgeId)
+    }
+
+    if (feedback.liked === false) {
+      tags.forEach((tag) => dislikedTags.add(tag))
+      if (feedback.activityKnowledgeId) skippedActivityIds.add(feedback.activityKnowledgeId)
+    }
+  }
+
+  return {
+    likedTags: Array.from(likedTags),
+    dislikedTags: Array.from(dislikedTags),
+    favoriteActivityIds: Array.from(favoriteActivityIds),
+    skippedActivityIds: Array.from(skippedActivityIds),
+    unfinishedActivityIds: [],
+    discoveredPlaces: [],
   }
 }
 
