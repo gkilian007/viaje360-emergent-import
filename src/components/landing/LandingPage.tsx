@@ -269,22 +269,41 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 function Reveal({ children, className, delay = 0, parallaxSpeed = 0 }: { children: React.ReactNode; className?: string; delay?: number; parallaxSpeed?: number }) {
   const ref = useRef<HTMLDivElement>(null)
   const [visible, setVisible] = useState(false)
+  const [reducedMotion, setReducedMotion] = useState(false)
 
+  // Detect reduced motion
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
+    setReducedMotion(mq.matches)
+    const handler = (e: MediaQueryListEvent) => setReducedMotion(e.matches)
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
+  }, [])
+
+  // IntersectionObserver — trigger once, static final state (no re-animation on up-scroll)
   useEffect(() => {
     const el = ref.current
     if (!el) return
 
+    // Reduced motion: show immediately
+    if (reducedMotion) { setVisible(true); return }
+
     const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setVisible(true) },
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true)
+          observer.unobserve(el) // Static final state — no see-saw
+        }
+      },
       { threshold: 0.05, rootMargin: '0px 0px -30px 0px' }
     )
     observer.observe(el)
     return () => observer.disconnect()
-  }, [])
+  }, [reducedMotion])
 
   // Optional scroll-driven parallax (mid-layer: 30-60% of scroll speed)
   useEffect(() => {
-    if (!visible || !parallaxSpeed || !ref.current) return
+    if (!visible || !parallaxSpeed || !ref.current || reducedMotion) return
     const { ScrollTrigger } = require('gsap/ScrollTrigger')
     const gsapLib = require('gsap')
     gsapLib.gsap.registerPlugin(ScrollTrigger)
@@ -300,15 +319,15 @@ function Reveal({ children, className, delay = 0, parallaxSpeed = 0 }: { childre
       },
     })
     return () => { st.scrollTrigger?.kill() }
-  }, [visible, parallaxSpeed])
+  }, [visible, parallaxSpeed, reducedMotion])
 
   return (
     <div
       ref={ref}
       className={className}
-      style={{
+      style={reducedMotion ? { opacity: 1 } : {
         opacity: visible ? 1 : 0,
-        transform: visible ? "translateY(0)" : "translateY(30px)",
+        transform: visible ? 'translateY(0)' : 'translateY(24px)',
         transition: `opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s, transform 0.7s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s`,
         willChange: 'transform, opacity',
       }}
@@ -419,7 +438,7 @@ export default function LandingPage() {
 
           <Link
             href="/login"
-            className="px-5 py-2.5 rounded-full text-[13px] font-semibold text-white transition-all hover:brightness-110"
+            className="px-5 py-2.5 rounded-full text-[13px] font-semibold text-white transition-all hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0A84FF]"
             style={{ background: "linear-gradient(135deg, #0A84FF, #5856D6)" }}
           >
             Sign In
