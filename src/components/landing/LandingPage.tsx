@@ -132,26 +132,38 @@ function Loader({ onDone }: { onDone: () => void }) {
 }
 
 // ─── Scroll-driven Video Hero ───
+// The video is much taller than the viewport. As the user scrolls through the
+// hero section (which is tall), the sticky viewport pans from the top third
+// to the bottom third of the video, while also advancing video.currentTime.
 
-function useScrollVideo(sectionRef: React.RefObject<HTMLElement | null>) {
+function useScrollHero(sectionRef: React.RefObject<HTMLElement | null>) {
   const videoRef = useRef<HTMLVideoElement>(null)
+  const videoWrapRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const video = videoRef.current
     const section = sectionRef.current
-    if (!video || !section) return
+    const wrap = videoWrapRef.current
+    if (!video || !section || !wrap) return
 
-    // Ensure video metadata is loaded
-    function syncTime() {
-      if (!video || !section || !video.duration || !isFinite(video.duration)) return
+    function sync() {
+      if (!video || !section || !wrap) return
 
       const rect = section.getBoundingClientRect()
-      // Progress: 0 at top of section, 1 when section bottom reaches viewport top
       const scrollable = rect.height - window.innerHeight
       const scrolled = -rect.top
       const progress = Math.max(0, Math.min(1, scrolled / scrollable))
 
-      video.currentTime = progress * video.duration
+      // Advance video time
+      if (video.duration && isFinite(video.duration)) {
+        video.currentTime = progress * video.duration
+      }
+
+      // Pan the video: at progress=0 show top third, progress=1 show bottom third
+      // The video wrapper is ~180vh tall, viewport is 100vh, so we can shift
+      // by up to -(180vh - 100vh) = -80vh
+      const maxShift = wrap.offsetHeight - window.innerHeight
+      wrap.style.transform = `translateY(${-progress * maxShift}px)`
     }
 
     let ticking = false
@@ -159,22 +171,22 @@ function useScrollVideo(sectionRef: React.RefObject<HTMLElement | null>) {
       if (ticking) return
       ticking = true
       requestAnimationFrame(() => {
-        syncTime()
+        sync()
         ticking = false
       })
     }
 
     window.addEventListener("scroll", onScroll, { passive: true })
-    video.addEventListener("loadedmetadata", syncTime)
-    syncTime()
+    video.addEventListener("loadedmetadata", sync)
+    sync()
 
     return () => {
       window.removeEventListener("scroll", onScroll)
-      video.removeEventListener("loadedmetadata", syncTime)
+      video.removeEventListener("loadedmetadata", sync)
     }
   }, [sectionRef])
 
-  return videoRef
+  return { videoRef, videoWrapRef }
 }
 
 // ─── Parallax Section ───
@@ -282,7 +294,7 @@ export default function LandingPage() {
 
   const handleLoaded = useCallback(() => setLoaded(true), [])
   const heroSectionRef = useRef<HTMLElement>(null)
-  const heroVideoRef = useScrollVideo(heroSectionRef)
+  const { videoRef: heroVideoRef, videoWrapRef: heroVideoWrapRef } = useScrollHero(heroSectionRef)
 
   // Override body overflow-hidden from root layout
   useEffect(() => {
@@ -372,25 +384,24 @@ export default function LandingPage() {
         </div>
       </nav>
 
-      {/* ─── Hero — scroll-driven video parallax ─── */}
-      <section id="hero" ref={heroSectionRef} className="relative" style={{ height: "250vh" }}>
-        {/* Sticky container: stays in viewport while section scrolls */}
+      {/* ─── Hero — scroll-driven video parallax with vertical pan ─── */}
+      <section id="hero" ref={heroSectionRef} className="relative" style={{ height: "300vh" }}>
+        {/* Sticky viewport: stays pinned while section scrolls past */}
         <div className="sticky top-0 h-screen overflow-hidden">
-          {/* Animated gradient background */}
-          <div
-            className="absolute inset-0"
-            style={{
-              background: "radial-gradient(ellipse 80% 60% at 50% 40%, rgba(10,132,255,0.12) 0%, rgba(88,86,214,0.06) 40%, rgba(10,10,12,1) 80%)",
-            }}
-          />
+          {/* Dark base */}
+          <div className="absolute inset-0 bg-[#0a0a0c]" />
 
-          {/* Phone mockup — scroll-driven video */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          {/* Video wrapper — much taller than viewport, pans with scroll */}
+          <div
+            ref={heroVideoWrapRef}
+            className="absolute left-1/2 -translate-x-1/2 w-[90vw] sm:w-[70vw] md:w-[50vw]"
+            style={{ height: "180vh", top: 0, willChange: "transform" }}
+          >
             <div
-              className="w-[500px] sm:w-[580px] rounded-[3rem] overflow-hidden opacity-40"
+              className="w-full h-full rounded-[3rem] overflow-hidden opacity-50"
               style={{
                 border: "3px solid rgba(255,255,255,0.06)",
-                boxShadow: "0 40px 120px rgba(10,132,255,0.2)",
+                boxShadow: "0 40px 120px rgba(10,132,255,0.2), 0 0 80px rgba(88,86,214,0.1)",
               }}
             >
               <video
@@ -398,18 +409,24 @@ export default function LandingPage() {
                 muted
                 playsInline
                 preload="auto"
-                className="w-full block"
+                className="w-full h-full object-cover"
               >
                 <source src="/hero-video1.mp4" type="video/mp4" />
               </video>
             </div>
           </div>
 
-          {/* Dark overlay for text readability */}
+          {/* Gradient overlays for text readability */}
           <div
-            className="absolute inset-0"
+            className="absolute inset-0 pointer-events-none"
             style={{
-              background: "linear-gradient(180deg, rgba(10,10,12,0.2) 0%, rgba(10,10,12,0.35) 50%, rgba(10,10,12,0.85) 100%)",
+              background: "linear-gradient(180deg, rgba(10,10,12,0.4) 0%, rgba(10,10,12,0.15) 40%, rgba(10,10,12,0.15) 60%, rgba(10,10,12,0.7) 100%)",
+            }}
+          />
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: "radial-gradient(ellipse 70% 50% at 50% 50%, transparent 0%, rgba(10,10,12,0.6) 100%)",
             }}
           />
 
