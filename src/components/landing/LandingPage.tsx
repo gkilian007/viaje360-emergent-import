@@ -381,9 +381,9 @@ export default function LandingPage() {
       </nav>
 
       {/* ─── Hero — fullscreen with scroll-driven video ─── */}
-      <section id="hero" className="relative min-h-[180vh]">
-        {/* Sticky viewport container */}
-        <div className="sticky top-0 h-screen overflow-hidden">
+      <section id="hero" className="relative">
+        {/* Hero content — normal flow, not sticky */}
+        <div className="relative min-h-screen overflow-hidden">
           {/* Animated gradient background */}
           <div
             className="absolute inset-0"
@@ -392,19 +392,25 @@ export default function LandingPage() {
             }}
           />
 
-          {/* Scroll-driven phone mockup — centered */}
+          {/* Phone mockup — centered, scroll-driven */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div
-              className="w-[260px] sm:w-[300px] rounded-[3rem] overflow-hidden opacity-40"
+              className="w-[360px] sm:w-[420px] rounded-[3rem] overflow-hidden opacity-40"
               style={{
                 border: "3px solid rgba(255,255,255,0.06)",
                 boxShadow: "0 40px 120px rgba(10,132,255,0.2)",
               }}
             >
-              <ScrollVideo
-                src="/hero-video1.mp4"
-                className="w-full"
-              />
+              <video
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="w-full block"
+              >
+                <source src="/hero-video1.webm" type="video/webm" />
+                <source src="/hero-video1.mp4" type="video/mp4" />
+              </video>
             </div>
           </div>
 
@@ -412,7 +418,7 @@ export default function LandingPage() {
           <div
             className="absolute inset-0"
             style={{
-              background: "linear-gradient(180deg, rgba(10,10,12,0.4) 0%, rgba(10,10,12,0.5) 50%, rgba(10,10,12,0.95) 100%)",
+              background: "linear-gradient(180deg, rgba(10,10,12,0.3) 0%, rgba(10,10,12,0.4) 50%, rgba(10,10,12,0.9) 100%)",
             }}
           />
 
