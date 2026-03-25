@@ -1,269 +1,668 @@
 "use client"
 
-import { motion } from "framer-motion"
+import { useEffect, useRef, useState, useCallback } from "react"
 import Link from "next/link"
+
+// ─── Constants ───
+
+const NAV_LINKS = [
+  { id: "hero", label: "Inicio" },
+  { id: "features", label: "Producto" },
+  { id: "how-it-works", label: "Cómo funciona" },
+  { id: "testimonials", label: "Reviews" },
+  { id: "faq", label: "FAQ" },
+]
 
 const FEATURES = [
   {
     icon: "auto_awesome",
     title: "Itinerarios con IA",
-    description: "Genera planes día a día personalizados con inteligencia artificial. Actividades reales, horarios optimizados y recomendaciones accionables.",
+    desc: "Planes día a día con actividades reales, horarios y URLs. No es un listado genérico — es accionable.",
+    color: "#0A84FF",
   },
   {
     icon: "map",
     title: "Mapa interactivo",
-    description: "Visualiza tu ruta completa en un mapa con marcadores por tipo de actividad, popups detallados y navegación fluida.",
+    desc: "Ruta visual con marcadores emoji por tipo, popups dark y animaciones fly-to.",
+    color: "#5856D6",
   },
   {
     icon: "psychology",
     title: "Aprende de ti",
-    description: "El sistema recuerda tus preferencias, feedback y experiencias para mejorar cada plan que genera.",
+    desc: "Recuerda tus gustos, feedback y viajes anteriores para mejorar cada plan.",
+    color: "#FF9F0A",
   },
   {
     icon: "edit_note",
     title: "Diario de viaje",
-    description: "Registra tu día con un diario conversacional. Tu mood, energía y opiniones alimentan futuras recomendaciones.",
+    desc: "Captura tu día con conversación natural. Mood, energía y opiniones alimentan recomendaciones futuras.",
+    color: "#30D158",
   },
   {
     icon: "thumb_up",
-    title: "Feedback en tiempo real",
-    description: "¿Te gusta una actividad? ¿Prefieres menos museos? Tu feedback adapta el itinerario sobre la marcha.",
+    title: "Feedback en vivo",
+    desc: "Más de esto, menos de aquello. Tu feedback adapta el itinerario sobre la marcha.",
+    color: "#FF453A",
   },
   {
     icon: "lock",
-    title: "Fija lo que importa",
-    description: "Bloquea actividades que no quieres que cambien al adaptar el plan. El resto se ajusta alrededor.",
+    title: "Fija lo esencial",
+    desc: "Bloquea actividades que no quieres que cambien. El resto se ajusta alrededor.",
+    color: "#BF5AF2",
   },
 ]
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 24 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: { delay: i * 0.08, duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number] },
-  }),
-}
+const STEPS = [
+  { num: "01", title: "Cuéntanos tu viaje", desc: "Destino, fechas, estilo, presupuesto y preferencias en un wizard rápido." },
+  { num: "02", title: "La IA planifica", desc: "Gemini genera un itinerario detallado con actividades, restaurantes y timings reales." },
+  { num: "03", title: "Vive y adapta", desc: "Usa el plan, da feedback, fija favoritos — el itinerario evoluciona contigo." },
+]
 
-export default function LandingPage() {
-  // Landing page component — loaded dynamically for unauthenticated visitors
+const REVIEWS = [
+  { name: "Laura M.", location: "Madrid → Tokyo", text: "Me ahorró horas de planificación. El mapa con los marcadores emoji es genial para orientarte sobre la marcha.", stars: 5 },
+  { name: "Carlos R.", location: "Barcelona → Roma", text: "Lo mejor es el feedback: le dije 'menos museos' y el día siguiente tenía más gastronomía. Impresionante.", stars: 5 },
+  { name: "Ana P.", location: "Valencia → París", text: "El diario de viaje es adictivo. Al volver a París, la app ya sabía mis sitios favoritos.", stars: 5 },
+]
+
+const FAQS = [
+  { q: "¿Es gratis?", a: "Puedes planificar tu primer viaje completamente gratis. Funciones avanzadas como adaptación ilimitada y diario están en el plan premium." },
+  { q: "¿Qué destinos cubre?", a: "Cualquier destino del mundo. La IA genera planes con lugares, restaurantes y actividades verificables de cualquier ciudad." },
+  { q: "¿Funciona sin conexión?", a: "El plan se guarda localmente. Puedes consultar tu itinerario completo sin conexión — solo necesitas internet para generar o adaptar." },
+  { q: "¿Mis datos están seguros?", a: "Tus datos se almacenan en Supabase con cifrado en tránsito y en reposo. No vendemos ni compartimos información personal." },
+]
+
+// ─── Loader ───
+
+function Loader({ onDone }: { onDone: () => void }) {
+  const [progress, setProgress] = useState(0)
+
+  useEffect(() => {
+    const start = Date.now()
+    const duration = 2200
+    let raf: number
+
+    function tick() {
+      const elapsed = Date.now() - start
+      const p = Math.min(elapsed / duration, 1)
+      // Ease out cubic
+      const eased = 1 - Math.pow(1 - p, 3)
+      setProgress(eased * 100)
+
+      if (p < 1) {
+        raf = requestAnimationFrame(tick)
+      } else {
+        setTimeout(onDone, 300)
+      }
+    }
+
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  }, [onDone])
+
   return (
-    <div className="min-h-screen bg-[#0f1117] text-[#e4e2e4] overflow-x-hidden">
-      {/* ─── Navbar ─── */}
-      <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4 flex items-center justify-between backdrop-blur-xl bg-[#0f1117]/80 border-b border-white/[0.04]">
-        <div className="flex items-center gap-3">
-          <div
-            className="w-9 h-9 rounded-xl flex items-center justify-center"
-            style={{
-              background: "linear-gradient(135deg, rgba(10,132,255,0.3), rgba(88,86,214,0.3))",
-              border: "1px solid rgba(10,132,255,0.25)",
-            }}
-          >
-            <span className="text-[22px]">✈️</span>
-          </div>
-          <span className="text-[17px] font-bold tracking-tight">Viaje360</span>
-        </div>
-
-        <Link
-          href="/login"
-          className="px-5 py-2 rounded-full text-[13px] font-semibold transition-all hover:brightness-110"
+    <div className="fixed inset-0 z-[9999] bg-[#0a0a0c] flex flex-col items-center justify-center gap-6 transition-opacity duration-500">
+      <div className="flex items-center gap-3">
+        <div
+          className="w-12 h-12 rounded-2xl flex items-center justify-center"
           style={{
-            background: "linear-gradient(135deg, #0A84FF, #5856D6)",
+            background: "linear-gradient(135deg, rgba(10,132,255,0.3), rgba(88,86,214,0.3))",
+            border: "1px solid rgba(10,132,255,0.25)",
           }}
         >
-          Sign In
-        </Link>
+          <span className="text-[28px]">✈️</span>
+        </div>
+        <span className="text-[24px] font-bold text-white tracking-tight">Viaje360</span>
+      </div>
+
+      <div className="w-48 h-[2px] bg-white/10 rounded-full overflow-hidden">
+        <div
+          className="h-full rounded-full transition-all duration-100"
+          style={{
+            width: `${progress}%`,
+            background: "linear-gradient(90deg, #0A84FF, #5856D6)",
+          }}
+        />
+      </div>
+
+      <p className="text-[12px] text-[#666] font-medium tracking-widest uppercase">
+        {progress < 50 ? "Cargando experiencia" : progress < 90 ? "Casi listo" : "¡Listo!"}
+      </p>
+    </div>
+  )
+}
+
+// ─── Scroll-driven Video ───
+
+function ScrollVideo({ src, className }: { src: string; className?: string }) {
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const video = videoRef.current
+    const container = containerRef.current
+    if (!video || !container) return
+
+    let ticking = false
+
+    function onScroll() {
+      if (ticking) return
+      ticking = true
+
+      requestAnimationFrame(() => {
+        if (!video || !container) { ticking = false; return }
+
+        const rect = container.getBoundingClientRect()
+        const windowH = window.innerHeight
+        // Progress: 0 when top enters viewport, 1 when bottom exits
+        const totalScroll = rect.height + windowH
+        const scrolled = windowH - rect.top
+        const progress = Math.max(0, Math.min(1, scrolled / totalScroll))
+
+        if (video.duration && isFinite(video.duration)) {
+          video.currentTime = progress * video.duration
+        }
+
+        ticking = false
+      })
+    }
+
+    window.addEventListener("scroll", onScroll, { passive: true })
+    // Initial sync
+    onScroll()
+
+    return () => window.removeEventListener("scroll", onScroll)
+  }, [])
+
+  return (
+    <div ref={containerRef} className={className}>
+      <video
+        ref={videoRef}
+        src={src}
+        muted
+        playsInline
+        preload="auto"
+        className="w-full h-full object-cover"
+        style={{ objectPosition: "center top" }}
+      />
+    </div>
+  )
+}
+
+// ─── Parallax Section ───
+
+function useParallax(speed = 0.3) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [offset, setOffset] = useState(0)
+
+  useEffect(() => {
+    let ticking = false
+
+    function onScroll() {
+      if (ticking) return
+      ticking = true
+      requestAnimationFrame(() => {
+        if (ref.current) {
+          const rect = ref.current.getBoundingClientRect()
+          const center = rect.top + rect.height / 2 - window.innerHeight / 2
+          setOffset(center * speed)
+        }
+        ticking = false
+      })
+    }
+
+    window.addEventListener("scroll", onScroll, { passive: true })
+    onScroll()
+    return () => window.removeEventListener("scroll", onScroll)
+  }, [speed])
+
+  return { ref, offset }
+}
+
+// ─── FAQ Item ───
+
+function FaqItem({ q, a }: { q: string; a: string }) {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <button
+      onClick={() => setOpen(!open)}
+      className="w-full text-left p-5 rounded-2xl transition-all"
+      style={{
+        background: open ? "rgba(28,28,30,0.8)" : "rgba(28,28,30,0.4)",
+        border: `1px solid ${open ? "rgba(10,132,255,0.15)" : "rgba(255,255,255,0.04)"}`,
+      }}
+    >
+      <div className="flex items-center justify-between gap-4">
+        <span className="text-[15px] font-semibold">{q}</span>
+        <span
+          className="material-symbols-outlined text-[20px] text-[#0A84FF] transition-transform"
+          style={{ transform: open ? "rotate(45deg)" : "rotate(0)" }}
+        >
+          add
+        </span>
+      </div>
+      <div
+        className="overflow-hidden transition-all duration-300"
+        style={{ maxHeight: open ? "200px" : "0", opacity: open ? 1 : 0, marginTop: open ? "12px" : "0" }}
+      >
+        <p className="text-[13px] text-[#9ca3af] leading-relaxed">{a}</p>
+      </div>
+    </button>
+  )
+}
+
+// ─── Reveal on scroll ───
+
+function Reveal({ children, className, delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [visible, setVisible] = useState(false)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setVisible(true) },
+      { threshold: 0.15 }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
+  return (
+    <div
+      ref={ref}
+      className={className}
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translateY(0)" : "translateY(30px)",
+        transition: `opacity 0.6s ease ${delay}s, transform 0.6s ease ${delay}s`,
+      }}
+    >
+      {children}
+    </div>
+  )
+}
+
+// ─── Main Landing ───
+
+export default function LandingPage() {
+  const [loaded, setLoaded] = useState(false)
+  const [activeSection, setActiveSection] = useState("hero")
+  const [navSolid, setNavSolid] = useState(false)
+
+  const handleLoaded = useCallback(() => setLoaded(true), [])
+
+  // Track active section + navbar background
+  useEffect(() => {
+    function onScroll() {
+      setNavSolid(window.scrollY > 60)
+
+      const sections = NAV_LINKS.map((l) => document.getElementById(l.id)).filter(Boolean) as HTMLElement[]
+      for (let i = sections.length - 1; i >= 0; i--) {
+        if (sections[i].getBoundingClientRect().top <= 120) {
+          setActiveSection(NAV_LINKS[i].id)
+          break
+        }
+      }
+    }
+
+    window.addEventListener("scroll", onScroll, { passive: true })
+    return () => window.removeEventListener("scroll", onScroll)
+  }, [])
+
+  const heroParallax = useParallax(0.25)
+
+  if (!loaded) {
+    return <Loader onDone={handleLoaded} />
+  }
+
+  return (
+    <div className="bg-[#0a0a0c] text-[#e4e2e4] min-h-screen overflow-x-hidden scroll-smooth">
+      {/* ─── Sticky Nav ─── */}
+      <nav
+        className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
+        style={{
+          background: navSolid ? "rgba(10,10,12,0.92)" : "transparent",
+          backdropFilter: navSolid ? "blur(20px)" : "none",
+          borderBottom: navSolid ? "1px solid rgba(255,255,255,0.04)" : "1px solid transparent",
+        }}
+      >
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div
+              className="w-9 h-9 rounded-xl flex items-center justify-center"
+              style={{
+                background: "linear-gradient(135deg, rgba(10,132,255,0.3), rgba(88,86,214,0.3))",
+                border: "1px solid rgba(10,132,255,0.25)",
+              }}
+            >
+              <span className="text-[22px]">✈️</span>
+            </div>
+            <span className="text-[17px] font-bold tracking-tight text-white">Viaje360</span>
+          </div>
+
+          {/* Nav links — hidden on mobile */}
+          <div className="hidden md:flex items-center gap-1">
+            {NAV_LINKS.map((link) => (
+              <a
+                key={link.id}
+                href={`#${link.id}`}
+                className="px-3 py-2 rounded-lg text-[13px] font-medium transition-all"
+                style={{
+                  color: activeSection === link.id ? "#0A84FF" : "#9ca3af",
+                  background: activeSection === link.id ? "rgba(10,132,255,0.08)" : "transparent",
+                }}
+              >
+                {link.label}
+              </a>
+            ))}
+          </div>
+
+          <Link
+            href="/login"
+            className="px-5 py-2.5 rounded-full text-[13px] font-semibold text-white transition-all hover:brightness-110"
+            style={{ background: "linear-gradient(135deg, #0A84FF, #5856D6)" }}
+          >
+            Sign In
+          </Link>
+        </div>
       </nav>
 
-      {/* ─── Hero ─── */}
-      <section className="pt-32 pb-20 px-6 max-w-6xl mx-auto">
-        <div className="flex flex-col lg:flex-row items-center gap-16">
-          {/* Text */}
-          <motion.div
-            className="flex-1 text-center lg:text-left"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+      {/* ─── Hero — fullscreen with scroll-driven video ─── */}
+      <section id="hero" className="relative min-h-[300vh]">
+        {/* Sticky viewport container */}
+        <div className="sticky top-0 h-screen overflow-hidden">
+          {/* Video background */}
+          <ScrollVideo
+            src="/hero-video1.mp4"
+            className="absolute inset-0 w-full h-full"
+          />
+
+          {/* Dark overlay gradient */}
+          <div
+            className="absolute inset-0"
+            style={{
+              background: "linear-gradient(180deg, rgba(10,10,12,0.3) 0%, rgba(10,10,12,0.6) 50%, rgba(10,10,12,0.95) 100%)",
+            }}
+          />
+
+          {/* Hero text — parallax */}
+          <div
+            ref={heroParallax.ref}
+            className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center"
+            style={{ transform: `translateY(${heroParallax.offset}px)` }}
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-medium text-[#0A84FF] mb-6" style={{ background: "rgba(10,132,255,0.1)", border: "1px solid rgba(10,132,255,0.15)" }}>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-[11px] font-semibold tracking-widest uppercase text-[#0A84FF] mb-6" style={{ background: "rgba(10,132,255,0.1)", border: "1px solid rgba(10,132,255,0.2)", backdropFilter: "blur(10px)" }}>
               <span className="material-symbols-outlined text-[14px]">auto_awesome</span>
-              Impulsado por inteligencia artificial
+              Impulsado por IA
             </div>
 
-            <h1 className="text-[clamp(2.2rem,5vw,3.8rem)] font-extrabold leading-[1.08] tracking-tight">
+            <h1 className="text-[clamp(2.5rem,7vw,5rem)] font-extrabold leading-[1.05] tracking-tight max-w-4xl">
               Tu viaje perfecto,{" "}
-              <span className="bg-gradient-to-r from-[#0A84FF] to-[#5856D6] bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-[#0A84FF] via-[#5856D6] to-[#BF5AF2] bg-clip-text text-transparent">
                 planificado por IA
               </span>
             </h1>
 
-            <p className="mt-5 text-[16px] leading-relaxed text-[#9ca3af] max-w-lg mx-auto lg:mx-0">
-              Genera itinerarios detallados, adapta tu plan en tiempo real y deja que la app aprenda de tus gustos para cada viaje.
+            <p className="mt-6 text-[clamp(1rem,2vw,1.25rem)] text-[#c0c6d6] max-w-xl leading-relaxed">
+              Itinerarios cinematográficos que se adaptan a ti en tiempo real.
             </p>
 
-            <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
+            <div className="mt-10 flex flex-col sm:flex-row gap-4">
               <Link
                 href="/onboarding"
-                className="px-7 py-3.5 rounded-full text-[14px] font-semibold text-white transition-all hover:brightness-110 hover:scale-[1.02]"
-                style={{ background: "linear-gradient(135deg, #0A84FF, #5856D6)" }}
+                className="px-8 py-4 rounded-full text-[15px] font-semibold text-white transition-all hover:scale-[1.03]"
+                style={{ background: "linear-gradient(135deg, #0A84FF, #5856D6)", boxShadow: "0 8px 32px rgba(10,132,255,0.3)" }}
               >
-                Planifica tu viaje gratis
+                Planifica gratis
               </Link>
               <a
                 href="#features"
-                className="px-7 py-3.5 rounded-full text-[14px] font-medium text-[#c0c6d6] transition-all hover:text-white"
-                style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
+                className="px-8 py-4 rounded-full text-[15px] font-medium text-[#c0c6d6] transition-all hover:text-white"
+                style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", backdropFilter: "blur(10px)" }}
               >
-                Ver características
+                Descubre más ↓
               </a>
             </div>
-          </motion.div>
 
-          {/* Phone mockups */}
-          <motion.div
-            className="flex-1 flex items-center justify-center gap-6"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.7, delay: 0.2 }}
-          >
-            {/* Phone 1 */}
-            <div className="relative w-[200px] sm:w-[220px] shrink-0">
-              <div
-                className="rounded-[2rem] overflow-hidden shadow-2xl"
-                style={{
-                  border: "3px solid rgba(255,255,255,0.08)",
-                  boxShadow: "0 30px 80px rgba(10,132,255,0.15), 0 10px 30px rgba(0,0,0,0.4)",
-                }}
-              >
-                <video
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  className="w-full block"
-                  poster=""
-                >
-                  <source src="/demo-video1.webm" type="video/webm" />
-                  <source src="/demo-video1.mp4" type="video/mp4" />
-                </video>
-              </div>
+            {/* Scroll indicator */}
+            <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce">
+              <span className="text-[11px] text-[#666] uppercase tracking-widest">Scroll</span>
+              <span className="material-symbols-outlined text-[#666]">expand_more</span>
             </div>
-
-            {/* Phone 2 — offset up */}
-            <div className="relative w-[200px] sm:w-[220px] shrink-0 -mt-12">
-              <div
-                className="rounded-[2rem] overflow-hidden shadow-2xl"
-                style={{
-                  border: "3px solid rgba(255,255,255,0.08)",
-                  boxShadow: "0 30px 80px rgba(88,86,214,0.15), 0 10px 30px rgba(0,0,0,0.4)",
-                }}
-              >
-                <video
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  className="w-full block"
-                  poster=""
-                >
-                  <source src="/demo-video2.webm" type="video/webm" />
-                  <source src="/demo-video2.mp4" type="video/mp4" />
-                </video>
-              </div>
-            </div>
-          </motion.div>
+          </div>
         </div>
       </section>
 
       {/* ─── Features ─── */}
-      <section id="features" className="py-24 px-6 max-w-6xl mx-auto">
-        <motion.div
-          className="text-center mb-16"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-        >
-          <h2 className="text-[clamp(1.5rem,3vw,2.4rem)] font-bold tracking-tight">
-            Todo lo que necesitas para viajar mejor
-          </h2>
-          <p className="mt-3 text-[15px] text-[#9ca3af] max-w-md mx-auto">
-            Planifica, adapta y recuerda cada viaje con herramientas diseñadas para viajeros reales.
-          </p>
-        </motion.div>
+      <section id="features" className="relative py-32 px-6">
+        <div className="max-w-6xl mx-auto">
+          <Reveal className="text-center mb-20">
+            <p className="text-[12px] font-semibold tracking-widest uppercase text-[#0A84FF] mb-3">Producto</p>
+            <h2 className="text-[clamp(1.8rem,4vw,3rem)] font-bold tracking-tight">
+              Todo para viajar mejor
+            </h2>
+            <p className="mt-4 text-[16px] text-[#9ca3af] max-w-lg mx-auto">
+              Herramientas diseñadas para viajeros que quieren más que un listado de TripAdvisor.
+            </p>
+          </Reveal>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {FEATURES.map((feature, i) => (
-            <motion.div
-              key={feature.title}
-              className="p-6 rounded-2xl transition-all hover:scale-[1.02]"
-              style={{
-                background: "rgba(28,28,30,0.6)",
-                border: "1px solid rgba(255,255,255,0.05)",
-              }}
-              custom={i}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={fadeUp}
-            >
-              <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
-                style={{
-                  background: "rgba(10,132,255,0.12)",
-                  border: "1px solid rgba(10,132,255,0.15)",
-                }}
-              >
-                <span className="material-symbols-outlined text-[20px] text-[#0A84FF]">
-                  {feature.icon}
-                </span>
-              </div>
-              <h3 className="text-[15px] font-semibold mb-2">{feature.title}</h3>
-              <p className="text-[13px] text-[#9ca3af] leading-relaxed">
-                {feature.description}
-              </p>
-            </motion.div>
-          ))}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {FEATURES.map((f, i) => (
+              <Reveal key={f.title} delay={i * 0.08}>
+                <div
+                  className="p-7 rounded-3xl h-full transition-all hover:scale-[1.02] hover:border-white/10"
+                  style={{
+                    background: "rgba(20,20,22,0.8)",
+                    border: "1px solid rgba(255,255,255,0.04)",
+                    backdropFilter: "blur(10px)",
+                  }}
+                >
+                  <div
+                    className="w-11 h-11 rounded-2xl flex items-center justify-center mb-5"
+                    style={{
+                      background: `${f.color}18`,
+                      border: `1px solid ${f.color}25`,
+                    }}
+                  >
+                    <span className="material-symbols-outlined text-[22px]" style={{ color: f.color }}>
+                      {f.icon}
+                    </span>
+                  </div>
+                  <h3 className="text-[17px] font-bold mb-2">{f.title}</h3>
+                  <p className="text-[14px] text-[#9ca3af] leading-relaxed">{f.desc}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* ─── CTA ─── */}
-      <section className="py-24 px-6">
-        <motion.div
-          className="max-w-2xl mx-auto text-center p-10 rounded-3xl"
-          style={{
-            background: "linear-gradient(135deg, rgba(10,132,255,0.08), rgba(88,86,214,0.08))",
-            border: "1px solid rgba(10,132,255,0.12)",
-          }}
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-        >
-          <h2 className="text-[clamp(1.4rem,3vw,2rem)] font-bold mb-3">
-            ¿Listo para tu próximo viaje?
-          </h2>
-          <p className="text-[14px] text-[#9ca3af] mb-8 max-w-md mx-auto">
-            Empieza a planificar gratis. Sin tarjeta, sin compromisos.
-          </p>
-          <Link
-            href="/onboarding"
-            className="inline-block px-8 py-4 rounded-full text-[15px] font-semibold text-white transition-all hover:brightness-110 hover:scale-[1.02]"
-            style={{ background: "linear-gradient(135deg, #0A84FF, #5856D6)" }}
+      {/* ─── Phone showcase with second video ─── */}
+      <section className="relative py-24 px-6 overflow-hidden">
+        <div className="max-w-6xl mx-auto flex flex-col lg:flex-row items-center gap-16">
+          {/* Video in phone frame */}
+          <Reveal className="flex-1 flex justify-center">
+            <div className="relative">
+              <div
+                className="w-[280px] rounded-[3rem] overflow-hidden"
+                style={{
+                  border: "4px solid rgba(255,255,255,0.08)",
+                  boxShadow: "0 40px 100px rgba(10,132,255,0.15), 0 0 60px rgba(88,86,214,0.08)",
+                }}
+              >
+                <video autoPlay loop muted playsInline className="w-full block">
+                  <source src="/hero-video2.mp4" type="video/mp4" />
+                </video>
+              </div>
+              {/* Glow */}
+              <div
+                className="absolute -inset-20 -z-10 rounded-full opacity-30 blur-3xl"
+                style={{ background: "radial-gradient(circle, rgba(10,132,255,0.3) 0%, transparent 70%)" }}
+              />
+            </div>
+          </Reveal>
+
+          {/* Text */}
+          <div className="flex-1 space-y-6">
+            <Reveal>
+              <p className="text-[12px] font-semibold tracking-widest uppercase text-[#5856D6] mb-2">Experiencia móvil</p>
+              <h2 className="text-[clamp(1.6rem,3vw,2.5rem)] font-bold tracking-tight leading-tight">
+                Diseñado para usarse{" "}
+                <span className="text-[#0A84FF]">sobre la marcha</span>
+              </h2>
+            </Reveal>
+            <Reveal delay={0.1}>
+              <p className="text-[15px] text-[#9ca3af] leading-relaxed">
+                Mapa interactivo con marcadores emoji, popups detallados y navegación fluida. Todo lo que necesitas mientras caminas por una ciudad nueva.
+              </p>
+            </Reveal>
+            <Reveal delay={0.2}>
+              <div className="flex flex-wrap gap-3 pt-2">
+                {["Mapa dark", "Markers emoji", "Popups detallados", "Fly-to animado", "Offline ready"].map((tag) => (
+                  <span
+                    key={tag}
+                    className="px-3 py-1.5 rounded-full text-[12px] font-medium text-[#c0c6d6]"
+                    style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </Reveal>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── How it works ─── */}
+      <section id="how-it-works" className="py-32 px-6">
+        <div className="max-w-4xl mx-auto">
+          <Reveal className="text-center mb-20">
+            <p className="text-[12px] font-semibold tracking-widest uppercase text-[#30D158] mb-3">Cómo funciona</p>
+            <h2 className="text-[clamp(1.8rem,4vw,3rem)] font-bold tracking-tight">
+              Tres pasos. Cero estrés.
+            </h2>
+          </Reveal>
+
+          <div className="space-y-6">
+            {STEPS.map((step, i) => (
+              <Reveal key={step.num} delay={i * 0.1}>
+                <div
+                  className="flex items-start gap-6 p-8 rounded-3xl"
+                  style={{ background: "rgba(20,20,22,0.6)", border: "1px solid rgba(255,255,255,0.04)" }}
+                >
+                  <span className="text-[48px] font-black bg-gradient-to-b from-[#0A84FF] to-[#5856D6] bg-clip-text text-transparent leading-none shrink-0">
+                    {step.num}
+                  </span>
+                  <div>
+                    <h3 className="text-[18px] font-bold mb-2">{step.title}</h3>
+                    <p className="text-[14px] text-[#9ca3af] leading-relaxed">{step.desc}</p>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Reviews ─── */}
+      <section id="testimonials" className="py-32 px-6">
+        <div className="max-w-6xl mx-auto">
+          <Reveal className="text-center mb-16">
+            <p className="text-[12px] font-semibold tracking-widest uppercase text-[#FF9F0A] mb-3">Reviews</p>
+            <h2 className="text-[clamp(1.8rem,4vw,3rem)] font-bold tracking-tight">
+              Lo que dicen los viajeros
+            </h2>
+          </Reveal>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {REVIEWS.map((r, i) => (
+              <Reveal key={r.name} delay={i * 0.1}>
+                <div
+                  className="p-7 rounded-3xl h-full"
+                  style={{ background: "rgba(20,20,22,0.6)", border: "1px solid rgba(255,255,255,0.04)" }}
+                >
+                  <div className="flex gap-1 mb-4">
+                    {Array.from({ length: r.stars }).map((_, j) => (
+                      <span key={j} className="text-[#FF9F0A] text-[16px]">★</span>
+                    ))}
+                  </div>
+                  <p className="text-[14px] text-[#c0c6d6] leading-relaxed mb-5 italic">
+                    &ldquo;{r.text}&rdquo;
+                  </p>
+                  <div>
+                    <p className="text-[14px] font-semibold">{r.name}</p>
+                    <p className="text-[12px] text-[#666]">{r.location}</p>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── FAQ ─── */}
+      <section id="faq" className="py-32 px-6">
+        <div className="max-w-2xl mx-auto">
+          <Reveal className="text-center mb-16">
+            <p className="text-[12px] font-semibold tracking-widest uppercase text-[#BF5AF2] mb-3">FAQ</p>
+            <h2 className="text-[clamp(1.8rem,4vw,3rem)] font-bold tracking-tight">
+              Preguntas frecuentes
+            </h2>
+          </Reveal>
+
+          <div className="space-y-3">
+            {FAQS.map((faq) => (
+              <Reveal key={faq.q}>
+                <FaqItem q={faq.q} a={faq.a} />
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Final CTA ─── */}
+      <section className="py-32 px-6">
+        <Reveal>
+          <div
+            className="max-w-3xl mx-auto text-center p-14 rounded-[2rem] relative overflow-hidden"
+            style={{
+              background: "linear-gradient(135deg, rgba(10,132,255,0.1), rgba(88,86,214,0.1))",
+              border: "1px solid rgba(10,132,255,0.15)",
+            }}
           >
-            Empieza ahora →
-          </Link>
-        </motion.div>
+            {/* Glow */}
+            <div
+              className="absolute top-0 left-1/2 -translate-x-1/2 w-[400px] h-[200px] -z-10 opacity-40 blur-3xl"
+              style={{ background: "radial-gradient(ellipse, rgba(10,132,255,0.4) 0%, transparent 70%)" }}
+            />
+
+            <h2 className="text-[clamp(1.6rem,4vw,2.5rem)] font-bold mb-4">
+              ¿Listo para tu próximo viaje?
+            </h2>
+            <p className="text-[15px] text-[#9ca3af] mb-10 max-w-md mx-auto">
+              Empieza a planificar gratis. Sin tarjeta. Sin compromisos.
+            </p>
+            <Link
+              href="/onboarding"
+              className="inline-block px-10 py-4.5 rounded-full text-[16px] font-bold text-white transition-all hover:scale-[1.03]"
+              style={{ background: "linear-gradient(135deg, #0A84FF, #5856D6)", boxShadow: "0 8px 40px rgba(10,132,255,0.35)" }}
+            >
+              Empieza ahora →
+            </Link>
+          </div>
+        </Reveal>
       </section>
 
       {/* ─── Footer ─── */}
-      <footer className="py-8 px-6 border-t border-white/[0.04]">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
+      <footer className="py-10 px-6 border-t border-white/[0.03]">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <span className="text-[16px]">✈️</span>
-            <span className="text-[13px] font-medium text-[#666]">Viaje360</span>
+            <span className="text-[18px]">✈️</span>
+            <span className="text-[14px] font-semibold text-[#666]">Viaje360</span>
           </div>
-          <p className="text-[11px] text-[#666]">
+          <p className="text-[12px] text-[#444]">
             © {new Date().getFullYear()} Viaje360. Todos los derechos reservados.
           </p>
         </div>
