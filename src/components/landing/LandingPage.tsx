@@ -352,7 +352,7 @@ export default function LandingPage() {
   }
 
   return (
-    <div className="bg-[#0a0a0c] text-[#e4e2e4] min-h-screen overflow-x-hidden scroll-smooth">
+    <div className="text-[#e4e2e4] min-h-screen overflow-x-hidden scroll-smooth" style={{ background: 'transparent' }}>
       {/* ─── Fixed starfield background — stays behind everything ─── */}
       <StarfieldBg />
 
@@ -412,7 +412,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── Features ─── */}
-      <section id="features" className="relative pt-8 pb-12 px-6 z-[1]" style={{ background: 'linear-gradient(180deg, rgba(10,10,12,0.85) 0%, rgba(16,16,20,0.9) 50%, rgba(10,10,12,0.85) 100%)' }}>
+      <section id="features" className="relative pt-8 pb-12 px-6 z-[1]">
         <div className="max-w-6xl mx-auto">
           <Reveal className="text-center mb-8">
             <p className="text-[12px] font-semibold tracking-widest uppercase text-[#0A84FF] mb-3">Producto</p>
@@ -456,7 +456,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── Phone showcase with second video ─── */}
-      <section className="relative pt-8 pb-12 px-6 overflow-hidden z-[1]" style={{ background: 'rgba(10,10,12,0.8)' }}>
+      <section className="relative pt-8 pb-12 px-6 overflow-hidden z-[1]">
         <div className="max-w-6xl mx-auto flex flex-col lg:flex-row items-center gap-10">
           {/* Video in phone frame */}
           <Reveal className="flex-1 flex justify-center">
@@ -512,7 +512,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── How it works ─── */}
-      <section id="how-it-works" className="pt-8 pb-12 px-6 z-[1]" style={{ background: 'linear-gradient(180deg, rgba(10,10,12,0.85) 0%, rgba(16,16,20,0.9) 50%, rgba(10,10,12,0.85) 100%)' }}>
+      <section id="how-it-works" className="pt-8 pb-12 px-6 z-[1]">
         <div className="max-w-4xl mx-auto">
           <Reveal className="text-center mb-8">
             <p className="text-[12px] font-semibold tracking-widest uppercase text-[#30D158] mb-3">Cómo funciona</p>
@@ -543,7 +543,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── Reviews ─── */}
-      <section id="testimonials" className="pt-8 pb-12 px-6 z-[1]" style={{ background: 'rgba(10,10,12,0.8)' }}>
+      <section id="testimonials" className="pt-8 pb-12 px-6 z-[1]">
         <div className="max-w-6xl mx-auto">
           <Reveal className="text-center mb-8">
             <p className="text-[12px] font-semibold tracking-widest uppercase text-[#FF9F0A] mb-3">Reviews</p>
@@ -579,7 +579,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── FAQ ─── */}
-      <section id="faq" className="pt-8 pb-12 px-6 z-[1]" style={{ background: 'rgba(10,10,12,0.85)' }}>
+      <section id="faq" className="pt-8 pb-12 px-6 z-[1]">
         <div className="max-w-2xl mx-auto">
           <Reveal className="text-center mb-8">
             <p className="text-[12px] font-semibold tracking-widest uppercase text-[#BF5AF2] mb-3">FAQ</p>
@@ -599,7 +599,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── Final CTA ─── */}
-      <section className="pt-8 pb-16 px-6 z-[1]" style={{ background: 'rgba(10,10,12,0.8)' }}>
+      <section className="pt-8 pb-16 px-6 z-[1]">
         <Reveal>
           <div
             className="max-w-3xl mx-auto text-center p-14 rounded-[2rem] relative overflow-hidden"
