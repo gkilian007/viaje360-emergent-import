@@ -414,7 +414,7 @@ export default function LandingPage() {
       {/* ─── Features ─── */}
       <section id="features" className="relative pt-8 pb-12 px-6 z-[1]" style={{ background: 'linear-gradient(180deg, rgba(10,10,12,0.85) 0%, rgba(16,16,20,0.9) 50%, rgba(10,10,12,0.85) 100%)' }}>
         <div className="max-w-6xl mx-auto">
-          <Reveal className="text-center mb-12">
+          <Reveal className="text-center mb-8">
             <p className="text-[12px] font-semibold tracking-widest uppercase text-[#0A84FF] mb-3">Producto</p>
             <h2 className="text-[clamp(1.8rem,4vw,3rem)] font-bold tracking-tight">
               Todo para viajar mejor
@@ -457,7 +457,7 @@ export default function LandingPage() {
 
       {/* ─── Phone showcase with second video ─── */}
       <section className="relative pt-8 pb-12 px-6 overflow-hidden z-[1]" style={{ background: 'rgba(10,10,12,0.8)' }}>
-        <div className="max-w-6xl mx-auto flex flex-col lg:flex-row items-center gap-16">
+        <div className="max-w-6xl mx-auto flex flex-col lg:flex-row items-center gap-10">
           {/* Video in phone frame */}
           <Reveal className="flex-1 flex justify-center">
             <div className="relative">
@@ -514,7 +514,7 @@ export default function LandingPage() {
       {/* ─── How it works ─── */}
       <section id="how-it-works" className="pt-8 pb-12 px-6 z-[1]" style={{ background: 'linear-gradient(180deg, rgba(10,10,12,0.85) 0%, rgba(16,16,20,0.9) 50%, rgba(10,10,12,0.85) 100%)' }}>
         <div className="max-w-4xl mx-auto">
-          <Reveal className="text-center mb-12">
+          <Reveal className="text-center mb-8">
             <p className="text-[12px] font-semibold tracking-widest uppercase text-[#30D158] mb-3">Cómo funciona</p>
             <h2 className="text-[clamp(1.8rem,4vw,3rem)] font-bold tracking-tight">
               Tres pasos. Cero estrés.
@@ -545,7 +545,7 @@ export default function LandingPage() {
       {/* ─── Reviews ─── */}
       <section id="testimonials" className="pt-8 pb-12 px-6 z-[1]" style={{ background: 'rgba(10,10,12,0.8)' }}>
         <div className="max-w-6xl mx-auto">
-          <Reveal className="text-center mb-16">
+          <Reveal className="text-center mb-8">
             <p className="text-[12px] font-semibold tracking-widest uppercase text-[#FF9F0A] mb-3">Reviews</p>
             <h2 className="text-[clamp(1.8rem,4vw,3rem)] font-bold tracking-tight">
               Lo que dicen los viajeros
@@ -581,7 +581,7 @@ export default function LandingPage() {
       {/* ─── FAQ ─── */}
       <section id="faq" className="pt-8 pb-12 px-6 z-[1]" style={{ background: 'rgba(10,10,12,0.85)' }}>
         <div className="max-w-2xl mx-auto">
-          <Reveal className="text-center mb-16">
+          <Reveal className="text-center mb-8">
             <p className="text-[12px] font-semibold tracking-widest uppercase text-[#BF5AF2] mb-3">FAQ</p>
             <h2 className="text-[clamp(1.8rem,4vw,3rem)] font-bold tracking-tight">
               Preguntas frecuentes
