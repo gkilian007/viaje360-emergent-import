@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import Image from "next/image"
+import IPhoneMockup from "./IPhoneMockup"
 
 const features = [
   { emoji: "🤖", title: "IA Personalizada", desc: "Itinerarios que se adaptan a ti en tiempo real" },
@@ -41,7 +41,6 @@ export default function ParallaxHero() {
       gsap.registerPlugin(ScrollTrigger)
 
       ctx = gsap.context(() => {
-        // ONE single pinned timeline for the entire animation
         const master = gsap.timeline({
           scrollTrigger: {
             trigger: ".parallax-stage",
@@ -65,7 +64,7 @@ export default function ParallaxHero() {
             y: 40, opacity: 0, duration: 0.5, ease: "power2.out",
           }, 0.15)
 
-        // === Crossfade 1→2 (scroll ~30–40%) ===
+        // === Crossfade 1→2 ===
           .to(".phase-1", {
             opacity: 0, scale: 0.95, duration: 0.3, ease: "power1.in",
           }, 0.9)
@@ -80,7 +79,7 @@ export default function ParallaxHero() {
             y: 25, opacity: 0, duration: 0.4, ease: "power2.out",
           }, 1.15)
 
-        // === Crossfade 2→3 (scroll ~63–73%) ===
+        // === Crossfade 2→3 ===
           .to(".phase-2", {
             opacity: 0, scale: 0.95, duration: 0.3, ease: "power1.in",
           }, 1.8)
@@ -145,16 +144,11 @@ export default function ParallaxHero() {
               className="phone-1 flex-1 flex justify-center"
               style={{ perspective: "1200px", transformStyle: "preserve-3d" }}
             >
-              <div className="relative w-[280px] md:w-[320px] rounded-[3rem] overflow-hidden shadow-2xl shadow-indigo-500/20 border-[3px] border-white/10">
-                <Image
-                  src="/parallax/keyframe-1-hero.jpg"
-                  alt="Viaje360 — Plan de viaje Tokyo"
-                  width={320}
-                  height={693}
-                  className="w-full h-auto"
-                  priority
-                />
-              </div>
+              <IPhoneMockup
+                src="/parallax/screen-plan.jpg"
+                alt="Viaje360 — Plan Tokyo"
+                width={300}
+              />
             </div>
           </div>
         </div>
@@ -166,15 +160,11 @@ export default function ParallaxHero() {
               className="phone-2"
               style={{ perspective: "1200px", transformStyle: "preserve-3d" }}
             >
-              <div className="relative w-[300px] md:w-[340px] rounded-[3rem] overflow-hidden shadow-2xl shadow-cyan-500/20 border-[3px] border-white/10">
-                <Image
-                  src="/parallax/keyframe-2-transition.jpg"
-                  alt="Viaje360 — Transición"
-                  width={340}
-                  height={736}
-                  className="w-full h-auto"
-                />
-              </div>
+              <IPhoneMockup
+                src="/parallax/screen-plan.jpg"
+                alt="Viaje360 — Plan Tokyo"
+                width={320}
+              />
             </div>
             <div className="mid-text text-center max-w-lg">
               <h2 className="text-3xl md:text-5xl font-bold text-white">
@@ -193,15 +183,11 @@ export default function ParallaxHero() {
           <div className="feature-glow absolute inset-0 bg-[radial-gradient(ellipse_at_50%_60%,rgba(99,102,241,0.15),transparent_60%)] pointer-events-none" />
           <div className="max-w-6xl mx-auto px-6 flex flex-col items-center gap-6">
             <div className="phone-3">
-              <div className="relative w-[220px] md:w-[260px] rounded-[3rem] overflow-hidden shadow-2xl shadow-indigo-500/30 border-[3px] border-white/10">
-                <Image
-                  src="/parallax/keyframe-3-flat.jpg"
-                  alt="Viaje360 — Vista completa"
-                  width={260}
-                  height={563}
-                  className="w-full h-auto"
-                />
-              </div>
+              <IPhoneMockup
+                src="/parallax/screen-plan.jpg"
+                alt="Viaje360 — Vista completa"
+                width={240}
+              />
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 w-full max-w-2xl">
               {features.map((f, i) => (
