@@ -266,7 +266,7 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 
 // ─── Reveal on scroll ───
 
-function Reveal({ children, className, delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
+function Reveal({ children, className, delay = 0, parallaxSpeed = 0 }: { children: React.ReactNode; className?: string; delay?: number; parallaxSpeed?: number }) {
   const ref = useRef<HTMLDivElement>(null)
   const [visible, setVisible] = useState(false)
 
@@ -282,6 +282,26 @@ function Reveal({ children, className, delay = 0 }: { children: React.ReactNode;
     return () => observer.disconnect()
   }, [])
 
+  // Optional scroll-driven parallax (mid-layer: 30-60% of scroll speed)
+  useEffect(() => {
+    if (!visible || !parallaxSpeed || !ref.current) return
+    const { ScrollTrigger } = require('gsap/ScrollTrigger')
+    const gsapLib = require('gsap')
+    gsapLib.gsap.registerPlugin(ScrollTrigger)
+
+    const st = gsapLib.gsap.to(ref.current, {
+      y: parallaxSpeed * -40,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: ref.current,
+        start: 'top bottom',
+        end: 'bottom top',
+        scrub: 0.6,
+      },
+    })
+    return () => { st.scrollTrigger?.kill() }
+  }, [visible, parallaxSpeed])
+
   return (
     <div
       ref={ref}
@@ -289,7 +309,8 @@ function Reveal({ children, className, delay = 0 }: { children: React.ReactNode;
       style={{
         opacity: visible ? 1 : 0,
         transform: visible ? "translateY(0)" : "translateY(30px)",
-        transition: `opacity 0.6s ease ${delay}s, transform 0.6s ease ${delay}s`,
+        transition: `opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s, transform 0.7s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s`,
+        willChange: 'transform, opacity',
       }}
     >
       {children}
