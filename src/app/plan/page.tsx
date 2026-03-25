@@ -344,10 +344,9 @@ function PlanPageContent() {
       {/* Activity detail modal */}
       <ActivityDetailModal
         activity={selectedActivity}
+        tripId={currentTrip?.id ?? null}
+        currentDayNumber={selectedDay}
         onClose={() => setSelectedActivity(null)}
-        onExternalLinkClick={(activityId, linkKind) => {
-          trackEvent(activityId, "external_link_clicked", { linkKind })
-        }}
       />
 
       {/* Achievement overlay */}

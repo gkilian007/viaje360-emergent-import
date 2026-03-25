@@ -57,6 +57,8 @@ async function insertItinerarySchedule(
         end_time: act.endTime ?? null,
         duration: act.duration ?? null,
         cost: act.cost ?? 0,
+        booked: false,
+        is_locked: act.isLocked ?? false,
         notes: act.notes ?? null,
         icon: act.icon ?? null,
         neighborhood: act.location ?? null,

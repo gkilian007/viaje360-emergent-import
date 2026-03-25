@@ -95,6 +95,7 @@ export interface DbActivity {
   duration: number | null
   cost: number
   booked: boolean
+  is_locked: boolean
   notes: string | null
   icon: string | null
   neighborhood: string | null
@@ -308,6 +309,8 @@ export interface GeneratedActivity {
   kidFriendly?: boolean
   petFriendly?: boolean
   dietaryTags?: string[]
+  recommendationReason?: string
+  isLocked?: boolean
 }
 
 export interface GeneratedDay {

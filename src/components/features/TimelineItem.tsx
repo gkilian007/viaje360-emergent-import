@@ -81,6 +81,17 @@ export function TimelineItem({ activity, isFirst = false, isLast = false, isCurr
                 {activity.description ?? activity.notes}
               </p>
             )}
+            {activity.recommendationReason && (
+              <div
+                className="mt-2 inline-flex items-center gap-1 rounded-full px-2 py-1"
+                style={{ background: "rgba(10,132,255,0.12)", border: "1px solid rgba(10,132,255,0.16)" }}
+              >
+                <span className="material-symbols-outlined text-[11px] text-[#0A84FF]">auto_awesome</span>
+                <span className="text-[10px] text-[#8fc2ff] font-medium line-clamp-1">
+                  {activity.recommendationReason}
+                </span>
+              </div>
+            )}
           </div>
           <div className="flex flex-col items-end gap-1 shrink-0 pl-2">
             {(activity.pricePerPerson ?? activity.cost) > 0 && (
@@ -95,6 +106,14 @@ export function TimelineItem({ activity, isFirst = false, isLast = false, isCurr
                 style={{ background: "rgba(48, 209, 88, 0.15)", color: "#30D158" }}
               >
                 Reservado
+              </span>
+            )}
+            {activity.isLocked && (
+              <span
+                className="text-[9px] px-1.5 py-0.5 rounded-full font-medium"
+                style={{ background: "rgba(255,159,10,0.15)", color: "#FF9F0A" }}
+              >
+                Fijo
               </span>
             )}
           </div>

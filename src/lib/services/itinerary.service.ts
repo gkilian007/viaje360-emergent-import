@@ -23,6 +23,11 @@ import {
   getPersonalRecommendationContext,
   type PersonalRecommendationContext,
 } from "@/lib/services/personal-recommendation"
+import {
+  annotateItineraryWithLearningReasons,
+  formatLearningContextForPrompt,
+  getUserLearningContext,
+} from "@/lib/services/recommendation.service"
 import type { ItineraryVersionSource } from "@/lib/services/itinerary-versioning"
 
 const GEMINI_API_URL =
@@ -187,7 +192,7 @@ Hard requirements:
 - Keep the same dates/day count
 - Use HH:MM times and YYYY-MM-DD dates
 - Avoid overlaps and impossible timing
-- Respect booked tickets, siesta, budget, mobility, kids/pets
+- Respect booked tickets, locked activities, siesta, budget, mobility, kids/pets
 - Prefer minimal, credible changes instead of rewriting everything`
 }
 
@@ -245,12 +250,14 @@ export function mapToAppTypes(
       duration: act.duration ?? 60,
       cost: act.cost ?? 0,
       booked: /booked|ticket|reservation|entrada/i.test(`${act.name} ${act.notes ?? ""}`),
+      isLocked: act.isLocked ?? false,
       notes: act.notes,
       description: act.description,
       icon: act.icon,
       url: act.url,
       pricePerPerson: act.pricePerPerson,
       imageQuery: act.imageQuery,
+      recommendationReason: act.recommendationReason,
     })),
   }))
 
@@ -271,8 +278,9 @@ export function mapToAppTypes(
 
 export async function generateItinerary(
   onboardingData: OnboardingData,
-  personalization?: PersonalRecommendationContext | null
+  options?: { userId?: string | null; personalization?: PersonalRecommendationContext | null }
 ): Promise<GeneratedItinerary> {
+  const personalization = options?.personalization
   const dates = enumerateDates(onboardingData.startDate, onboardingData.endDate)
   const tripName = `${onboardingData.destination} Detailed Plan`
   const days: GeneratedItinerary["days"] = []
@@ -311,10 +319,12 @@ export async function generateItinerary(
     })
   }
 
-  return {
-    tripName,
-    days,
-  }
+  // Annotate with learning-based recommendation reasons
+  const learningContext = await getUserLearningContext(options?.userId, onboardingData.destination)
+  return annotateItineraryWithLearningReasons(
+    { tripName, days },
+    learningContext
+  )
 }
 
 export async function getItinerary(tripId: string): Promise<{
@@ -395,6 +405,7 @@ export async function adaptItinerary(
   tripId: string,
   reason: string,
   source: ItineraryVersionSource = "manual",
+  startFromDayNumber?: number,
   personalization?: PersonalRecommendationContext | null
 ): Promise<GeneratedItinerary | null> {
   try {

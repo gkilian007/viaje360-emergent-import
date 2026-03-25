@@ -854,6 +854,7 @@ export function mapDbDaysToGeneratedItinerary(
         kidFriendly: activity.kid_friendly ?? false,
         petFriendly: activity.pet_friendly ?? false,
         dietaryTags: activity.dietary_tags ?? [],
+        isLocked: activity.is_locked ?? false,
       })),
     })),
   }

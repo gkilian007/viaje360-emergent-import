@@ -11,7 +11,7 @@ import { adaptItinerary } from "@/lib/services/itinerary.service"
 export async function POST(req: NextRequest) {
   try {
     const body = await parseJsonBody(req, adaptRequestSchema)
-    const adapted = await adaptItinerary(body.tripId, body.reason, body.source)
+    const adapted = await adaptItinerary(body.tripId, body.reason, body.source, body.startFromDayNumber)
 
     if (!adapted) {
       return errorResponse("BAD_GATEWAY", "Could not adapt itinerary", 502)

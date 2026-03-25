@@ -64,4 +64,5 @@ export const NAV_TABS = [
   { id: "plan", label: "Plan", icon: "event_note", href: "/plan" },
   { id: "mapa", label: "Mapa", icon: "map", href: "/mapa" },
   { id: "ai", label: "IA", icon: "smart_toy", href: "/ai" },
+  { id: "status", label: "Logros", icon: "emoji_events", href: "/status" },
 ] as const

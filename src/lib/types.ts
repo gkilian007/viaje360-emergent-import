@@ -51,6 +51,7 @@ export interface TimelineActivity {
   duration: number
   cost: number
   booked: boolean
+  isLocked?: boolean
   notes?: string
   description?: string
   icon?: string
@@ -61,6 +62,8 @@ export interface TimelineActivity {
   pricePerPerson?: number
   /** Search query for fetching a photo */
   imageQuery?: string
+  /** Human-readable explanation of why this recommendation appears */
+  recommendationReason?: string
 }
 
 export interface DayItinerary {

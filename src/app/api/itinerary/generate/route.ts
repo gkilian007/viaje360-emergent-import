@@ -8,6 +8,7 @@ import {
 import { resolveRequestIdentity } from "@/lib/auth/server"
 import { generateItinerary, mapToAppTypes } from "@/lib/services/itinerary.service"
 import { getPersonalRecommendationContext } from "@/lib/services/personal-recommendation"
+import { ingestItineraryKnowledge } from "@/lib/services/trip-learning.db"
 import { createTrip } from "@/lib/services/trip.service"
 import { createServiceClient } from "@/lib/supabase/server"
 
@@ -21,7 +22,7 @@ export async function POST(req: NextRequest) {
       country: null,
     })
 
-    const generatedItinerary = await generateItinerary(body, personalization)
+    const generatedItinerary = await generateItinerary(body, { userId: identity.userId, personalization })
     const localTripId = `trip-${Date.now()}`
     const { trip, days } = mapToAppTypes(generatedItinerary, localTripId)
 
@@ -92,6 +93,11 @@ export async function POST(req: NextRequest) {
         console.warn("Supabase save skipped (fallback mode):", supabaseError)
       }
     }
+
+        // Feed activity_knowledge with every generated activity
+        ingestItineraryKnowledge(generatedItinerary, body.destination).catch((err) =>
+          console.warn("[generate] activity_knowledge ingestion error:", err)
+        )
 
     return successResponse({
       trip: {
