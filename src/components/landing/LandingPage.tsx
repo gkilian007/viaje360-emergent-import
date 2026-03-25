@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react"
 import Link from "next/link"
+import { DesertDrift } from "@/components/ui/desert-drift"
 
 // ─── Constants ───
 
@@ -475,6 +476,36 @@ export default function LandingPage() {
               <span className="material-symbols-outlined text-[#666]">expand_more</span>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* ─── 3D Experience ─── */}
+      <section className="relative py-24 px-6 overflow-hidden">
+        <div className="max-w-6xl mx-auto">
+          <Reveal className="text-center mb-12">
+            <p className="text-[12px] font-semibold tracking-widest uppercase text-[#0A84FF] mb-3">Experiencia</p>
+            <h2 className="text-[clamp(1.8rem,4vw,3rem)] font-bold tracking-tight">
+              Siente el{" "}
+              <span className="bg-gradient-to-r from-[#0A84FF] to-[#5856D6] bg-clip-text text-transparent">
+                mundo en 3D
+              </span>
+            </h2>
+            <p className="mt-4 text-[16px] text-[#9ca3af] max-w-md mx-auto">
+              Una experiencia visual inmersiva que refleja la profundidad de cada destino.
+            </p>
+          </Reveal>
+
+          <Reveal>
+            <div
+              className="rounded-3xl overflow-hidden"
+              style={{
+                border: "1px solid rgba(255,255,255,0.06)",
+                boxShadow: "0 30px 80px rgba(10,132,255,0.12), 0 0 40px rgba(0,0,0,0.4)",
+              }}
+            >
+              <DesertDrift className="rounded-3xl h-[70vh]" />
+            </div>
+          </Reveal>
         </div>
       </section>
 
