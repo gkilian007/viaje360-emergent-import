@@ -25,17 +25,17 @@ export function BottomNav() {
             <Link
               key={tab.id}
               href={tab.href}
-              className="flex flex-col items-center gap-1 px-4 py-1.5 rounded-xl transition-all duration-200 group"
+              className="flex flex-col items-center gap-0.5 min-w-0 flex-1 py-1.5 rounded-xl transition-all duration-200 group"
             >
               <div
-                className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-200 ${
+                className={`w-8 h-8 flex items-center justify-center rounded-lg transition-all duration-200 ${
                   isActive
                     ? "bg-[#0A84FF]/20 nav-active-glow"
                     : "group-hover:bg-white/5"
                 }`}
               >
                 <span
-                  className={`material-symbols-outlined text-[22px] transition-all duration-200 ${
+                  className={`material-symbols-outlined text-[20px] transition-all duration-200 ${
                     isActive ? "text-[#0A84FF]" : "text-[#c0c6d6]"
                   }`}
                   style={
@@ -48,7 +48,7 @@ export function BottomNav() {
                 </span>
               </div>
               <span
-                className={`text-[10px] font-medium tracking-wide transition-all ${
+                className={`text-[9px] font-medium tracking-wide transition-all truncate ${
                   isActive ? "text-[#0A84FF]" : "text-[#c0c6d6]"
                 }`}
               >

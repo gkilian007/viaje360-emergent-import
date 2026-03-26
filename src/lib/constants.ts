@@ -59,7 +59,7 @@ export const ACTIVITY_ICONS: Record<string, string> = {
 export const XP_PER_LEVEL = 500
 
 export const NAV_TABS = [
-  { id: "home", label: "Inicio", icon: "home", href: "/home" },
+  { id: "home", label: "Home", icon: "home", href: "/home" },
   { id: "explore", label: "Explorar", icon: "explore", href: "/explore" },
   { id: "plan", label: "Plan", icon: "event_note", href: "/plan" },
   { id: "mapa", label: "Mapa", icon: "map", href: "/mapa" },
