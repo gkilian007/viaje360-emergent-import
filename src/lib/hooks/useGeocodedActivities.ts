@@ -9,28 +9,15 @@ interface GeocodedActivity {
   lng: number
 }
 
-const NOMINATIM_URL = "https://nominatim.openstreetmap.org/search"
-
 async function geocodeClient(
   query: string
 ): Promise<{ lat: number; lng: number } | null> {
   try {
-    const params = new URLSearchParams({
-      q: query,
-      format: "json",
-      limit: "1",
-    })
-
-    const res = await fetch(`${NOMINATIM_URL}?${params}`, {
-      headers: { Accept: "application/json" },
-    })
-
+    const res = await fetch(`/api/geocode?q=${encodeURIComponent(query)}`)
     if (!res.ok) return null
 
-    const data = await res.json()
-    if (!Array.isArray(data) || data.length === 0) return null
-
-    return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) }
+    const { data } = await res.json()
+    return data ?? null
   } catch {
     return null
   }

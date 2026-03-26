@@ -36,6 +36,12 @@ export function useActivityAssets(input: UseActivityAssetsInput) {
   const [loading, setLoading] = useState(!cache.has(key))
 
   useEffect(() => {
+    if (!input.name) {
+      setData(null)
+      setLoading(false)
+      return
+    }
+
     if (cache.has(key)) {
       setData(cache.get(key) ?? null)
       setLoading(false)
