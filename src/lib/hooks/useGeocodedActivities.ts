@@ -124,7 +124,8 @@ export function useGeocodedActivities(
     return () => {
       abortRef.current = true
     }
-  }, [activities, destination])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activities.map(a => a.id).join(","), destination])
 
   // Center of all geocoded points
   const validForCenter = geocoded.filter(g => isFinite(g.lat) && isFinite(g.lng))

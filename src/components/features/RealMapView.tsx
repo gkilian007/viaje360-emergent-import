@@ -274,10 +274,15 @@ function FitBounds({ geocoded }: { geocoded: GeocodedActivity[] }) {
     map.fitBounds(bounds, { padding: [40, 40], maxZoom: 15 })
   }, [geocoded, map])
 
-  // Reset when day changes (geocoded array reference changes completely)
+  // Reset when switching to a different day (different set of activities)
+  const geoIds = geocoded.map(g => g.activity.id).join(",")
+  const prevIdsRef = useRef("")
   useEffect(() => {
-    fittedRef.current = false
-  }, [geocoded.length === 0])
+    if (geoIds !== prevIdsRef.current && prevIdsRef.current !== "") {
+      fittedRef.current = false
+    }
+    prevIdsRef.current = geoIds
+  }, [geoIds])
 
   return null
 }
