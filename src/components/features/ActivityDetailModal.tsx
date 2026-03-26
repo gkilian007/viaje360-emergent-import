@@ -80,28 +80,6 @@ function ActivityImage({ imageUrl, loading, name, type }: { imageUrl?: string | 
   )
 }
 
-function MiniMap({ lat, lng, name, location }: { lat: number; lng: number; name: string; location: string }) {
-  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`
-
-  return (
-    <a
-      href={mapsUrl}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="mb-5 flex items-center gap-3 p-3.5 rounded-2xl border border-white/8 bg-[#0A84FF]/5 hover:bg-[#0A84FF]/10 transition-colors"
-    >
-      <div className="w-10 h-10 rounded-xl bg-[#0A84FF]/15 flex items-center justify-center shrink-0">
-        <span className="material-symbols-outlined text-[22px] text-[#0A84FF]">map</span>
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-[13px] text-white font-medium">Ver ubicación en el mapa</p>
-        <p className="text-[11px] text-[#888] truncate">{location}</p>
-      </div>
-      <span className="material-symbols-outlined text-[18px] text-[#0A84FF] shrink-0">open_in_new</span>
-    </a>
-  )
-}
-
 export function ActivityDetailModal({ activity, tripId, currentDayNumber, onClose }: ActivityDetailModalProps) {
   const track = useActivityEvent(tripId ?? null)
   const trackedRef = useRef<string | null>(null)
@@ -293,14 +271,6 @@ export function ActivityDetailModal({ activity, tripId, currentDayNumber, onClos
 
   const icon = activity?.icon ?? ACTIVITY_ICONS[activity?.type ?? "tour"] ?? "place"
   const isRestaurant = activity?.type === "restaurant"
-  const fallbackDescription = activity
-    ? isRestaurant
-      ? `Parada gastronómica en ${activity.location}. Úsala como referencia rápida para decidir si te encaja dentro del plan de ese día.`
-      : `${activity.name} es una parada recomendada en ${activity.location}. Revísala como punto clave dentro de tu itinerario y ajusta el plan si quieres priorizarla más o menos.`
-    : ""
-  const fallbackNotes = activity
-    ? `Abre el mapa o la web asociada para confirmar horario, acceso y tiempos antes de ir.`
-    : ""
 
   return (
     <AnimatePresence>
@@ -317,13 +287,15 @@ export function ActivityDetailModal({ activity, tripId, currentDayNumber, onClos
 
           {/* Modal */}
           <motion.div
-            initial={{ opacity: 0, y: 60 }}
+            initial={{ opacity: 0, y: "100%" }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 60 }}
-            transition={{ duration: 0.25, ease: "easeOut" }}
+            exit={{ opacity: 0, y: "100%" }}
+            transition={{ type: "spring", damping: 30, stiffness: 300 }}
             className="fixed bottom-0 left-0 right-0 z-50 max-h-[85dvh] overflow-hidden rounded-t-3xl flex flex-col"
             style={{
-              background: "rgba(28, 28, 30, 0.99)",
+              background: "rgba(28, 28, 30, 0.98)",
+              backdropFilter: "blur(40px)",
+              WebkitBackdropFilter: "blur(40px)",
             }}
           >
             {/* Pull handle */}
@@ -391,11 +363,6 @@ export function ActivityDetailModal({ activity, tripId, currentDayNumber, onClos
                     Gratis
                   </span>
                 )}
-                {activity.indoor !== undefined && (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] text-[#c0c6d6] bg-white/5 border border-white/8">
-                    {activity.indoor ? "Interior" : "Exterior"}
-                  </span>
-                )}
               </div>
 
               {activity.recommendationReason && (
@@ -415,7 +382,9 @@ export function ActivityDetailModal({ activity, tripId, currentDayNumber, onClos
                   Qué hacer
                 </p>
                 <p className="text-[14px] text-[#e4e2e4] leading-relaxed">
-                  {activity.description ?? fallbackDescription}
+                  {activity.description || (isRestaurant
+                    ? `Parada gastronómica en ${activity.location}. Úsala como referencia rápida para decidir si te encaja dentro del plan de ese día.`
+                    : `${activity.name} es una parada recomendada en ${activity.location}. Revísala como punto clave dentro de tu itinerario.`)}
                 </p>
               </div>
 
@@ -425,11 +394,11 @@ export function ActivityDetailModal({ activity, tripId, currentDayNumber, onClos
                   Tip práctico
                 </p>
                 <p className="text-[13px] text-[#d7d9df] leading-relaxed">
-                  {activity.notes ?? fallbackNotes}
+                  {activity.notes || "Abre el mapa o la web asociada para confirmar horario, acceso y tiempos antes de ir."}
                 </p>
               </div>
 
-              <div className="mb-3">
+              <div className="mb-4">
                 <button
                   type="button"
                   disabled={isTogglingLock}
@@ -530,9 +499,23 @@ export function ActivityDetailModal({ activity, tripId, currentDayNumber, onClos
                 </div>
               )}
 
-              {/* Mini-map */}
+              {/* Map link */}
               {activity.lat && activity.lng && (
-                <MiniMap lat={activity.lat} lng={activity.lng} name={activity.name} location={activity.location} />
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${activity.lat},${activity.lng}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mb-5 flex items-center gap-3 p-3.5 rounded-2xl border border-white/8 bg-[#0A84FF]/5 hover:bg-[#0A84FF]/10 transition-colors"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-[#0A84FF]/15 flex items-center justify-center shrink-0">
+                    <span className="material-symbols-outlined text-[22px] text-[#0A84FF]">map</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[13px] text-white font-medium">Ver ubicación en el mapa</p>
+                    <p className="text-[11px] text-[#888] truncate">{activity.location}</p>
+                  </div>
+                  <span className="material-symbols-outlined text-[18px] text-[#0A84FF] shrink-0">open_in_new</span>
+                </a>
               )}
 
             </div>
@@ -547,11 +530,11 @@ export function ActivityDetailModal({ activity, tripId, currentDayNumber, onClos
             >
               <div className="flex gap-3">
                 {(() => {
-                  const primaryUrl = assets?.primaryUrl ?? `https://www.google.com/maps/search/${encodeURIComponent(`${activity.name} ${activity.location}`)}`
-                  const mapsDeepLink = activity.lat && activity.lng
+                  const fallbackMaps = activity.lat && activity.lng
                     ? `https://www.google.com/maps/search/?api=1&query=${activity.lat},${activity.lng}`
-                    : (assets?.mapsUrl ?? `https://www.google.com/maps/search/${encodeURIComponent(`${activity.name} ${activity.location}`)}`)
-                  const mapsUrl = mapsDeepLink
+                    : `https://www.google.com/maps/search/${encodeURIComponent(`${activity.name} ${activity.location}`)}`
+                  const primaryUrl = assets?.primaryUrl ?? fallbackMaps
+                  const mapsUrl = assets?.mapsUrl ?? fallbackMaps
                   const primaryKind = assets?.primaryKind ?? "maps"
                   const hasDirectUrl = primaryKind !== "maps"
 
