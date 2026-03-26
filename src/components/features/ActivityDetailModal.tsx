@@ -317,15 +317,13 @@ export function ActivityDetailModal({ activity, tripId, currentDayNumber, onClos
 
           {/* Modal */}
           <motion.div
-            initial={{ opacity: 0, y: "100%" }}
+            initial={{ opacity: 0, y: 60 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: "100%" }}
-            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            exit={{ opacity: 0, y: 60 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
             className="fixed bottom-0 left-0 right-0 z-50 max-h-[85dvh] overflow-hidden rounded-t-3xl flex flex-col"
             style={{
-              background: "rgba(28, 28, 30, 0.98)",
-              backdropFilter: "blur(40px)",
-              WebkitBackdropFilter: "blur(40px)",
+              background: "rgba(28, 28, 30, 0.99)",
             }}
           >
             {/* Pull handle */}
