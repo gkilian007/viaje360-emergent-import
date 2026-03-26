@@ -114,8 +114,8 @@ EVERY activity MUST include ALL of these fields (no exceptions):
 - pricePerPerson: average € per person for restaurants (0 for non-restaurants)
 - imageQuery: search term for Google Images (e.g. "Real Alcázar Sevilla gardens")
 - notes: one practical operational tip (best entrance, what to book, what dish to ask for, what to avoid, how early to arrive)
-- lat: latitude of the location (decimal, e.g. 35.6762)
-- lng: longitude of the location (decimal, e.g. 139.6503)
+- lat: latitude of the location (decimal, e.g. 35.6762). MANDATORY — look up the real GPS coordinates. DO NOT omit or leave as 0.
+- lng: longitude of the location (decimal, e.g. 139.6503). MANDATORY — look up the real GPS coordinates. DO NOT omit or leave as 0.
 
 CRITICAL: NEVER repeat the same restaurant, museum, monument, or activity on different days. Each activity must appear only ONCE in the entire trip. Every day should have completely different places.
 
