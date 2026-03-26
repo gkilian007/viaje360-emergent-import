@@ -126,7 +126,9 @@ URL RULES (VERY IMPORTANT):
 - If you are NOT 100% sure the URL exists, use this format instead: https://www.google.com/maps/search/PLACE+NAME+CITY
 - NEVER invent a URL. A Google Maps search link is always better than a fake URL.
 
-Make it ACTIONABLE, not generic. Bad: "Visit the cathedral." Good: "Enter through the Puerta del Lagarto, go first to the main nave, then climb the Giralda for city views before the midday queue."
+LANGUAGE: ALL text content (description, notes, theme, tripName) MUST be in SPANISH (es-ES). Write naturally in Spanish, not translated English.
+
+Make it ACTIONABLE, not generic. Bad: "Visita la catedral." Good: "Entra por la Puerta del Lagarto, ve primero a la nave principal y sube a la Giralda antes de la cola del mediodía."
 For restaurants: use REAL names that exist. url = menu page or TripAdvisor link. Mention a signature dish and why it fits the user's dietary needs.
 For museums/monuments: url = official ticket page. cost = real entry fee. Say what the user should prioritize inside.
 

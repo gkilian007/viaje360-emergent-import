@@ -181,16 +181,22 @@ export async function POST(req: NextRequest) {
     let imageUrl: string | null = null
     let imageSource: string | null = null
 
-    const searchTerm = body.imageQuery || body.name
-    imageUrl = await fetchWithTimeout(fetchGooglePlacesPhoto(searchTerm), 5000)
+    // Build search term with destination context to avoid ambiguous results
+    const baseTerm = body.imageQuery || body.name
+    const searchWithContext = normalizedDestination && !baseTerm.toLowerCase().includes(normalizedDestination.toLowerCase())
+      ? `${baseTerm} ${body.destination}`
+      : baseTerm
+
+    imageUrl = await fetchWithTimeout(fetchGooglePlacesPhoto(searchWithContext), 5000)
     if (imageUrl) imageSource = "google_places"
 
     if (!imageUrl) {
-      imageUrl = await fetchWithTimeout(fetchWikipediaImage(searchTerm), 5000)
+      imageUrl = await fetchWithTimeout(fetchWikipediaImage(searchWithContext), 5000)
       if (imageUrl) imageSource = "wikipedia"
     }
-    if (!imageUrl && body.imageQuery && body.imageQuery !== body.name) {
-      imageUrl = await fetchWithTimeout(fetchWikipediaImage(body.name), 5000)
+    if (!imageUrl && searchWithContext !== body.name) {
+      const nameWithDest = normalizedDestination ? `${body.name} ${body.destination}` : body.name
+      imageUrl = await fetchWithTimeout(fetchWikipediaImage(nameWithDest), 5000)
       if (imageUrl) imageSource = "wikipedia"
     }
 
