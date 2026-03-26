@@ -210,7 +210,7 @@ async function callGeminiRaw(prompt: string): Promise<string> {
       contents: [{ role: "user", parts: [{ text: prompt }] }],
       generationConfig: {
         temperature: 0.2,
-        maxOutputTokens: 8192,
+        maxOutputTokens: 65536,
         responseMimeType: "application/json",
         responseSchema: GEMINI_ITINERARY_RESPONSE_SCHEMA,
       },
@@ -287,48 +287,34 @@ export async function generateItinerary(
   options?: { userId?: string | null; personalization?: PersonalRecommendationContext | null }
 ): Promise<GeneratedItinerary> {
   const personalization = options?.personalization
-  const dates = enumerateDates(onboardingData.startDate, onboardingData.endDate)
-  const tripName = `${onboardingData.destination} Detailed Plan`
-  const days: GeneratedItinerary["days"] = []
+  const prompt = buildItineraryPrompt(onboardingData, personalization)
+  const raw = await callGeminiRaw(prompt)
 
-  for (let index = 0; index < dates.length; index += 1) {
-    const date = dates[index]
-    const dayNumber = index + 1
-    const prompt = buildSingleDayPrompt(onboardingData, date, dayNumber, dates.length, personalization)
-    const raw = await callGeminiRaw(prompt)
-    const result = await runReliableGenerationPipeline(
-      raw,
-      { ...onboardingData, startDate: date, endDate: date },
-      {
-        mode: "generate",
-        maxAttempts: 3,
-        onAttempt: async (_attempt, reason) => callGeminiWithRepair(prompt, reason),
-        log: (message, meta) => console.warn(`[itinerary/generate/day-${dayNumber}] ${message}`, meta ?? {}),
-      },
-      { startDate: date, endDate: date },
-      onboardingData.destination
-    )
+  const result = await runReliableGenerationPipeline(
+    raw,
+    onboardingData,
+    {
+      mode: "generate",
+      maxAttempts: 3,
+      onAttempt: async (_attempt, reason) => callGeminiWithRepair(prompt, reason),
+      log: (message, meta) => console.warn(`[itinerary/generate] ${message}`, meta ?? {}),
+    },
+    { startDate: onboardingData.startDate, endDate: onboardingData.endDate },
+    onboardingData.destination
+  )
 
-    if (result.usedFallback) {
-      throw new Error(`No se pudo generar un plan detallado real para el día ${dayNumber}. La IA devolvió un resultado inválido varias veces.`)
-    }
+  if (result.usedFallback) {
+    throw new Error("No se pudo generar un plan detallado real. La IA devolvió un resultado inválido varias veces.")
+  }
 
-    const generatedDay = result.itinerary.days[0]
-    if (!generatedDay) {
-      throw new Error(`La IA no devolvió actividades para el día ${dayNumber}.`)
-    }
-
-    days.push({
-      ...generatedDay,
-      dayNumber,
-      date,
-    })
+  if (!result.itinerary.days.length) {
+    throw new Error("La IA no devolvió ningún día en el itinerario.")
   }
 
   // Annotate with learning-based recommendation reasons
   const learningContext = await getUserLearningContext(options?.userId, onboardingData.destination)
   return annotateItineraryWithLearningReasons(
-    { tripName, days },
+    result.itinerary,
     learningContext
   )
 }
