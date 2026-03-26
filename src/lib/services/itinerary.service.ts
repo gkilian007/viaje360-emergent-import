@@ -105,10 +105,10 @@ function buildItineraryPrompt(
   return `Generate a ${numDays}-day travel itinerary for ${data.destination} (${data.startDate} to ${data.endDate}).
 
 Traveler: ${data.companion ?? "solo"}, ${data.groupSize} people. Budget: ${data.budget ?? "moderado"}. Pace: ${paceActivities} activities/day. Start at ${wakeHour}:00.
-Interests: ${data.interests.join(", ") || "general"}.${data.wantsSiesta ? " Leave 14:00-16:00 free (siesta)." : ""}${data.firstTime ? " First visit — include highlights." : " Returning — focus on hidden gems."}${data.mustSee ? ` Must see: ${data.mustSee}.` : ""}${data.mustAvoid ? ` Avoid: ${data.mustAvoid}.` : ""}${data.dietary.length > 0 ? ` Dietary: ${data.dietary.join(", ")}.` : ""}
+${data.accommodationZone ? `Accommodation: ${data.accommodationZone}. ` : ""}Interests: ${data.interests.join(", ") || "general"}.${data.wantsSiesta ? " Leave 14:00-16:00 free (siesta)." : ""}${data.firstTime ? " First visit — include highlights." : " Returning — focus on hidden gems."}${data.mustSee ? ` Must see: ${data.mustSee}.` : ""}${data.mustAvoid ? ` Avoid: ${data.mustAvoid}.` : ""}${data.dietary.length > 0 ? ` Dietary: ${data.dietary.join(", ")}.` : ""}
 ${personalizationBrief ? `\n${personalizationBrief}\n` : ""}
 EVERY activity MUST include ALL of these fields (no exceptions):
-- name, type (restaurant|museum|monument|park|shopping|tour), location (full address), time (HH:MM), endTime (HH:MM), duration (minutes), cost (entry fee €, 0 if free)
+- name, type (restaurant|museum|monument|park|shopping|tour|hotel), location (full address), time (HH:MM), endTime (HH:MM), duration (minutes), cost (entry fee €, 0 if free)
 - description: 2 short sentences MAX explaining EXACTLY what to do there in practical terms (what to see, what to order, where to enter, what makes it worth it)
 - url: official website, ticket purchase page, or restaurant menu/TripAdvisor link (a real working URL)
 - pricePerPerson: average € per person for restaurants (0 for non-restaurants)
@@ -116,6 +116,12 @@ EVERY activity MUST include ALL of these fields (no exceptions):
 - notes: one practical operational tip (best entrance, what to book, what dish to ask for, what to avoid, how early to arrive)
 - lat: latitude of the location (decimal, e.g. 35.6762). MANDATORY — look up the real GPS coordinates. DO NOT omit or leave as 0.
 - lng: longitude of the location (decimal, e.g. 139.6503). MANDATORY — look up the real GPS coordinates. DO NOT omit or leave as 0.
+
+DAILY STRUCTURE: Every day MUST start and end at the accommodation.
+- FIRST activity of each day: type "hotel", name = accommodation name or "Salida del alojamiento", location = accommodation address, duration = 0, cost = 0. This marks the departure point.
+- LAST activity of each day: type "hotel", name = "Vuelta al alojamiento", location = accommodation address, duration = 0, cost = 0. This marks the return.
+- Plan activities geographically efficient: group nearby places together to minimize backtracking.
+${data.accommodationZone ? `The traveler is staying at/near: ${data.accommodationZone}. Use this as the start/end point.` : "If no accommodation specified, use a central location in the destination as the base."}
 
 CRITICAL: NEVER repeat the same restaurant, museum, monument, or activity on different days. Each activity must appear only ONCE in the entire trip. Every day should have completely different places.
 
