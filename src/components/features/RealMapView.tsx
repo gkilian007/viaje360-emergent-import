@@ -282,6 +282,25 @@ function FitBounds({ geocoded }: { geocoded: GeocodedActivity[] }) {
   return null
 }
 
+// Center map on destination when no markers
+function CenterOnDestination({ center }: { center: { lat: number; lng: number } | null }) {
+  const map = useMap()
+  const centeredRef = useRef(false)
+
+  useEffect(() => {
+    if (!center || centeredRef.current) return
+    if (!isFinite(center.lat) || !isFinite(center.lng)) return
+
+    const size = map.getSize()
+    if (size.x === 0 || size.y === 0) return
+
+    centeredRef.current = true
+    map.setView([center.lat, center.lng], 13)
+  }, [center, map])
+
+  return null
+}
+
 // Fly to selected marker
 function FlyToSelected({
   geocoded,
@@ -315,7 +334,7 @@ export function RealMapView({
   selectedActivityId,
   onMarkerClick,
 }: RealMapViewProps) {
-  const defaultCenter = center ?? { lat: 40.4168, lng: -3.7038 } // Madrid fallback
+  const defaultCenter = center ?? { lat: 0, lng: 0 } // will be overridden by FitBounds
 
   // Inject dark-popup & pulse styles once
   useEffect(() => injectMapStyles(), [])
@@ -339,6 +358,9 @@ export function RealMapView({
           url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>'
         />
+
+        {/* Center on destination when no markers */}
+        {geocoded.length === 0 && <CenterOnDestination center={center} />}
 
         {/* Auto-fit bounds */}
         <FitBounds geocoded={geocoded} />
