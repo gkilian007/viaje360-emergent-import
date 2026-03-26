@@ -5,55 +5,60 @@ import { useState, useEffect, useRef } from "react"
 const WIKIPEDIA_API = "https://en.wikipedia.org/w/api.php"
 const GOOGLE_PLACES_PHOTO_ENABLED = !!process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY
 
-// In-memory cache to avoid refetching across re-renders
+// In-memory cache persists across re-renders within the same session
 const imageCache = new Map<string, string | null>()
 
 /**
  * Fetch a real photo for an activity.
- * 
- * Priority:
- * 1. Google Places Photos API (if NEXT_PUBLIC_GOOGLE_PLACES_API_KEY is set)
- * 2. Wikipedia page image (free, no key needed)
- * 3. null → component shows gradient fallback
+ * Priority: Google Places (if key set) → Wikipedia → null (gradient fallback)
  */
 export function useActivityImage(query: string | undefined, name: string) {
-  const [src, setSrc] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
-  const abortRef = useRef(false)
+  const [src, setSrc] = useState<string | null>(() => {
+    const key = (query || name).toLowerCase().trim()
+    return imageCache.get(key) ?? null
+  })
+  const [loading, setLoading] = useState(() => {
+    const key = (query || name).toLowerCase().trim()
+    return !imageCache.has(key) && !!(query || name)
+  })
 
   useEffect(() => {
     const searchTerm = query || name
-    if (!searchTerm) return
+    if (!searchTerm) {
+      setLoading(false)
+      return
+    }
 
     const cacheKey = searchTerm.toLowerCase().trim()
     if (imageCache.has(cacheKey)) {
       setSrc(imageCache.get(cacheKey) ?? null)
+      setLoading(false)
       return
     }
 
-    abortRef.current = false
+    let cancelled = false
     setLoading(true)
 
     async function fetchImage() {
       let url: string | null = null
 
       // Strategy 1: Google Places Photos (if enabled)
-      if (GOOGLE_PLACES_PHOTO_ENABLED) {
-        url = await fetchGooglePlacesPhoto(searchTerm)
+      if (GOOGLE_PLACES_PHOTO_ENABLED && !cancelled) {
+        url = await fetchWithTimeout(fetchGooglePlacesPhoto(searchTerm), 5000)
       }
 
-      // Strategy 2: Wikipedia
-      if (!url && !abortRef.current) {
-        url = await fetchWikipediaImage(searchTerm)
+      // Strategy 2: Wikipedia with imageQuery
+      if (!url && !cancelled) {
+        url = await fetchWithTimeout(fetchWikipediaImage(searchTerm), 5000)
       }
 
-      // Strategy 3: Try with just the name if query failed
-      if (!url && !abortRef.current && query && query !== name) {
-        url = await fetchWikipediaImage(name)
+      // Strategy 3: Try with just the activity name if query failed
+      if (!url && !cancelled && query && query !== name) {
+        url = await fetchWithTimeout(fetchWikipediaImage(name), 5000)
       }
 
       imageCache.set(cacheKey, url)
-      if (!abortRef.current) {
+      if (!cancelled) {
         setSrc(url)
         setLoading(false)
       }
@@ -61,18 +66,31 @@ export function useActivityImage(query: string | undefined, name: string) {
 
     fetchImage()
 
-    return () => { abortRef.current = true }
+    return () => { cancelled = true }
   }, [query, name])
 
   return { src, loading }
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+async function fetchWithTimeout<T>(promise: Promise<T>, ms: number): Promise<T | null> {
+  try {
+    const result = await Promise.race([
+      promise,
+      new Promise<null>((resolve) => setTimeout(() => resolve(null), ms)),
+    ])
+    return result
+  } catch {
+    return null
+  }
 }
 
 // ─── Wikipedia ────────────────────────────────────────────────────────────────
 
 async function fetchWikipediaImage(searchTerm: string): Promise<string | null> {
   try {
-    // Step 1: Search for the page
-    const searchParams = new URLSearchParams({
+    const params = new URLSearchParams({
       action: "query",
       format: "json",
       origin: "*",
@@ -84,36 +102,15 @@ async function fetchWikipediaImage(searchTerm: string): Promise<string | null> {
       pithumbsize: "800",
     })
 
-    const res = await fetch(`${WIKIPEDIA_API}?${searchParams}`)
+    const res = await fetch(`${WIKIPEDIA_API}?${params}`)
     if (!res.ok) return null
 
     const data = await res.json()
     const pages = data.query?.pages
     if (!pages) return null
 
-    // Get the first page's thumbnail
     const page = Object.values(pages)[0] as { thumbnail?: { source?: string } }
-    const thumbUrl = page?.thumbnail?.source
-
-    if (thumbUrl) return thumbUrl
-
-    // Step 2: If no thumbnail, try getting the main image via pageimages with original
-    const pageId = Object.keys(pages)[0]
-    const imgParams = new URLSearchParams({
-      action: "query",
-      format: "json",
-      origin: "*",
-      pageids: pageId,
-      prop: "pageimages",
-      piprop: "original",
-    })
-
-    const imgRes = await fetch(`${WIKIPEDIA_API}?${imgParams}`)
-    if (!imgRes.ok) return null
-
-    const imgData = await imgRes.json()
-    const imgPage = Object.values(imgData.query?.pages ?? {})[0] as { original?: { source?: string } }
-    return imgPage?.original?.source ?? null
+    return page?.thumbnail?.source ?? null
   } catch {
     return null
   }
@@ -126,8 +123,7 @@ async function fetchGooglePlacesPhoto(searchTerm: string): Promise<string | null
   if (!apiKey) return null
 
   try {
-    // Find Place
-    const findParams = new URLSearchParams({
+    const params = new URLSearchParams({
       input: searchTerm,
       inputtype: "textquery",
       fields: "photos",
@@ -135,7 +131,7 @@ async function fetchGooglePlacesPhoto(searchTerm: string): Promise<string | null
     })
 
     const res = await fetch(
-      `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?${findParams}`
+      `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?${params}`
     )
     if (!res.ok) return null
 
@@ -143,7 +139,6 @@ async function fetchGooglePlacesPhoto(searchTerm: string): Promise<string | null
     const photoRef = data.candidates?.[0]?.photos?.[0]?.photo_reference
     if (!photoRef) return null
 
-    // Return photo URL (maxwidth controls size/cost)
     return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${photoRef}&key=${apiKey}`
   } catch {
     return null

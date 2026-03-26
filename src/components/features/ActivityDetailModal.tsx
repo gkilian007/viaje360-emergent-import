@@ -448,48 +448,57 @@ export function ActivityDetailModal({ activity, tripId, currentDayNumber, onClos
 
               {/* Action buttons */}
               <div className="flex gap-3">
-                {activity.url && (
-                  <>
-                    <a
-                      href={activity.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={() => {
-                        const eventType = isRestaurant ? "menu_clicked" : "booking_clicked"
-                        track(eventType, activity.id, { url: activity.url })
-                      }}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-3.5 rounded-2xl font-semibold text-[14px] text-white transition-all hover:scale-[1.02] active:scale-[0.98]"
-                      style={{
-                        background: isRestaurant
-                          ? "linear-gradient(135deg, #FF9F0A, #FF6B00)"
-                          : "linear-gradient(135deg, #0A84FF, #5856D6)",
-                      }}
-                    >
-                      <span className="material-symbols-outlined text-[18px]">
-                        {isRestaurant ? "menu_book" : activity.url.includes("google.com/maps") ? "map" : "confirmation_number"}
-                      </span>
-                      {isRestaurant
-                        ? (activity.url.includes("google.com/maps") ? "Ver en Maps" : "Ver carta")
-                        : (activity.url.includes("google.com/maps") ? "Ver en Maps" : "Comprar entrada")}
-                    </a>
-                    {/* Always show Google Maps link as secondary if primary is not Maps */}
-                    {!activity.url.includes("google.com/maps") && (
+                {(() => {
+                  const mapsUrl = `https://www.google.com/maps/search/${encodeURIComponent(`${activity.name} ${activity.location}`)}`
+                  const hasDirectUrl = activity.url && !activity.url.includes("google.com/maps")
+
+                  return (
+                    <>
+                      {/* Primary action: direct link or Maps */}
                       <a
-                        href={`https://www.google.com/maps/search/${encodeURIComponent(`${activity.name} ${activity.location}`)}`}
+                        href={hasDirectUrl ? activity.url! : mapsUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 hover:bg-white/10 transition-colors"
-                        style={{
-                          background: "rgba(42,42,44,0.8)",
-                          border: "1px solid rgba(255,255,255,0.08)",
+                        onClick={() => {
+                          const eventType = isRestaurant ? "menu_clicked" : "booking_clicked"
+                          track(eventType, activity.id, { url: activity.url ?? mapsUrl })
                         }}
-                        title="Ver en Google Maps"
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3.5 rounded-2xl font-semibold text-[14px] text-white transition-all hover:scale-[1.02] active:scale-[0.98]"
+                        style={{
+                          background: isRestaurant
+                            ? "linear-gradient(135deg, #FF9F0A, #FF6B00)"
+                            : "linear-gradient(135deg, #0A84FF, #5856D6)",
+                        }}
                       >
-                        <span className="material-symbols-outlined text-[20px] text-[#c0c6d6]">map</span>
+                        <span className="material-symbols-outlined text-[18px]">
+                          {hasDirectUrl
+                            ? (isRestaurant ? "menu_book" : "confirmation_number")
+                            : "map"}
+                        </span>
+                        {hasDirectUrl
+                          ? (isRestaurant ? "Ver carta" : "Web oficial")
+                          : "Ver en Maps"}
                       </a>
-                    )}
-                  </>
-                )}
+
+                      {/* Secondary: Google Maps if primary is a direct link */}
+                      {hasDirectUrl && (
+                        <a
+                          href={mapsUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 hover:bg-white/10 transition-colors"
+                          style={{
+                            background: "rgba(42,42,44,0.8)",
+                            border: "1px solid rgba(255,255,255,0.08)",
+                          }}
+                          title="Ver en Google Maps"
+                        >
+                          <span className="material-symbols-outlined text-[20px] text-[#c0c6d6]">map</span>
+                        </a>
+                      )}
+                    </>
+                  )
+                })()}
                 <button
                   onClick={onClose}
                   className="px-4 py-3.5 rounded-2xl font-semibold text-[14px] text-[#c0c6d6] transition-all hover:bg-white/10"
