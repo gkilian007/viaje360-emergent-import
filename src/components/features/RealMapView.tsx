@@ -61,6 +61,22 @@ const TYPE_LABEL: Record<string, string> = {
   cafe: "Café",
 }
 
+// Type → color mapping
+const TYPE_COLOR: Record<string, string> = {
+  restaurant: "#FF9F0A",  // naranja
+  museum: "#5856D6",      // morado
+  monument: "#0A84FF",    // azul
+  park: "#30D158",        // verde
+  shopping: "#FF375F",    // rosa
+  tour: "#BF5AF2",        // púrpura
+  hotel: "#64748B",       // gris
+  transport: "#32ADE6",   // azul claro
+  nightlife: "#FFD60A",   // amarillo
+  beach: "#FF6B6B",       // coral
+  entertainment: "#FF2D55", // rojo rosa
+  cafe: "#A2845E",        // marrón
+}
+
 // Create marker icon with emoji by type + number badge
 function createActivityIcon(
   index: number,
@@ -69,13 +85,8 @@ function createActivityIcon(
   isFirst: boolean,
   isLast: boolean
 ) {
-  const color = isSelected
-    ? "#0A84FF"
-    : isFirst
-    ? "#30D158"
-    : isLast
-    ? "#FF453A"
-    : "#5856D6"
+  const typeColor = TYPE_COLOR[type] ?? "#5856D6"
+  const color = isSelected ? "#0A84FF" : typeColor
 
   const emoji = TYPE_EMOJI[type] ?? "📍"
   const size = isSelected ? 44 : 36
@@ -328,11 +339,7 @@ export function RealMapView({
 
           const accentColor = isSelected
             ? "#0A84FF"
-            : isFirst
-            ? "#30D158"
-            : isLast
-            ? "#FF453A"
-            : "#5856D6"
+            : TYPE_COLOR[geo.activity.type] ?? "#5856D6"
 
           return (
             <Marker
@@ -426,28 +433,27 @@ export function RealMapView({
         </div>
       )}
 
-      {/* Legend */}
-      <div
-        className="absolute left-4 bottom-4 px-3 py-2 rounded-xl flex items-center gap-3 z-[1000]"
-        style={{
-          background: "rgba(19,19,21,0.85)",
-          border: "1px solid rgba(255,255,255,0.06)",
-          backdropFilter: "blur(12px)",
-        }}
-      >
-        <div className="flex items-center gap-1.5">
-          <div className="w-2.5 h-2.5 rounded-full bg-[#30D158]" />
-          <span className="text-[11px] text-[#c0c6d6]">Inicio</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-2.5 h-2.5 rounded-full bg-[#5856D6]" />
-          <span className="text-[11px] text-[#c0c6d6]">Ruta</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-2.5 h-2.5 rounded-full bg-[#FF453A]" />
-          <span className="text-[11px] text-[#c0c6d6]">Final</span>
-        </div>
-      </div>
+      {/* Legend — show unique activity types present */}
+      {(() => {
+        const uniqueTypes = [...new Set(geocoded.map(g => g.activity.type))]
+        return uniqueTypes.length > 0 ? (
+          <div
+            className="absolute left-4 bottom-4 px-3 py-2 rounded-xl flex flex-wrap items-center gap-x-3 gap-y-1.5 z-[1000] max-w-[280px]"
+            style={{
+              background: "rgba(19,19,21,0.85)",
+              border: "1px solid rgba(255,255,255,0.06)",
+              backdropFilter: "blur(12px)",
+            }}
+          >
+            {uniqueTypes.map(type => (
+              <div key={type} className="flex items-center gap-1.5">
+                <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: TYPE_COLOR[type] ?? "#5856D6" }} />
+                <span className="text-[10px] text-[#c0c6d6]">{TYPE_LABEL[type] ?? type}</span>
+              </div>
+            ))}
+          </div>
+        ) : null
+      })()}
     </div>
   )
 }
