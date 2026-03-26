@@ -49,6 +49,7 @@ export interface TimelineActivity {
   type: ActivityType
   location: string
   time: string
+  endTime?: string
   duration: number
   cost: number
   booked: boolean

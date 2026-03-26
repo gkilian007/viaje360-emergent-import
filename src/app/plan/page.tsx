@@ -19,7 +19,9 @@ import { useActivityEventTracker } from "@/lib/hooks/useActivityEventTracker"
 import { useExistingDiary } from "@/lib/hooks/useExistingDiary"
 import { useAccess } from "@/lib/hooks/useAccess"
 import { useWalkingTimes } from "@/lib/hooks/useWalkingTimes"
+import { useCurrentActivity } from "@/lib/hooks/useCurrentActivity"
 import { WalkingChip } from "@/components/features/WalkingChip"
+import { CurrentActivityBanner } from "@/components/features/CurrentActivityBanner"
 import type { TimelineActivity, Trip } from "@/lib/types"
 
 function DaySelector({
@@ -160,6 +162,7 @@ function PlanPageContent() {
 
   const today = itinerary[selectedDay - 1]
   const { getSegment } = useWalkingTimes(today?.activities ?? [])
+  const liveStatus = useCurrentActivity(today?.activities ?? [], currentTrip?.startDate)
   const totalDays = itinerary.length
 
   if (!currentTrip || totalDays === 0) {
@@ -232,6 +235,17 @@ function PlanPageContent() {
             </div>
           )}
 
+          {/* Live activity banner */}
+          <CurrentActivityBanner
+            current={liveStatus.current}
+            next={liveStatus.next}
+            minutesRemaining={liveStatus.minutesRemaining}
+            minutesToNext={liveStatus.minutesToNext}
+            progress={liveStatus.progress}
+            isDayOver={liveStatus.isDayOver}
+            isDayNotStarted={liveStatus.isDayNotStarted}
+          />
+
           {/* Timeline */}
           <div className="px-5">
             {today?.activities.map((activity, i) => {
@@ -243,7 +257,7 @@ function PlanPageContent() {
                     activity={activity}
                     isFirst={i === 0}
                     isLast={i === today.activities.length - 1}
-                    isCurrent={i === 0}
+                    isCurrent={activity.id === liveStatus.current?.id}
                     onClick={handleActivityClick}
                   />
                   {seg && (
@@ -331,6 +345,15 @@ function PlanPageContent() {
                 <p className="text-[11px] uppercase tracking-widest text-[#c0c6d6] font-medium mb-4">
                   Itinerario — Día {selectedDay}
                 </p>
+                <CurrentActivityBanner
+                  current={liveStatus.current}
+                  next={liveStatus.next}
+                  minutesRemaining={liveStatus.minutesRemaining}
+                  minutesToNext={liveStatus.minutesToNext}
+                  progress={liveStatus.progress}
+                  isDayOver={liveStatus.isDayOver}
+                  isDayNotStarted={liveStatus.isDayNotStarted}
+                />
                 {today?.activities.map((activity, i) => {
                   const next = today.activities[i + 1]
                   const seg = next ? getSegment(activity.id, next.id) : undefined
@@ -340,7 +363,7 @@ function PlanPageContent() {
                         activity={activity}
                         isFirst={i === 0}
                         isLast={i === today.activities.length - 1}
-                        isCurrent={i === 0}
+                        isCurrent={activity.id === liveStatus.current?.id}
                         onClick={handleActivityClick}
                       />
                       {seg && (
