@@ -311,6 +311,8 @@ export interface GeneratedActivity {
   dietaryTags?: string[]
   recommendationReason?: string
   isLocked?: boolean
+  lat?: number
+  lng?: number
 }
 
 export interface GeneratedDay {

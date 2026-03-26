@@ -64,9 +64,11 @@ const GEMINI_ITINERARY_RESPONSE_SCHEMA = {
                 description: { type: "STRING" },
                 imageQuery: { type: "STRING" },
                 notes: { type: "STRING" },
-                icon: { type: "STRING" }
+                icon: { type: "STRING" },
+                lat: { type: "NUMBER" },
+                lng: { type: "NUMBER" }
               },
-              required: ["name", "type", "location", "time", "endTime", "duration", "cost", "pricePerPerson", "url", "description", "imageQuery", "notes"]
+              required: ["name", "type", "location", "time", "endTime", "duration", "cost", "pricePerPerson", "url", "description", "imageQuery", "notes", "lat", "lng"]
             }
           }
         },
@@ -112,13 +114,15 @@ EVERY activity MUST include ALL of these fields (no exceptions):
 - pricePerPerson: average € per person for restaurants (0 for non-restaurants)
 - imageQuery: search term for Google Images (e.g. "Real Alcázar Sevilla gardens")
 - notes: one practical operational tip (best entrance, what to book, what dish to ask for, what to avoid, how early to arrive)
+- lat: latitude of the location (decimal, e.g. 35.6762)
+- lng: longitude of the location (decimal, e.g. 139.6503)
 
 Make it ACTIONABLE, not generic. Bad: "Visit the cathedral." Good: "Enter through the Puerta del Lagarto, go first to the main nave, then climb the Giralda for city views before the midday queue."
 For restaurants: use REAL names that exist. url = menu page or TripAdvisor link. Mention a signature dish and why it fits the user's dietary needs.
 For museums/monuments: url = official ticket page. cost = real entry fee. Say what the user should prioritize inside.
 
 Return ONLY JSON, no comments, no markdown:
-{"tripName":"...","days":[{"dayNumber":1,"date":"YYYY-MM-DD","theme":"...","isRestDay":false,"activities":[{"name":"...","type":"...","location":"...","time":"HH:MM","endTime":"HH:MM","duration":90,"cost":0,"pricePerPerson":0,"url":"https://...","description":"...","imageQuery":"...","notes":"..."}]}]}`
+{"tripName":"...","days":[{"dayNumber":1,"date":"YYYY-MM-DD","theme":"...","isRestDay":false,"activities":[{"name":"...","type":"...","location":"...","time":"HH:MM","endTime":"HH:MM","duration":90,"cost":0,"pricePerPerson":0,"url":"https://...","description":"...","imageQuery":"...","notes":"...","lat":40.4168,"lng":-3.7038}]}]}`
 }
 
 function enumerateDates(startDate: string, endDate: string): string[] {
@@ -258,6 +262,8 @@ export function mapToAppTypes(
       pricePerPerson: act.pricePerPerson,
       imageQuery: act.imageQuery,
       recommendationReason: act.recommendationReason,
+      lat: act.lat,
+      lng: act.lng,
     })),
   }))
 

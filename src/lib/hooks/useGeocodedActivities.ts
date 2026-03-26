@@ -38,8 +38,9 @@ async function geocodeClient(
 
 /**
  * Geocode activities for the current day.
+ * If activities already have lat/lng (from Gemini), use them immediately.
+ * Falls back to Nominatim for activities without coordinates.
  * Caches results in a ref so re-renders don't re-fetch.
- * Serializes requests (1.1s gap) to respect Nominatim limits.
  */
 export function useGeocodedActivities(
   activities: TimelineActivity[],
@@ -58,16 +59,40 @@ export function useGeocodedActivities(
     }
 
     abortRef.current = false
+
+    // Separate activities with and without coordinates
+    const withCoords: GeocodedActivity[] = []
+    const needsGeocoding: TimelineActivity[] = []
+
+    for (const activity of activities) {
+      if (activity.lat != null && activity.lng != null && activity.lat !== 0 && activity.lng !== 0) {
+        withCoords.push({ activity, lat: activity.lat, lng: activity.lng })
+      } else {
+        needsGeocoding.push(activity)
+      }
+    }
+
+    // Show pre-geocoded activities immediately
+    if (withCoords.length > 0) {
+      setGeocoded(withCoords)
+    }
+
+    // If all activities have coords, we're done
+    if (needsGeocoding.length === 0) {
+      setGeocoded(withCoords)
+      setLoading(false)
+      return
+    }
+
     setLoading(true)
 
     async function run() {
-      const results: GeocodedActivity[] = []
+      const results: GeocodedActivity[] = [...withCoords]
       const cache = cacheRef.current
 
-      for (const activity of activities) {
+      for (const activity of needsGeocoding) {
         if (abortRef.current) break
 
-        // Use the activity location directly if it looks like a full address
         const hasFullAddress = activity.location.includes(",")
         const cacheKey = `${activity.name}|${activity.location}|${destination}`.toLowerCase()
 
@@ -77,7 +102,6 @@ export function useGeocodedActivities(
           continue
         }
 
-        // Try full address first, then name + destination as fallback
         const queries = hasFullAddress
           ? [activity.location, `${activity.name}, ${destination}`]
           : [`${activity.name}, ${destination}`]
@@ -86,7 +110,6 @@ export function useGeocodedActivities(
         for (const query of queries) {
           coords = await geocodeClient(query)
           if (coords) break
-          // Rate limit between retries too
           if (!abortRef.current) {
             await new Promise((r) => setTimeout(r, 1100))
           }
@@ -95,11 +118,9 @@ export function useGeocodedActivities(
 
         if (coords && !abortRef.current) {
           results.push({ activity, ...coords })
-          // Update progressively
           setGeocoded([...results])
         }
 
-        // Rate limit
         if (!abortRef.current) {
           await new Promise((r) => setTimeout(r, 1100))
         }

@@ -1,20 +1,17 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { useRouter } from "next/navigation"
-import dynamic from "next/dynamic"
 import { createClient, isSupabaseBrowserConfigured } from "@/lib/supabase/client"
-
-const LandingPage = dynamic(() => import("@/components/landing/LandingPage"), { ssr: false })
 
 export default function RootPage() {
   const router = useRouter()
-  const [showLanding, setShowLanding] = useState(false)
 
   useEffect(() => {
     async function check() {
       if (!isSupabaseBrowserConfigured()) {
-        setShowLanding(true)
+        // No Supabase → go straight to onboarding (dev mode)
+        router.replace("/home")
         return
       }
 
@@ -24,14 +21,17 @@ export default function RootPage() {
       if (data.user) {
         router.replace("/home")
       } else {
-        setShowLanding(true)
+        router.replace("/login")
       }
     }
 
     void check()
   }, [router])
 
-  if (!showLanding) return null
-
-  return <LandingPage />
+  // Brief loading state while checking auth
+  return (
+    <div className="min-h-screen bg-[#131315] flex items-center justify-center">
+      <div className="w-10 h-10 border-2 border-[#0A84FF] border-t-transparent rounded-full animate-spin" />
+    </div>
+  )
 }

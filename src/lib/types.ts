@@ -64,6 +64,10 @@ export interface TimelineActivity {
   imageQuery?: string
   /** Human-readable explanation of why this recommendation appears */
   recommendationReason?: string
+  /** Latitude for map display */
+  lat?: number
+  /** Longitude for map display */
+  lng?: number
 }
 
 export interface DayItinerary {
