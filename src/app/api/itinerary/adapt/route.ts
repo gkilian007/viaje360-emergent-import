@@ -6,7 +6,9 @@ import {
   successResponse,
   errorResponse,
 } from "@/lib/api/route-helpers"
+import { geocodeItinerary } from "@/lib/services/geocode.server"
 import { adaptItinerary } from "@/lib/services/itinerary.service"
+import { createServiceClient } from "@/lib/supabase/server"
 
 export async function POST(req: NextRequest) {
   try {
@@ -15,6 +17,17 @@ export async function POST(req: NextRequest) {
 
     if (!adapted) {
       return errorResponse("BAD_GATEWAY", "Could not adapt itinerary", 502)
+    }
+
+    // Server-side geocoding for new/changed activities
+    const supabase = createServiceClient()
+    const { data: trip } = await supabase
+      .from("trips")
+      .select("destination")
+      .eq("id", body.tripId)
+      .single()
+    if (trip?.destination) {
+      await geocodeItinerary(adapted, String(trip.destination))
     }
 
     return successResponse({ itinerary: adapted })

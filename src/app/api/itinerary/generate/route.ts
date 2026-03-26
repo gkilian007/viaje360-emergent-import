@@ -6,6 +6,7 @@ import {
   successResponse,
 } from "@/lib/api/route-helpers"
 import { resolveRequestIdentity } from "@/lib/auth/server"
+import { geocodeItinerary } from "@/lib/services/geocode.server"
 import { generateItinerary, mapToAppTypes } from "@/lib/services/itinerary.service"
 import { getPersonalRecommendationContext } from "@/lib/services/personal-recommendation"
 import { ingestItineraryKnowledge } from "@/lib/services/trip-learning.db"
@@ -23,6 +24,10 @@ export async function POST(req: NextRequest) {
     })
 
     const generatedItinerary = await generateItinerary(body, { userId: identity.userId, personalization })
+
+    // Server-side geocoding: resolve coordinates for all activities before saving
+    await geocodeItinerary(generatedItinerary, body.destination)
+
     const localTripId = `trip-${Date.now()}`
     const { trip, days } = mapToAppTypes(generatedItinerary, localTripId)
 
