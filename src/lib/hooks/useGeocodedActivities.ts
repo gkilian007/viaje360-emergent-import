@@ -39,7 +39,10 @@ export function useGeocodedActivities(
   const [geocoded, setGeocoded] = useState<GeocodedActivity[]>([])
   const [loading, setLoading] = useState(false)
   const cacheRef = useRef(new Map<string, { lat: number; lng: number } | null>())
-  const abortRef = useRef(false)
+  const versionRef = useRef(0)
+
+  // Stable key for activities
+  const activityKey = activities.map(a => a.id).join(",")
 
   useEffect(() => {
     if (!activities.length || !destination) {
@@ -48,7 +51,7 @@ export function useGeocodedActivities(
       return
     }
 
-    abortRef.current = false
+    const myVersion = ++versionRef.current
 
     // Separate activities with and without coordinates
     const withCoords: GeocodedActivity[] = []
@@ -80,9 +83,10 @@ export function useGeocodedActivities(
       const results: GeocodedActivity[] = [...withCoords]
       const cache = cacheRef.current
 
-      for (const activity of needsGeocoding) {
-        if (abortRef.current) break
+      for (let i = 0; i < needsGeocoding.length; i++) {
+        if (versionRef.current !== myVersion) return
 
+        const activity = needsGeocoding[i]
         const hasFullAddress = activity.location.includes(",")
         const cacheKey = `${activity.name}|${activity.location}|${destination}`.toLowerCase()
 
@@ -103,29 +107,25 @@ export function useGeocodedActivities(
         }
         cache.set(cacheKey, coords)
 
-        if (coords && !abortRef.current) {
+        if (coords && versionRef.current === myVersion) {
           results.push({ activity, ...coords })
         }
 
-        // Small delay between requests to be polite to Nominatim (via our API cache)
-        if (!abortRef.current && needsGeocoding.indexOf(activity) < needsGeocoding.length - 1) {
+        // Small delay between requests
+        if (versionRef.current === myVersion && i < needsGeocoding.length - 1) {
           await new Promise((r) => setTimeout(r, 300))
         }
       }
 
-      if (!abortRef.current) {
+      if (versionRef.current === myVersion) {
         setGeocoded([...results])
         setLoading(false)
       }
     }
 
     run()
-
-    return () => {
-      abortRef.current = true
-    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activities.map(a => a.id).join(","), destination])
+  }, [activityKey, destination])
 
   // Center of all geocoded points
   const validForCenter = geocoded.filter(g => isFinite(g.lat) && isFinite(g.lng))
