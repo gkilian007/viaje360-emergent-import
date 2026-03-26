@@ -11,6 +11,7 @@ import { DesktopLayout } from "@/components/layout/DesktopLayout"
 import { DynamicMapView } from "@/components/features/DynamicMapView"
 import { TimelineItem } from "@/components/features/TimelineItem"
 import { ActivityDetailModal } from "@/components/features/ActivityDetailModal"
+import { ErrorBoundary } from "@/components/ErrorBoundary"
 import { DiaryPromptCard } from "@/components/features/diary"
 import { PaywallModal } from "@/components/features/PaywallModal"
 import { TrialBanner } from "@/components/features/TrialBanner"
@@ -368,12 +369,14 @@ function PlanPageContent() {
       </div>
 
       {/* Activity detail modal */}
-      <ActivityDetailModal
-        activity={selectedActivity}
-        tripId={currentTrip?.id ?? null}
-        currentDayNumber={selectedDay}
-        onClose={() => setSelectedActivity(null)}
-      />
+      <ErrorBoundary fallback={null}>
+        <ActivityDetailModal
+          activity={selectedActivity}
+          tripId={currentTrip?.id ?? null}
+          currentDayNumber={selectedDay}
+          onClose={() => setSelectedActivity(null)}
+        />
+      </ErrorBoundary>
 
       {/* Achievement overlay */}
       {pendingAchievement && <AchievementOverlay achievement={pendingAchievement} />}

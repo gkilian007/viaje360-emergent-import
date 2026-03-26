@@ -81,65 +81,24 @@ function ActivityImage({ imageUrl, loading, name, type }: { imageUrl?: string | 
 }
 
 function MiniMap({ lat, lng, name, location }: { lat: number; lng: number; name: string; location: string }) {
-  const [loaded, setLoaded] = useState(false)
-  const [error, setError] = useState(false)
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`
-  const osmEmbedUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${lng - 0.005},${lat - 0.003},${lng + 0.005},${lat + 0.003}&layer=mapnik&marker=${lat},${lng}`
-
-  if (error) {
-    return (
-      <a
-        href={mapsUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="mb-5 flex items-center gap-3 p-3 rounded-2xl border border-white/8 bg-white/[0.03] hover:bg-white/[0.06] transition-colors"
-      >
-        <span className="material-symbols-outlined text-[24px] text-[#0A84FF]">map</span>
-        <div>
-          <p className="text-[13px] text-white font-medium">Ver en Google Maps</p>
-          <p className="text-[11px] text-[#888]">{location}</p>
-        </div>
-        <span className="material-symbols-outlined text-[16px] text-[#555] ml-auto">open_in_new</span>
-      </a>
-    )
-  }
 
   return (
-    <div className="mb-5 rounded-2xl overflow-hidden border border-white/8 relative">
-      {!loaded && (
-        <div className="absolute inset-0 bg-[#1a1a2e] flex items-center justify-center z-10">
-          <div className="flex flex-col items-center gap-2">
-            <div className="w-5 h-5 border-2 border-[#0A84FF] border-t-transparent rounded-full animate-spin" />
-            <span className="text-[11px] text-[#888]">Cargando mapa...</span>
-          </div>
-        </div>
-      )}
-      <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="block">
-        <iframe
-          src={osmEmbedUrl}
-          width="100%"
-          height="140"
-          style={{ border: 0, display: "block", filter: "invert(1) hue-rotate(180deg) brightness(0.9) contrast(1.1)" }}
-          loading="lazy"
-          title={`Mapa de ${name}`}
-          onLoad={() => setLoaded(true)}
-          onError={() => setError(true)}
-          sandbox="allow-scripts allow-same-origin"
-        />
-      </a>
-      <a
-        href={mapsUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex items-center justify-between px-3 py-2 bg-[#1c1c1e] hover:bg-[#2a2a2c] transition-colors"
-      >
-        <span className="text-[11px] text-[#c0c6d6]">📍 {location}</span>
-        <span className="text-[11px] text-[#0A84FF] font-medium flex items-center gap-1">
-          Abrir Maps
-          <span className="material-symbols-outlined text-[12px]">open_in_new</span>
-        </span>
-      </a>
-    </div>
+    <a
+      href={mapsUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="mb-5 flex items-center gap-3 p-3.5 rounded-2xl border border-white/8 bg-[#0A84FF]/5 hover:bg-[#0A84FF]/10 transition-colors"
+    >
+      <div className="w-10 h-10 rounded-xl bg-[#0A84FF]/15 flex items-center justify-center shrink-0">
+        <span className="material-symbols-outlined text-[22px] text-[#0A84FF]">map</span>
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-[13px] text-white font-medium">Ver ubicación en el mapa</p>
+        <p className="text-[11px] text-[#888] truncate">{location}</p>
+      </div>
+      <span className="material-symbols-outlined text-[18px] text-[#0A84FF] shrink-0">open_in_new</span>
+    </a>
   )
 }
 
