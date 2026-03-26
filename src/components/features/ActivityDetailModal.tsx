@@ -285,13 +285,13 @@ export function ActivityDetailModal({ activity, tripId, currentDayNumber, onClos
             onClick={onClose}
           />
 
-          {/* Modal */}
+          {/* Modal — bottom sheet on mobile, centered card on desktop */}
           <motion.div
             initial={{ opacity: 0, y: "100%" }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: "100%" }}
             transition={{ type: "spring", damping: 30, stiffness: 300 }}
-            className="fixed bottom-0 left-0 right-0 z-50 max-h-[85dvh] overflow-hidden rounded-t-3xl flex flex-col"
+            className="fixed z-50 overflow-hidden flex flex-col bottom-0 left-0 right-0 max-h-[85dvh] rounded-t-3xl lg:bottom-auto lg:left-1/2 lg:right-auto lg:top-1/2 lg:-translate-x-1/2 lg:-translate-y-1/2 lg:w-[520px] lg:max-h-[85vh] lg:rounded-3xl"
             style={{
               background: "rgba(28, 28, 30, 0.98)",
               backdropFilter: "blur(40px)",
