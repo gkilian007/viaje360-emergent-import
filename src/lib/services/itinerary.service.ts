@@ -119,6 +119,13 @@ EVERY activity MUST include ALL of these fields (no exceptions):
 
 CRITICAL: NEVER repeat the same restaurant, museum, monument, or activity on different days. Each activity must appear only ONCE in the entire trip. Every day should have completely different places.
 
+URL RULES (VERY IMPORTANT):
+- url MUST be a REAL, VERIFIED, currently working URL. Not made up.
+- For museums/monuments: use the OFFICIAL ticket purchase page (e.g. sagradafamilia.org/en/tickets, museupicasso.bcn.cat)
+- For restaurants: use their official website, Google Maps link (https://maps.google.com/?q=RESTAURANT+NAME+CITY), or TripAdvisor page
+- If you are NOT 100% sure the URL exists, use this format instead: https://www.google.com/maps/search/PLACE+NAME+CITY
+- NEVER invent a URL. A Google Maps search link is always better than a fake URL.
+
 Make it ACTIONABLE, not generic. Bad: "Visit the cathedral." Good: "Enter through the Puerta del Lagarto, go first to the main nave, then climb the Giralda for city views before the midday queue."
 For restaurants: use REAL names that exist. url = menu page or TripAdvisor link. Mention a signature dish and why it fits the user's dietary needs.
 For museums/monuments: url = official ticket page. cost = real entry fee. Say what the user should prioritize inside.
@@ -240,6 +247,36 @@ async function callGeminiWithRepair(prompt: string, reason: string): Promise<str
   return callGeminiRaw(`${prompt}\n\n${buildRepairHint(reason)}`)
 }
 
+/**
+ * Ensure every activity has a usable URL.
+ * If Gemini's URL looks suspicious or is empty, generate a Google Maps search link.
+ */
+function ensureActivityUrl(name: string, location: string, type: string, url?: string): string {
+  // If no URL at all, generate one
+  if (!url || url.trim().length === 0) {
+    return `https://www.google.com/maps/search/${encodeURIComponent(`${name} ${location}`)}`
+  }
+
+  // Basic validation: must start with http(s)
+  if (!url.startsWith("http://") && !url.startsWith("https://")) {
+    return `https://www.google.com/maps/search/${encodeURIComponent(`${name} ${location}`)}`
+  }
+
+  // Known bad patterns (Gemini hallucinations)
+  const suspiciousPatterns = [
+    /example\.com/i,
+    /placeholder/i,
+    /localhost/i,
+    /\.test\//i,
+    /fakepage/i,
+  ]
+  if (suspiciousPatterns.some(p => p.test(url))) {
+    return `https://www.google.com/maps/search/${encodeURIComponent(`${name} ${location}`)}`
+  }
+
+  return url
+}
+
 export function mapToAppTypes(
   itinerary: GeneratedItinerary,
   tripId: string
@@ -260,7 +297,7 @@ export function mapToAppTypes(
       notes: act.notes,
       description: act.description,
       icon: act.icon,
-      url: act.url,
+      url: ensureActivityUrl(act.name, act.location ?? "", act.type, act.url),
       pricePerPerson: act.pricePerPerson,
       imageQuery: act.imageQuery,
       recommendationReason: act.recommendationReason,
