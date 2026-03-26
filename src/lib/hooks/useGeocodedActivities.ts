@@ -100,24 +100,21 @@ export function useGeocodedActivities(
         for (const query of queries) {
           coords = await geocodeClient(query, destination)
           if (coords) break
-          if (!abortRef.current) {
-            await new Promise((r) => setTimeout(r, 1100))
-          }
         }
         cache.set(cacheKey, coords)
 
         if (coords && !abortRef.current) {
           results.push({ activity, ...coords })
-          setGeocoded([...results])
         }
 
-        if (!abortRef.current) {
-          await new Promise((r) => setTimeout(r, 1100))
+        // Small delay between requests to be polite to Nominatim (via our API cache)
+        if (!abortRef.current && needsGeocoding.indexOf(activity) < needsGeocoding.length - 1) {
+          await new Promise((r) => setTimeout(r, 300))
         }
       }
 
       if (!abortRef.current) {
-        setGeocoded(results)
+        setGeocoded([...results])
         setLoading(false)
       }
     }

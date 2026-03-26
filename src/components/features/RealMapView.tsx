@@ -212,9 +212,12 @@ function UserLocation() {
 
 // Real walking route segments using OSRM geometry
 function RealRouteSegments({ geocoded }: { geocoded: GeocodedActivity[] }) {
+  // Stabilize reference — only recompute when the set of activity IDs changes
+  const geoKey = geocoded.map(g => g.activity.id).join(",")
   const activities = useMemo(
-    () => geocoded.map(g => ({ id: g.activity.id, type: g.activity.type, lat: g.lat, lng: g.lng })),
-    [geocoded]
+    () => geocoded.filter(g => isFinite(g.lat) && isFinite(g.lng)).map(g => ({ id: g.activity.id, type: g.activity.type, lat: g.lat, lng: g.lng })),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [geoKey]
   )
 
   const segments = useRouteGeometry(activities, TYPE_COLOR)
@@ -254,18 +257,27 @@ function RealRouteSegments({ geocoded }: { geocoded: GeocodedActivity[] }) {
 // Auto-fit map bounds when markers change
 function FitBounds({ geocoded }: { geocoded: GeocodedActivity[] }) {
   const map = useMap()
+  const fittedRef = useRef(false)
 
   useEffect(() => {
     const valid = geocoded.filter(g => isFinite(g.lat) && isFinite(g.lng))
     if (valid.length === 0) return
 
-    // Skip if map container has zero size (hidden in mobile)
+    // Only fit bounds once when markers first appear — avoids jarring re-fits
+    if (fittedRef.current) return
+    fittedRef.current = true
+
     const size = map.getSize()
     if (size.x === 0 || size.y === 0) return
 
     const bounds = L.latLngBounds(valid.map((g) => [g.lat, g.lng]))
     map.fitBounds(bounds, { padding: [40, 40], maxZoom: 15 })
   }, [geocoded, map])
+
+  // Reset when day changes (geocoded array reference changes completely)
+  useEffect(() => {
+    fittedRef.current = false
+  }, [geocoded.length === 0])
 
   return null
 }
