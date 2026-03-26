@@ -18,6 +18,8 @@ import { TrialBanner } from "@/components/features/TrialBanner"
 import { useActivityEventTracker } from "@/lib/hooks/useActivityEventTracker"
 import { useExistingDiary } from "@/lib/hooks/useExistingDiary"
 import { useAccess } from "@/lib/hooks/useAccess"
+import { useWalkingTimes } from "@/lib/hooks/useWalkingTimes"
+import { WalkingChip } from "@/components/features/WalkingChip"
 import type { TimelineActivity, Trip } from "@/lib/types"
 
 function DaySelector({
@@ -157,6 +159,7 @@ function PlanPageContent() {
   }
 
   const today = itinerary[selectedDay - 1]
+  const { getSegment } = useWalkingTimes(today?.activities ?? [])
   const totalDays = itinerary.length
 
   if (!currentTrip || totalDays === 0) {
@@ -231,16 +234,28 @@ function PlanPageContent() {
 
           {/* Timeline */}
           <div className="px-5">
-            {today?.activities.map((activity, i) => (
-              <TimelineItem
-                key={activity.id}
-                activity={activity}
-                isFirst={i === 0}
-                isLast={i === today.activities.length - 1}
-                isCurrent={i === 0}
-                onClick={handleActivityClick}
-              />
-            ))}
+            {today?.activities.map((activity, i) => {
+              const next = today.activities[i + 1]
+              const seg = next ? getSegment(activity.id, next.id) : undefined
+              return (
+                <div key={activity.id}>
+                  <TimelineItem
+                    activity={activity}
+                    isFirst={i === 0}
+                    isLast={i === today.activities.length - 1}
+                    isCurrent={i === 0}
+                    onClick={handleActivityClick}
+                  />
+                  {seg && (
+                    <WalkingChip
+                      walkingMinutes={seg.walkingMinutes}
+                      distanceMeters={seg.distanceMeters}
+                      mapsUrl={seg.mapsUrl}
+                    />
+                  )}
+                </div>
+              )
+            })}
             {(!today || today.activities.length === 0) && (
               <div className="text-center py-12">
                 <span className="material-symbols-outlined text-[48px] text-[#c0c6d6]/30">beach_access</span>
@@ -316,16 +331,28 @@ function PlanPageContent() {
                 <p className="text-[11px] uppercase tracking-widest text-[#c0c6d6] font-medium mb-4">
                   Itinerario — Día {selectedDay}
                 </p>
-                {today?.activities.map((activity, i) => (
-                  <TimelineItem
-                    key={activity.id}
-                    activity={activity}
-                    isFirst={i === 0}
-                    isLast={i === today.activities.length - 1}
-                    isCurrent={i === 0}
-                    onClick={handleActivityClick}
-                  />
-                ))}
+                {today?.activities.map((activity, i) => {
+                  const next = today.activities[i + 1]
+                  const seg = next ? getSegment(activity.id, next.id) : undefined
+                  return (
+                    <div key={activity.id}>
+                      <TimelineItem
+                        activity={activity}
+                        isFirst={i === 0}
+                        isLast={i === today.activities.length - 1}
+                        isCurrent={i === 0}
+                        onClick={handleActivityClick}
+                      />
+                      {seg && (
+                        <WalkingChip
+                          walkingMinutes={seg.walkingMinutes}
+                          distanceMeters={seg.distanceMeters}
+                          mapsUrl={seg.mapsUrl}
+                        />
+                      )}
+                    </div>
+                  )
+                })}
               </div>
 
               {/* Adapt input */}
