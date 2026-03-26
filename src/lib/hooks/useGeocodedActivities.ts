@@ -65,7 +65,7 @@ export function useGeocodedActivities(
     const needsGeocoding: TimelineActivity[] = []
 
     for (const activity of activities) {
-      if (activity.lat != null && activity.lng != null && activity.lat !== 0 && activity.lng !== 0) {
+      if (typeof activity.lat === "number" && typeof activity.lng === "number" && isFinite(activity.lat) && isFinite(activity.lng) && activity.lat !== 0 && activity.lng !== 0) {
         withCoords.push({ activity, lat: activity.lat, lng: activity.lng })
       } else {
         needsGeocoding.push(activity)
@@ -140,11 +140,12 @@ export function useGeocodedActivities(
   }, [activities, destination])
 
   // Center of all geocoded points
+  const validForCenter = geocoded.filter(g => isFinite(g.lat) && isFinite(g.lng))
   const center =
-    geocoded.length > 0
+    validForCenter.length > 0
       ? {
-          lat: geocoded.reduce((sum, g) => sum + g.lat, 0) / geocoded.length,
-          lng: geocoded.reduce((sum, g) => sum + g.lng, 0) / geocoded.length,
+          lat: validForCenter.reduce((sum, g) => sum + g.lat, 0) / validForCenter.length,
+          lng: validForCenter.reduce((sum, g) => sum + g.lng, 0) / validForCenter.length,
         }
       : null
 

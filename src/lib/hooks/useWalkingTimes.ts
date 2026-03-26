@@ -19,7 +19,7 @@ export function useWalkingTimes(activities: TimelineActivity[]) {
 
   useEffect(() => {
     // Filter activities that have coordinates
-    const withCoords = activities.filter(a => a.lat && a.lng)
+    const withCoords = activities.filter(a => typeof a.lat === "number" && typeof a.lng === "number" && !isNaN(a.lat) && !isNaN(a.lng))
     if (withCoords.length < 2) {
       setSegments(new Map())
       return

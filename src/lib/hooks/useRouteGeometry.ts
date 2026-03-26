@@ -47,7 +47,8 @@ export function useRouteGeometry(activities: GeoActivity[], typeColors: Record<s
   const abortRef = useRef(false)
 
   useEffect(() => {
-    if (activities.length < 2) {
+    const valid = activities.filter(a => typeof a.lat === "number" && typeof a.lng === "number" && !isNaN(a.lat) && !isNaN(a.lng))
+    if (valid.length < 2) {
       setSegments([])
       return
     }
@@ -56,11 +57,11 @@ export function useRouteGeometry(activities: GeoActivity[], typeColors: Record<s
     const result: RouteSegment[] = []
 
     async function fetchAll() {
-      for (let i = 0; i < activities.length - 1; i++) {
+      for (let i = 0; i < valid.length - 1; i++) {
         if (abortRef.current) break
 
-        const from = activities[i]
-        const to = activities[i + 1]
+        const from = valid[i]
+        const to = valid[i + 1]
         const key = `${from.lat.toFixed(5)},${from.lng.toFixed(5)}->${to.lat.toFixed(5)},${to.lng.toFixed(5)}`
 
         let coords = cache.get(key) ?? null
@@ -80,7 +81,7 @@ export function useRouteGeometry(activities: GeoActivity[], typeColors: Record<s
         }
 
         // Rate limit
-        if (i < activities.length - 2 && !abortRef.current) {
+        if (i < valid.length - 2 && !abortRef.current) {
           await new Promise(r => setTimeout(r, 200))
         }
       }

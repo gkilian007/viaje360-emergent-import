@@ -256,9 +256,14 @@ function FitBounds({ geocoded }: { geocoded: GeocodedActivity[] }) {
   const map = useMap()
 
   useEffect(() => {
-    if (geocoded.length === 0) return
+    const valid = geocoded.filter(g => isFinite(g.lat) && isFinite(g.lng))
+    if (valid.length === 0) return
 
-    const bounds = L.latLngBounds(geocoded.map((g) => [g.lat, g.lng]))
+    // Skip if map container has zero size (hidden in mobile)
+    const size = map.getSize()
+    if (size.x === 0 || size.y === 0) return
+
+    const bounds = L.latLngBounds(valid.map((g) => [g.lat, g.lng]))
     map.fitBounds(bounds, { padding: [40, 40], maxZoom: 15 })
   }, [geocoded, map])
 
@@ -279,8 +284,12 @@ function FlyToSelected({
     if (!selectedActivityId) return
 
     const target = geocoded.find((g) => g.activity.id === selectedActivityId)
-    if (target) {
-      map.flyTo([target.lat, target.lng], 16, { duration: 0.8 })
+    if (target && isFinite(target.lat) && isFinite(target.lng)) {
+      // Skip flyTo if map container has zero size (hidden in mobile)
+      const size = map.getSize()
+      if (size.x > 0 && size.y > 0) {
+        map.flyTo([target.lat, target.lng], 16, { duration: 0.8 })
+      }
     }
   }, [selectedActivityId, geocoded, map])
 
@@ -332,7 +341,7 @@ export function RealMapView({
         <UserLocation />
 
         {/* Activity markers */}
-        {geocoded.map((geo, index) => {
+        {geocoded.filter(g => isFinite(g.lat) && isFinite(g.lng)).map((geo, index) => {
           const isSelected = geo.activity.id === selectedActivityId
           const isFirst = index === 0
           const isLast = index === geocoded.length - 1
