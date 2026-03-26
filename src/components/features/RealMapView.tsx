@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import { MapContainer, TileLayer, Marker, Popup, Polyline, Circle, useMap } from "react-leaflet"
 import L from "leaflet"
 import "leaflet/dist/leaflet.css"
+import { useRouteGeometry } from "@/lib/hooks/useRouteGeometry"
 
 interface GeocodedActivity {
   activity: {
@@ -209,34 +210,41 @@ function UserLocation() {
   )
 }
 
-// Colored route segments between consecutive activities
-function RouteSegments({ geocoded }: { geocoded: GeocodedActivity[] }) {
-  if (geocoded.length < 2) return null
+// Real walking route segments using OSRM geometry
+function RealRouteSegments({ geocoded }: { geocoded: GeocodedActivity[] }) {
+  const activities = useMemo(
+    () => geocoded.map(g => ({ id: g.activity.id, type: g.activity.type, lat: g.lat, lng: g.lng })),
+    [geocoded]
+  )
 
-  const segments: Array<{ positions: [number, number][]; color: string; opacity: number }> = []
-  for (let i = 0; i < geocoded.length - 1; i++) {
-    const from = geocoded[i]
-    const to = geocoded[i + 1]
-    const progress = i / (geocoded.length - 1)
-    // Gradient from green (start) → purple (mid) → red (end)
-    const color = progress < 0.5
-      ? `hsl(${145 - progress * 2 * 85}, 70%, 50%)`
-      : `hsl(${60 - (progress - 0.5) * 2 * 60}, 70%, 50%)`
+  const segments = useRouteGeometry(activities, TYPE_COLOR)
 
-    segments.push({
-      positions: [[from.lat, from.lng], [to.lat, to.lng]],
-      color,
-      opacity: 0.7,
-    })
+  if (segments.length === 0) {
+    // Fallback to straight lines while loading
+    return (
+      <>
+        {geocoded.length >= 2 && geocoded.map((g, i) => {
+          if (i === geocoded.length - 1) return null
+          const next = geocoded[i + 1]
+          return (
+            <Polyline
+              key={`fallback-${i}`}
+              positions={[[g.lat, g.lng], [next.lat, next.lng]]}
+              pathOptions={{ color: TYPE_COLOR[next.activity.type] ?? "#5856D6", weight: 2, opacity: 0.3, dashArray: "6, 8" }}
+            />
+          )
+        })}
+      </>
+    )
   }
 
   return (
     <>
       {segments.map((seg, i) => (
         <Polyline
-          key={`seg-${i}`}
-          positions={seg.positions}
-          pathOptions={{ color: seg.color, weight: 3, opacity: seg.opacity, dashArray: "8, 6" }}
+          key={`route-${i}`}
+          positions={seg.coordinates}
+          pathOptions={{ color: seg.color, weight: 3.5, opacity: 0.8 }}
         />
       ))}
     </>
@@ -291,12 +299,6 @@ export function RealMapView({
   // Inject dark-popup & pulse styles once
   useEffect(() => injectMapStyles(), [])
 
-  // Route polyline
-  const routePositions = useMemo(
-    () => geocoded.map((g) => [g.lat, g.lng] as [number, number]),
-    [geocoded]
-  )
-
   if (geocoded.length === 0 && !loading) {
     // Still render map with default center, just no markers yet
   }
@@ -324,7 +326,7 @@ export function RealMapView({
         <FlyToSelected geocoded={geocoded} selectedActivityId={selectedActivityId} />
 
         {/* Route segments with gradient colors */}
-        <RouteSegments geocoded={geocoded} />
+        <RealRouteSegments geocoded={geocoded} />
 
         {/* User location */}
         <UserLocation />
