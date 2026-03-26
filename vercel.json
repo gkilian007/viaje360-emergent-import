@@ -1,3 +1,14 @@
 {
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "functions": {
+    "src/app/api/itinerary/generate/route.ts": {
+      "maxDuration": 60
+    },
+    "src/app/api/itinerary/adapt/route.ts": {
+      "maxDuration": 60
+    },
+    "src/app/api/chat/route.ts": {
+      "maxDuration": 30
+    }
+  }
 }
