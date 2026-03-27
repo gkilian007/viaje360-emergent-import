@@ -2,13 +2,15 @@ import { Resend } from "resend"
 
 let resendClient: Resend | null = null
 
-function getResendClient(): Resend {
+function isResendConfigured(): boolean {
+  const apiKey = process.env.RESEND_API_KEY
+  return !!apiKey && apiKey !== "placeholder"
+}
+
+function getResendClient(): Resend | null {
+  if (!isResendConfigured()) return null
   if (!resendClient) {
-    const apiKey = process.env.RESEND_API_KEY
-    if (!apiKey || apiKey === "placeholder") {
-      throw new Error("RESEND_API_KEY is not configured")
-    }
-    resendClient = new Resend(apiKey)
+    resendClient = new Resend(process.env.RESEND_API_KEY!)
   }
   return resendClient
 }
@@ -16,15 +18,24 @@ function getResendClient(): Resend {
 const FROM_EMAIL = "Viaje360 <noreply@viaje360.app>"
 
 /**
- * Base email sender — fail gracefully (never throws to caller)
+ * Base email sender — fail gracefully (never throws to caller).
+ * When RESEND_API_KEY is not configured, logs the attempt and returns false.
  */
 export async function sendEmail(
   to: string,
   subject: string,
   html: string
 ): Promise<boolean> {
+  const resend = getResendClient()
+
+  if (!resend) {
+    console.warn(
+      `[email.service] RESEND_API_KEY not configured — skipping email to ${to} (subject: "${subject}")`
+    )
+    return false
+  }
+
   try {
-    const resend = getResendClient()
     const { error } = await resend.emails.send({
       from: FROM_EMAIL,
       to,
