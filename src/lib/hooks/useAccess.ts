@@ -26,7 +26,10 @@ const DEFAULT_ACCESS: AccessState = {
   loading: true,
 }
 
-export function useAccess(destination: string | null | undefined) {
+export function useAccess(
+  destination: string | null | undefined,
+  tripStartDate?: string | null
+) {
   const [access, setAccess] = useState<AccessState>(DEFAULT_ACCESS)
 
   const refresh = useCallback(async () => {
@@ -36,8 +39,10 @@ export function useAccess(destination: string | null | undefined) {
     }
 
     try {
+      const params = new URLSearchParams({ destination })
+      if (tripStartDate) params.set("tripStartDate", tripStartDate)
       const res = await fetch(
-        `/api/access?destination=${encodeURIComponent(destination)}`,
+        `/api/access?${params}`,
         { cache: "no-store" }
       )
 
@@ -64,7 +69,7 @@ export function useAccess(destination: string | null | undefined) {
       // On error, grant access to avoid blocking
       setAccess({ ...DEFAULT_ACCESS, loading: false })
     }
-  }, [destination])
+  }, [destination, tripStartDate])
 
   useEffect(() => {
     refresh()

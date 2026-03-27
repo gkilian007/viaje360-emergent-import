@@ -13,7 +13,8 @@ export interface AccessResult {
   canDiary: boolean
 }
 
-const TRIAL_DURATION_MS = 14 * 24 * 60 * 60 * 1000 // 14 days
+const TRIAL_DURATION_DAYS = 2
+const TRIAL_DURATION_MS = TRIAL_DURATION_DAYS * 24 * 60 * 60 * 1000
 
 function normalizeDestination(dest: string): string {
   return dest.toLowerCase().trim()
@@ -29,10 +30,17 @@ function isBypassEnabled(): boolean {
 /**
  * Resolve access for a user + destination.
  * Creates a trial automatically if none exists.
+ *
+ * @param tripStartDate ISO date string of when the trip starts.
+ *   The 2-day trial is measured from the trip start date, not from
+ *   when the itinerary was generated. This lets users plan ahead freely
+ *   and only consumes trial days while they are actually traveling.
+ *   If null/undefined, falls back to the stored trial expiry or now+2d.
  */
 export async function resolveAccess(
   userId: string | null,
-  destination: string
+  destination: string,
+  tripStartDate?: string | null
 ): Promise<AccessResult> {
   const noAccess: AccessResult = {
     hasAccess: false,
@@ -130,7 +138,38 @@ export async function resolveAccess(
       .maybeSingle()
 
     if (trial) {
-      const expiresAt = new Date(trial.expires_at as string)
+      // Recalculate expiry based on tripStartDate if provided and more recent than stored
+      // This allows updating the expiry if the user changes trip dates
+      let expiresAt = new Date(trial.expires_at as string)
+
+      if (tripStartDate) {
+        const startDate = new Date(tripStartDate)
+        const startBasedExpiry = new Date(startDate.getTime() + TRIAL_DURATION_MS)
+        // If the trip hasn't started yet, grant unlimited access to planning
+        // The trial clock only starts ticking on the trip start date
+        if (now < startDate) {
+          return {
+            hasAccess: true,
+            reason: "trial",
+            plan: "free",
+            trialExpiresAt: startBasedExpiry.toISOString(),
+            daysRemaining: TRIAL_DURATION_DAYS,
+            canAdapt: true,
+            canGenerate: true,
+            canDiary: true,
+          }
+        }
+        // Trip has started — use start-based expiry
+        expiresAt = startBasedExpiry
+        // Update stored expiry if different (lazy migration)
+        if (Math.abs(expiresAt.getTime() - new Date(trial.expires_at as string).getTime()) > 60000) {
+          await supabase
+            .from("destination_trials")
+            .update({ expires_at: expiresAt.toISOString() })
+            .eq("id", trial.id)
+        }
+      }
+
       if (expiresAt > now) {
         const msRemaining = expiresAt.getTime() - now.getTime()
         const daysRemaining = Math.max(0, msRemaining / (24 * 60 * 60 * 1000))
@@ -138,7 +177,7 @@ export async function resolveAccess(
           hasAccess: true,
           reason: "trial",
           plan: "free",
-          trialExpiresAt: trial.expires_at as string,
+          trialExpiresAt: expiresAt.toISOString(),
           daysRemaining: Math.round(daysRemaining * 10) / 10,
           canAdapt: true,
           canGenerate: true,
@@ -148,14 +187,18 @@ export async function resolveAccess(
         // Trial expired
         return {
           ...noAccess,
-          trialExpiresAt: trial.expires_at as string,
+          trialExpiresAt: expiresAt.toISOString(),
           daysRemaining: 0,
         }
       }
     }
 
-    // No trial exists — create one
-    const expiresAt = new Date(now.getTime() + TRIAL_DURATION_MS)
+    // No trial exists — create one.
+    // If we know the trip start date, anchor the expiry to it.
+    // If not, anchor to now (fallback for edge cases).
+    const trialAnchor = tripStartDate ? new Date(tripStartDate) : now
+    const expiresAt = new Date(trialAnchor.getTime() + TRIAL_DURATION_MS)
+
     await supabase.from("destination_trials").insert({
       user_id: userId,
       destination: dest,
@@ -163,12 +206,14 @@ export async function resolveAccess(
       expires_at: expiresAt.toISOString(),
     })
 
+    // If trip hasn't started yet, user has full access to plan freely
+    const tripNotStarted = tripStartDate && now < new Date(tripStartDate)
     return {
       hasAccess: true,
       reason: "new_trial",
       plan: "free",
       trialExpiresAt: expiresAt.toISOString(),
-      daysRemaining: 14,
+      daysRemaining: tripNotStarted ? TRIAL_DURATION_DAYS : TRIAL_DURATION_DAYS,
       canAdapt: true,
       canGenerate: true,
       canDiary: true,

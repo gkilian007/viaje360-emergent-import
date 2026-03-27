@@ -7,6 +7,7 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)
     const destination = searchParams.get("destination")
+    const tripStartDate = searchParams.get("tripStartDate") // ISO date of trip start
 
     if (!destination) {
       return successResponse({
@@ -22,7 +23,7 @@ export async function GET(req: NextRequest) {
     }
 
     const identity = await resolveRequestIdentity()
-    const access = await resolveAccess(identity.userId, destination)
+    const access = await resolveAccess(identity.userId, destination, tripStartDate)
 
     return successResponse(access)
   } catch (error) {

@@ -112,7 +112,7 @@ function PlanPageContent() {
   const [showDiarySaved, setShowDiarySaved] = useState(false)
   const { trackEvent } = useActivityEventTracker()
   const { hasExistingDiary } = useExistingDiary(currentTrip?.id ?? null, selectedDay)
-  const access = useAccess(currentTrip?.destination)
+  const access = useAccess(currentTrip?.destination, currentTrip?.startDate)
   const [showPaywall, setShowPaywall] = useState(false)
   const [serverLoaded, setServerLoaded] = useState(false)
 
