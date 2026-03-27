@@ -377,6 +377,21 @@ function PlanPageContent() {
             <DiaryPromptCard dayNumber={selectedDay} hasExistingDiary={hasExistingDiary} />
           )}
 
+          {/* Recap link — visible when trip has diary entries or is completed */}
+          {currentTrip?.id && (
+            <div className="px-5 pb-2">
+              <a
+                href={`/recap/${currentTrip.id}`}
+                className="flex items-center gap-2 w-full py-3 px-4 rounded-2xl text-[12px] text-[#888] hover:text-white transition-colors"
+                style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
+              >
+                <span className="material-symbols-outlined text-[16px] text-[#BF5AF2]">auto_stories</span>
+                <span>Ver recap del viaje</span>
+                <span className="material-symbols-outlined text-[14px] ml-auto">chevron_right</span>
+              </a>
+            </div>
+          )}
+
           {/* Adapt input */}
           <div className="px-5 pt-4 pb-2">
             {access.canAdapt ? (

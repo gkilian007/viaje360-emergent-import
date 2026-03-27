@@ -149,10 +149,12 @@ function TripCard({
   trip,
   itinerary,
   onContinue,
+  onViewRecap,
 }: {
   trip: { id: string; name: string; destination: string; country: string; status: string; budget: number; startDate: string; endDate: string }
   itinerary: DayItinerary[] | null
   onContinue: () => void
+  onViewRecap: () => void
 }) {
   const totalActivities = itinerary?.reduce((sum, d) => sum + d.activities.length, 0) ?? 0
   const totalDays = itinerary?.length ?? 0
@@ -205,9 +207,12 @@ function TripCard({
             <span className="material-symbols-outlined text-[18px]">favorite</span>
             Me gusta
           </button>
-          <button className="flex items-center gap-1.5 text-[12px] text-[#888] hover:text-white transition-colors">
-            <span className="material-symbols-outlined text-[18px]">share</span>
-            Compartir
+          <button
+            onClick={onViewRecap}
+            className="flex items-center gap-1.5 text-[12px] text-[#888] hover:text-white transition-colors"
+          >
+            <span className="material-symbols-outlined text-[18px]">auto_stories</span>
+            Recap
           </button>
           <motion.button
             whileTap={{ scale: 0.97 }}
@@ -412,6 +417,12 @@ export default function HomePage() {
     router.push("/plan")
   }
 
+  function handleViewRecap() {
+    if (currentTrip?.id) {
+      router.push(`/recap/${currentTrip.id}`)
+    }
+  }
+
   async function handleLogout() {
     if (isSupabaseBrowserConfigured()) {
       const supabase = createClient()
@@ -559,6 +570,7 @@ export default function HomePage() {
                 trip={currentTrip}
                 itinerary={generatedItinerary}
                 onContinue={handleContinueTrip}
+                onViewRecap={handleViewRecap}
               />
             ) : (
               <EmptyFeed onNewTrip={handleNewTrip} />
