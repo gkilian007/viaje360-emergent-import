@@ -1,10 +1,41 @@
 {
-  "name": "Viaje360",
+  "name": "Viaje360 — Tu compañero de viaje",
   "short_name": "Viaje360",
-  "description": "Tu compañero de viaje inteligente",
+  "description": "Planifica y vive tu viaje con IA. Itinerarios personalizados, adaptación en tiempo real y momentos mágicos.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#0f1117",
+  "background_color": "#131315",
   "theme_color": "#0A84FF",
-  "icons": []
+  "orientation": "portrait-primary",
+  "categories": ["travel", "lifestyle"],
+  "lang": "es",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Mi itinerario",
+      "short_name": "Plan",
+      "description": "Ver mi itinerario activo",
+      "url": "/trips",
+      "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
+    }
+  ]
 }

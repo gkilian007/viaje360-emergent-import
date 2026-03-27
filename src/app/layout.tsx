@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next"
 import { Inter } from "next/font/google"
 import { AppBootstrap } from "@/components/AppBootstrap"
+import { ServiceWorkerProvider } from "@/components/ServiceWorkerProvider"
 import "./globals.css"
 
 const inter = Inter({
@@ -13,6 +14,18 @@ export const metadata: Metadata = {
   title: "Viaje360",
   description: "Tu compañero de viaje inteligente",
   manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Viaje360",
+  },
+  icons: {
+    apple: "/apple-touch-icon.png",
+    icon: [
+      { url: "/icon-192x192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512x512.png", sizes: "512x512", type: "image/png" },
+    ],
+  },
 }
 
 export const viewport: Viewport = {
@@ -38,6 +51,7 @@ export default function RootLayout({
       </head>
       <body className="h-full bg-[#131315] text-[#e4e2e4] font-[family-name:var(--font-inter)]">
         <AppBootstrap />
+        <ServiceWorkerProvider />
         {children}
       </body>
     </html>

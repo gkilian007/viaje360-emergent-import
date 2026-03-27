@@ -42,13 +42,34 @@ function buildViatorUrl(activityName: string, destination: string): string {
 }
 
 // ─── TheFork ─────────────────────────────────────────────────────────────────
-// TheFork partner: https://partner.thefork.com
-// For public search (no partner ID yet):
+// TheFork affiliate program is managed via Kwanko / Netaffiliation network.
+// To get a partner ID:
+//   1. Register at: https://www.netaffiliation.com or https://www.kwanko.com
+//   2. Join the "TheFork FR" program (ID: 77979 on Kwanko)
+//   3. Once approved, set NEXT_PUBLIC_THEFORK_PARTNER_ID in Vercel env vars
+//
+// Commission: €1.50 per confirmed reservation.
+// Cookie: session-based. Tracking via network links.
+//
+// Alternatively, for B2B API integration (real booking widget):
+//   Contact TheFork directly at docs.thefork.io — requires a signed contract.
+
+const THEFORK_PARTNER_ID = process.env.NEXT_PUBLIC_THEFORK_PARTNER_ID ?? ""
 
 function buildTheForkUrl(restaurantName: string, destination: string): string {
   const q = encodeURIComponent(restaurantName)
   const city = encodeURIComponent(destination)
-  return `https://www.thefork.es/restaurante/?searchText=${q}&location=${city}&source=viaje360`
+
+  // With partner ID: use Kwanko tracking URL
+  if (THEFORK_PARTNER_ID) {
+    const target = encodeURIComponent(
+      `https://www.thefork.com/search?searchText=${q}&location=${city}`
+    )
+    return `https://tracking.kwanko.com/click?programId=77979&partnerId=${THEFORK_PARTNER_ID}&url=${target}`
+  }
+
+  // Without partner ID: direct search (no commission tracking)
+  return `https://www.thefork.com/search?searchText=${q}&location=${city}&source=viaje360`
 }
 
 // ─── Booking.com ──────────────────────────────────────────────────────────────

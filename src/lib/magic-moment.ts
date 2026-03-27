@@ -107,6 +107,57 @@ const POI_DATABASE: Record<string, CuratedPOI[]> = {
     { name: "Begijnhof", type: "historia", lat: 52.3694, lng: 4.8892, durationMinutes: 20, description: "Patio medieval secreto en el centro de Amsterdam. Solo se entra a pie", emoji: "🌷", openFrom: 9, openUntil: 17 },
     { name: "Albert Cuypmarkt", type: "gastronomia", lat: 52.3550, lng: 4.8978, durationMinutes: 30, description: "El mercado más grande de Holanda. Herring fresquísimo y stroopwafels", emoji: "🐟", openFrom: 9, openUntil: 17 },
   ],
+
+  berlin: [
+    { name: "Mauerpark", type: "cultural", lat: 52.5420, lng: 13.4016, durationMinutes: 45, description: "Parque sobre el antiguo muro de Berlín. Mercadillo dominical, karaoke en anfiteatro y ambiente bohemio", emoji: "🎤", openFrom: 8, openUntil: 20 },
+    { name: "Hackescher Markt", type: "gastronomia", lat: 52.5231, lng: 13.4022, durationMinutes: 30, description: "Pasajes Wilhelministas con galerías, cafés y tiendas de diseño. El corazón cool de Mitte", emoji: "🛍️", openFrom: 10, openUntil: 22 },
+    { name: "Café Einstein Stammhaus", type: "gastronomia", lat: 52.5049, lng: 13.3441, durationMinutes: 25, description: "Histórico café vienés en una villa de 1878. El mejor Wiener Schnitzel y strudel de Berlín", emoji: "☕", openFrom: 9, openUntil: 23 },
+    { name: "Tempelhofer Feld", type: "naturaleza", lat: 52.4730, lng: 13.4014, durationMinutes: 40, description: "Antiguo aeropuerto convertido en parque urbano gigante. Patinaje, barbacoas y puestas de sol épicas", emoji: "✈️", openFrom: 6, openUntil: 21 },
+    { name: "RAW-Gelände", type: "nocturna", lat: 52.5056, lng: 13.4547, durationMinutes: 30, description: "Complejo industrial abandonado reconvertido en clubs, skate park y mercadillo. Alternativo puro", emoji: "🏭", openFrom: 12, openUntil: 24 },
+    { name: "Bergmannstraße", type: "gastronomia", lat: 52.4895, lng: 13.3934, durationMinutes: 30, description: "La calle más bohemia de Kreuzberg: delicatessen, cafés hipster y anticuarios", emoji: "🌿", openFrom: 9, openUntil: 22 },
+    { name: "Schloss Charlottenburg Jardines", type: "naturaleza", lat: 52.5208, lng: 13.2955, durationMinutes: 35, description: "Jardines barrocos del palacio de los Hohenzollern. Entrada libre al parque exterior", emoji: "🌷", openFrom: 8, openUntil: 20 },
+  ],
+
+  lisbon: [
+    { name: "LX Factory", type: "cultural", lat: 38.7044, lng: -9.1760, durationMinutes: 45, description: "Complejo industrial rehabilitado con restaurantes, librerías y mercado dominical. El barrio creativo de Lisboa", emoji: "🏭", openFrom: 10, openUntil: 24 },
+    { name: "Pastéis de Belém", type: "gastronomia", lat: 38.6972, lng: -9.2037, durationMinutes: 20, description: "La pastelería original de los pastéis de nata desde 1837. Cola inevitable pero vale cada minuto", emoji: "🥮", openFrom: 8, openUntil: 23 },
+    { name: "Miradouro da Graça", type: "fotografia", lat: 38.7157, lng: -9.1311, durationMinutes: 25, description: "El mirador más secreto de Lisboa. Vista al castillo y al Tejo sin las hordas del Portas do Sol", emoji: "🌅", openFrom: 0, openUntil: 24 },
+    { name: "Feira da Ladra", type: "shopping", lat: 38.7175, lng: -9.1286, durationMinutes: 40, description: "Mercado de pulgas al aire libre en el Campo de Santa Clara. Martes y sábados", emoji: "🪙", openFrom: 9, openUntil: 18 },
+    { name: "Tasca do Chico", type: "gastronomia", lat: 38.7115, lng: -9.1430, durationMinutes: 30, description: "Tasca pequeñísima en Alfama con fado en vivo. Reserva imprescindible pero intenta colarte", emoji: "🎶", openFrom: 20, openUntil: 24 },
+    { name: "Elevador da Bica", type: "historia", lat: 38.7099, lng: -9.1453, durationMinutes: 15, description: "El funicular más fotogénico de Lisboa bajando por el Bairro Alto. Icónico", emoji: "🚃", openFrom: 7, openUntil: 21 },
+  ],
+
+  seoul: [
+    { name: "Insadong", type: "cultural", lat: 37.5742, lng: 126.9855, durationMinutes: 45, description: "Calle peatonal con galerías de arte, tiendas tradicionales y cafés temáticos. El alma artística de Seúl", emoji: "🎨", openFrom: 10, openUntil: 22 },
+    { name: "Gwangjang Market", type: "gastronomia", lat: 37.5700, lng: 126.9997, durationMinutes: 40, description: "El mercado de comida más antiguo de Seúl (1905). Bindaetteok, bibimbap y sesos fritos auténticos", emoji: "🥟", openFrom: 9, openUntil: 23 },
+    { name: "Bukchon Hanok Village", type: "fotografia", lat: 37.5826, lng: 126.9830, durationMinutes: 35, description: "600 casas hanok tradicionales entre colinas. Mejor a primera hora para evitar turistas", emoji: "🏯", openFrom: 6, openUntil: 21 },
+    { name: "Ihwa Mural Village", type: "arte", lat: 37.5799, lng: 127.0057, durationMinutes: 25, description: "Barrio de murales cerca del Parque Naksan. El gato de la colina es inconfundible", emoji: "🐱", openFrom: 0, openUntil: 24 },
+    { name: "Noryangjin Fish Market", type: "gastronomia", lat: 37.5110, lng: 126.9422, durationMinutes: 40, description: "Mercado de pescado abierto 24h. Elige tu marisco vivo y se lo cocinan en el restaurante de encima", emoji: "🦞", openFrom: 0, openUntil: 24 },
+    { name: "Dongdaemun Design Plaza", type: "arte", lat: 37.5671, lng: 127.0095, durationMinutes: 30, description: "Edificio futurista de Zaha Hadid. Diseño, moda y vistas nocturnas increíbles desde la plaza", emoji: "🌐", openFrom: 10, openUntil: 21 },
+  ],
+
+  dubai: [
+    { name: "Al Fahidi Historical Neighbourhood", type: "historia", lat: 25.2635, lng: 55.2966, durationMinutes: 40, description: "Barrio más antiguo de Dubái con torres de viento y museos locales. Refrescante contraste al skyline", emoji: "🏺", openFrom: 8, openUntil: 20 },
+    { name: "Spice Souk", type: "gastronomia", lat: 25.2694, lng: 55.3013, durationMinutes: 25, description: "Zoco de especias junto al Creek. Azafrán iraní, pimienta rosa y cardamomo a granel", emoji: "🌶️", openFrom: 9, openUntil: 22 },
+    { name: "Gold Souk", type: "shopping", lat: 25.2702, lng: 55.3008, durationMinutes: 30, description: "El mayor zoco de oro del mundo con 300+ tiendas. Negociación obligatoria", emoji: "💛", openFrom: 9, openUntil: 22 },
+    { name: "Alserkal Avenue", type: "arte", lat: 25.1532, lng: 55.2196, durationMinutes: 35, description: "Complejo de arte contemporáneo en Al Quoz. Galerías internacionales en naves industriales", emoji: "🖼️", openFrom: 10, openUntil: 19 },
+  ],
+
+  "mexico city": [
+    { name: "Barrio de Coyoacán", type: "cultural", lat: 19.3501, lng: -99.1628, durationMinutes: 60, description: "Barrio colonial bohemio, casa de Frida Kahlo y León Trotsky. Mercado artesanal y cantinas centenarias", emoji: "🎨", openFrom: 8, openUntil: 22 },
+    { name: "Mercado Jamaica", type: "gastronomia", lat: 19.4180, lng: -99.1209, durationMinutes: 30, description: "El mayor mercado de flores y plantas de México. Colores desbordantes y precios locales", emoji: "💐", openFrom: 5, openUntil: 19 },
+    { name: "Xochimilco", type: "naturaleza", lat: 19.2577, lng: -99.1052, durationMinutes: 90, description: "Canales aztecas con trajineras de colores. Cerveza fría, marimba en vivo y flor de Jamaica", emoji: "🛶", openFrom: 9, openUntil: 18 },
+    { name: "Mercado de Medellín", type: "gastronomia", lat: 19.4072, lng: -99.1734, durationMinutes: 30, description: "Mercado barrial de la Colonia Roma. Jugos tropicales, mariscos y el mejor chile en nogada de temporada", emoji: "🌮", openFrom: 7, openUntil: 20 },
+    { name: "Librería El Péndulo", type: "cultural", lat: 19.4239, lng: -99.1707, durationMinutes: 25, description: "Librería-café con jardín interior en la Condesa. Café de olla y libros en español e inglés", emoji: "📚", openFrom: 8, openUntil: 22 },
+  ],
+
+  "buenos aires": [
+    { name: "Mercado de San Telmo", type: "gastronomia", lat: -34.6219, lng: -58.3725, durationMinutes: 40, description: "Mercado cubierto de 1897 con antigüedades, café, empanadas y tango. El más auténtico de BA", emoji: "🥩", openFrom: 10, openUntil: 20 },
+    { name: "La Boca — Caminito", type: "fotografia", lat: -34.6339, lng: -58.3632, durationMinutes: 30, description: "Calle museo al aire libre con casas pintadas de colores y tango callejero. Imprescindible antes de las 12h", emoji: "💃", openFrom: 8, openUntil: 20 },
+    { name: "Recoleta Cemetery", type: "historia", lat: -34.5879, lng: -58.3935, durationMinutes: 40, description: "Cementerio laberíntico con mausoleos Art Nouveau. Evita Perón descansa aquí. Gratuito", emoji: "🌹", openFrom: 7, openUntil: 18 },
+    { name: "Feria de Mataderos", type: "cultural", lat: -34.6543, lng: -58.5124, durationMinutes: 60, description: "Feria artesanal gaucha solo domingos. Jinetes, folk argentino y locro al mediodía", emoji: "🤠", openFrom: 11, openUntil: 20 },
+    { name: "El Ateneo Grand Splendid", type: "cultural", lat: -34.5960, lng: -58.3933, durationMinutes: 20, description: "Una de las librerías más hermosas del mundo, en un teatro de ópera de 1919. Café en el escenario", emoji: "🎭", openFrom: 9, openUntil: 22 },
+  ],
 }
 
 // ─── Haversine distance ───────────────────────────────────────────────────────

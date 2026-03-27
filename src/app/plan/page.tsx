@@ -32,6 +32,7 @@ import { ProactiveAdaptationBanner } from "@/components/features/ProactiveAdapta
 import { useProactiveAdaptation } from "@/lib/hooks/useProactiveAdaptation"
 import { MagicMomentCard } from "@/components/features/MagicMomentCard"
 import { useMagicMoment } from "@/lib/hooks/useMagicMoment"
+import { NotificationOptIn } from "@/components/NotificationOptIn"
 import type { TimelineActivity, Trip } from "@/lib/types"
 
 function DaySelector({
@@ -403,6 +404,11 @@ function PlanPageContent() {
           {today && access.canDiary && (
             <DiaryPromptCard dayNumber={selectedDay} hasExistingDiary={hasExistingDiary} />
           )}
+
+          {/* Notification opt-in */}
+          <div className="px-5 pb-2">
+            <NotificationOptIn />
+          </div>
 
           {/* Recap link — visible when trip has diary entries or is completed */}
           {currentTrip?.id && (
