@@ -1,7 +1,7 @@
 "use client"
 
 import type { TimelineActivity } from "@/lib/types"
-import { ACTIVITY_ICONS } from "@/lib/constants"
+import { ACTIVITY_ICONS, ACTIVITY_EMOJIS } from "@/lib/constants"
 
 interface TimelineItemProps {
   activity: TimelineActivity
@@ -13,6 +13,7 @@ interface TimelineItemProps {
 
 export function TimelineItem({ activity, isFirst = false, isLast = false, isCurrent = false, onClick }: TimelineItemProps) {
   const icon = activity.icon ?? ACTIVITY_ICONS[activity.type] ?? "place"
+  const emoji = ACTIVITY_EMOJIS[activity.type] ?? ACTIVITY_EMOJIS.default
 
   return (
     <div className="flex gap-3">
@@ -33,18 +34,7 @@ export function TimelineItem({ activity, isFirst = false, isLast = false, isCurr
             }`}
             style={{ border: isCurrent ? "none" : "1px solid rgba(255,255,255,0.08)" }}
           >
-            <span
-              className={`material-symbols-outlined text-[14px] ${
-                isCurrent ? "text-white" : activity.booked ? "text-[#30D158]" : "text-[#c0c6d6]"
-              }`}
-              style={
-                isCurrent
-                  ? { fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }
-                  : {}
-              }
-            >
-              {icon}
-            </span>
+            <span className="text-[13px] leading-none">{emoji}</span>
           </div>
           {/* Vertical line */}
           {!isLast && (

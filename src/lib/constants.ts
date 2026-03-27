@@ -56,6 +56,36 @@ export const ACTIVITY_ICONS: Record<string, string> = {
   transport: "directions_transit",
 }
 
+/** Emoji icons for activity types — always render regardless of font loading */
+export const ACTIVITY_EMOJIS: Record<string, string> = {
+  // Gemini-generated types
+  cultural: "🏛️",
+  historia: "🏺",
+  gastronomia: "🍽️",
+  playa: "🏖️",
+  nocturna: "🌙",
+  aventura: "⛰️",
+  shopping: "🛍️",
+  fotografia: "📸",
+  arte: "🎨",
+  naturaleza: "🌿",
+  familiar: "👨‍👩‍👧‍👦",
+  deportes: "🏃",
+  bienestar: "🧘",
+  outdoor: "🌳",
+  // Legacy types
+  museum: "🏛️",
+  restaurant: "🍴",
+  monument: "🏛️",
+  park: "🌳",
+  tour: "🗺️",
+  hotel: "🏨",
+  transport: "🚇",
+  traslado: "🚇",
+  // Fallback
+  default: "📍",
+}
+
 export const XP_PER_LEVEL = 500
 
 export const NAV_TABS = [
