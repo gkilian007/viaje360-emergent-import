@@ -22,10 +22,10 @@ const TRENDING = [
 ]
 
 const QUICK_STYLES = [
-  { emoji: "👨‍👩‍👧‍👦", label: "Familia", desc: "Con niños" },
-  { emoji: "💑", label: "Pareja", desc: "Romántico" },
-  { emoji: "🎒", label: "Solo", desc: "Aventura" },
-  { emoji: "👯", label: "Amigos", desc: "Grupo" },
+  { emoji: "👨‍👩‍👧‍👦", label: "Familia", desc: "Con niños", companion: "familia" },
+  { emoji: "💑", label: "Pareja", desc: "Romántico", companion: "pareja" },
+  { emoji: "🎒", label: "Solo", desc: "Aventura", companion: "solo" },
+  { emoji: "👯", label: "Amigos", desc: "Grupo", companion: "amigos" },
 ]
 
 // ─── Subcomponents ───────────────────────────────────────────────────────────
@@ -292,7 +292,7 @@ function TrendingWidget({ onSelect }: { onSelect: () => void }) {
   )
 }
 
-function StylesWidget({ onNewTrip }: { onNewTrip: () => void }) {
+function StylesWidget({ onNewTrip }: { onNewTrip: (companion?: string) => void }) {
   return (
     <div
       className="rounded-2xl p-4"
@@ -310,7 +310,7 @@ function StylesWidget({ onNewTrip }: { onNewTrip: () => void }) {
           <motion.button
             key={style.label}
             whileTap={{ scale: 0.95 }}
-            onClick={onNewTrip}
+            onClick={() => onNewTrip(style.companion)}
             className="flex flex-col items-center gap-1 p-3 rounded-xl hover:bg-white/5 transition-colors"
             style={{ border: "1px solid rgba(255,255,255,0.06)" }}
           >
@@ -359,6 +359,7 @@ export default function HomePage() {
   const router = useRouter()
   const { currentTrip, generatedItinerary } = useAppStore()
   const resetOnboarding = useOnboardingStore((s) => s.reset)
+  const setOnboardingField = useOnboardingStore((s) => s.setField)
   const { setCurrentTrip, setGeneratedItinerary, replaceChatMessages } = useAppStore()
   const [authUser, setAuthUser] = useState<SupabaseUser | null>(null)
   const [loadingAuth, setLoadingAuth] = useState(true)
@@ -396,8 +397,11 @@ export default function HomePage() {
     if (!loadingAuth) void loadActiveTrip()
   }, [loadingAuth, setCurrentTrip, setGeneratedItinerary, replaceChatMessages])
 
-  function handleNewTrip() {
+  function handleNewTrip(companion?: string) {
     resetOnboarding()
+    if (companion) {
+      setOnboardingField("companion", companion as "solo" | "pareja" | "familia" | "amigos")
+    }
     router.push("/onboarding")
   }
 

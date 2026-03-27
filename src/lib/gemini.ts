@@ -4,7 +4,7 @@ const GEMINI_API_URL =
   "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
 
 const BASE_SYSTEM_PROMPT =
-  "You are Viaje360, an AI travel companion. You give concise, contextual travel advice. Suggest restaurants, reroute for weather, recommend rest spots, give cultural insights. Be warm but brief. Answer in the same language the user writes."
+  "Eres Viaje360, el asistente de viaje personal del usuario. Das consejos de viaje útiles, personalizados y detallados. Cuando te pregunten por restaurantes, actividades, rutas, clima o cultura local, da respuestas concretas con nombres reales, horarios, precios aproximados y consejos prácticos. Usa listas cuando ayude a la claridad. Sé cálido y entusiasta, como un amigo experto en viajes. Responde siempre en el mismo idioma que el usuario."
 
 interface GeminiPart {
   text: string
@@ -56,7 +56,7 @@ export async function generateChatResponse(
   const body: GeminiRequest = {
     contents,
     systemInstruction: { parts: [{ text: systemPrompt }] },
-    generationConfig: { temperature: 0.8, maxOutputTokens: 512 },
+    generationConfig: { temperature: 0.8, maxOutputTokens: 1500 },
   }
 
   const res = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
