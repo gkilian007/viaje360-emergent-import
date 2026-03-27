@@ -216,6 +216,7 @@ function PlanPageContent() {
     })
 
   // Magic Moment: nearby hidden gem detection while between activities
+  // Only activates once the trip has started and user is physically in destination
   const { suggestion: magicSuggestion, dismiss: dismissMagic, accept: acceptMagic } =
     useMagicMoment({
       today,
@@ -223,6 +224,7 @@ function PlanPageContent() {
       minutesToNext: liveStatus.minutesToNext,
       dayProgress: liveStatus.progress,
       destination: currentTrip?.destination ?? "",
+      tripStartDate: currentTrip?.startDate ?? null,
     })
   const totalDays = itinerary.length
   const onboardingData = useOnboardingStore((s) => s.data)
