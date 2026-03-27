@@ -35,7 +35,6 @@ async function searchNominatim(query: string): Promise<Coords | null> {
 
 /** Extract a shorter search term from compound names like "Foro Romano y Monte Palatino" */
 function simplifyName(name: string): string | null {
-  // Split on " y ", " e ", " & ", " and "
   const parts = name.split(/\s+(?:y|e|&|and)\s+/i)
   if (parts.length > 1 && parts[0].trim().length > 3) {
     return parts[0].trim()
@@ -43,30 +42,45 @@ function simplifyName(name: string): string | null {
   return null
 }
 
-/** Geocode a single activity location with destination context and multiple fallback strategies */
+/** Minimum delay between Nominatim requests (their policy: 1 req/s) */
+const NOMINATIM_DELAY_MS = 1100
+
+async function delayMs(ms: number) {
+  return new Promise(r => setTimeout(r, ms))
+}
+
+/** Geocode a single activity location — returns coords or null.
+ *  Each call to searchNominatim counts as 1 request; we space them apart.
+ */
 async function geocodeLocation(
   name: string,
   location: string,
   destination: string
 ): Promise<Coords | null> {
-  // Strategy 1: location + destination context
-  let result = await searchNominatim(`${location}, ${destination}`)
-  if (result) return result
+  // Build a priority-ordered list of queries (most specific first)
+  const queries: string[] = []
 
-  // Strategy 2: activity name + destination
-  result = await searchNominatim(`${name}, ${destination}`)
-  if (result) return result
+  // The location field should already be a real address in local language
+  queries.push(`${location}, ${destination}`)
 
-  // Strategy 3: simplified name (before "y"/"&") + destination
-  const short = simplifyName(name)
-  if (short) {
-    result = await searchNominatim(`${short}, ${destination}`)
-    if (result) return result
+  // Fallback: activity name + destination
+  if (name !== location) {
+    queries.push(`${name}, ${destination}`)
   }
 
-  // Strategy 4: location alone
-  result = await searchNominatim(location)
-  return result
+  // Fallback: simplified name for compound names
+  const short = simplifyName(name)
+  if (short) {
+    queries.push(`${short}, ${destination}`)
+  }
+
+  for (const query of queries) {
+    const result = await searchNominatim(query)
+    if (result) return result
+    await delayMs(NOMINATIM_DELAY_MS)
+  }
+
+  return null
 }
 
 function hasValidCoords(lat: unknown, lng: unknown): boolean {
@@ -80,6 +94,23 @@ function hasValidCoords(lat: unknown, lng: unknown): boolean {
   )
 }
 
+/** Quick geocode just the destination city to get a reference point for validation */
+async function geocodeDestination(destination: string): Promise<Coords | null> {
+  return searchNominatim(destination)
+}
+
+/** Check if coords are within ~200km of destination (catches LLM hallucinations) */
+function isNearDestination(coords: Coords, destCoords: Coords, maxKm = 200): boolean {
+  const R = 6371 // earth radius km
+  const dLat = (coords.lat - destCoords.lat) * Math.PI / 180
+  const dLng = (coords.lng - destCoords.lng) * Math.PI / 180
+  const a = Math.sin(dLat / 2) ** 2 +
+    Math.cos(destCoords.lat * Math.PI / 180) * Math.cos(coords.lat * Math.PI / 180) *
+    Math.sin(dLng / 2) ** 2
+  const dist = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+  return dist <= maxKm
+}
+
 import type { GeneratedItinerary, GeneratedActivity } from "@/lib/supabase/database.types"
 
 /**
@@ -91,7 +122,31 @@ export async function geocodeItinerary(
   itinerary: GeneratedItinerary,
   destination: string
 ): Promise<GeneratedItinerary> {
-  // Collect activities needing geocoding
+  // Get destination reference point for validating LLM coords
+  const destCoords = await geocodeDestination(destination)
+  if (destCoords) {
+    await delayMs(NOMINATIM_DELAY_MS)
+  }
+
+  // Phase 1: Validate LLM-provided coords — reject if too far from destination
+  let llmOk = 0
+  let llmRejected = 0
+  for (const day of itinerary.days) {
+    for (const act of day.activities) {
+      if (hasValidCoords(act.lat, act.lng)) {
+        if (destCoords && !isNearDestination({ lat: act.lat!, lng: act.lng! }, destCoords)) {
+          // LLM hallucinated coords far from destination — clear them
+          act.lat = undefined
+          act.lng = undefined
+          llmRejected++
+        } else {
+          llmOk++
+        }
+      }
+    }
+  }
+
+  // Phase 2: Collect activities still needing geocoding
   const tasks: { activity: GeneratedActivity; index: string }[] = []
   for (const day of itinerary.days) {
     for (let i = 0; i < day.activities.length; i++) {
@@ -102,9 +157,12 @@ export async function geocodeItinerary(
     }
   }
 
-  if (tasks.length === 0) return itinerary
+  if (tasks.length === 0) {
+    console.log(`[geocode] all ${llmOk} activities have valid LLM coords (${llmRejected} rejected)`)
+    return itinerary
+  }
 
-  console.log(`[geocode] server-side geocoding ${tasks.length} activities for "${destination}"`)
+  console.log(`[geocode] ${llmOk} LLM coords ok, ${llmRejected} rejected, ${tasks.length} need Nominatim for "${destination}"`)
 
   // Use a simple cache for duplicate locations within same itinerary
   const cache = new Map<string, Coords | null>()
@@ -119,14 +177,7 @@ export async function geocodeItinerary(
     } else {
       coords = await geocodeLocation(activity.name, activity.location!, destination)
       cache.set(cacheKey, coords)
-
-      // Respect Nominatim rate limit: 1 req/s (we already did up to 3 requests per location)
-      // Small delay between unique lookups
-      if (i < tasks.length - 1 && !cache.has(
-        `${tasks[i + 1].activity.name}|${tasks[i + 1].activity.location}|${destination}`.toLowerCase()
-      )) {
-        await new Promise(r => setTimeout(r, 350))
-      }
+      // geocodeLocation already handles delays between its own Nominatim calls
     }
 
     if (coords) {
