@@ -41,7 +41,9 @@ export function TopAppBar({ title, showBack = false }: TopAppBarProps) {
           )}
           <div>
             <p className="text-[11px] uppercase tracking-widest text-[#c0c6d6] font-medium leading-none">
-              {currentTrip?.destination ?? "Viaje360"}
+              {currentTrip?.destination
+                ? currentTrip.destination.charAt(0).toUpperCase() + currentTrip.destination.slice(1)
+                : "Viaje360"}
             </p>
             <p className="text-[15px] font-semibold text-white leading-tight">{displayTitle}</p>
           </div>

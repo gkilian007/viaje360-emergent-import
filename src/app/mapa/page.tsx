@@ -199,7 +199,7 @@ export default function MapaPage() {
               <h1 className="text-[18px] font-bold text-white">
                 {currentTrip.name}
               </h1>
-              <p className="text-[12px] text-[#c0c6d6]">
+              <p className="text-[12px] text-[#c0c6d6] capitalize">
                 {currentTrip.destination}
                 {currentTrip.country ? `, ${currentTrip.country}` : ""}
               </p>

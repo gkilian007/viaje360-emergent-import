@@ -193,7 +193,7 @@ function TripCard({
 
       {/* Trip info */}
       <div className="p-4">
-        <h3 className="text-[16px] font-bold text-white">{trip.destination}</h3>
+        <h3 className="text-[16px] font-bold text-white capitalize">{trip.destination}</h3>
         <p className="text-[12px] text-[#888] mt-0.5">
           {trip.country ? `${trip.country} · ` : ""}
           {totalDays} días · {totalActivities} actividades · €{trip.budget}

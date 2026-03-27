@@ -137,6 +137,20 @@ export default function ExplorePage() {
           {search ? `Resultados (${totalResults})` : "Lugares para Coleccionar"}
         </p>
         <div className="flex flex-col gap-3">
+          {filteredMonuments.length === 0 && (
+            <div
+              className="flex flex-col items-center gap-3 py-8 px-4 rounded-2xl text-center"
+              style={{ background: "rgba(19,19,21,0.6)", border: "1px solid rgba(255,255,255,0.04)" }}
+            >
+              <span className="material-symbols-outlined text-[40px] text-[#c0c6d6]">explore</span>
+              <div>
+                <p className="text-[15px] font-semibold text-white mb-1">Descubre lugares increíbles</p>
+                <p className="text-[13px] text-[#888]">
+                  Visita sitios de tu itinerario para coleccionar lugares y ganar XP
+                </p>
+              </div>
+            </div>
+          )}
           {filteredMonuments.map((monument) => {
             const rarity = RARITY_COLORS[monument.rarity]
             return (

@@ -77,7 +77,7 @@ function MobileStats({ trip, totalDays }: { trip: Trip; totalDays: number }) {
         <span className="material-symbols-outlined text-[18px] text-purple-400">calendar_month</span>
         <div>
           <p className="text-[13px] font-bold text-white">{totalDays} días</p>
-          <p className="text-[10px] text-[#c0c6d6]">{trip.destination}</p>
+          <p className="text-[10px] text-[#c0c6d6] capitalize">{trip.destination}</p>
         </div>
       </div>
       {/* Activities count */}
@@ -239,15 +239,6 @@ function PlanPageContent() {
 
         {/* Scrollable content */}
         <div className="flex-1 overflow-y-auto pt-[72px] pb-24">
-          {/* Trip header */}
-          <div className="px-5 pt-4 pb-3">
-            <h1 className="text-[20px] font-bold text-white leading-tight">
-              {currentTrip?.name ?? "Tu viaje"}
-            </h1>
-            <p className="text-[13px] text-[#c0c6d6] mt-0.5">
-              {currentTrip?.destination}{currentTrip?.country ? `, ${currentTrip.country}` : ""}
-            </p>
-          </div>
 
           {/* Horizontal stats */}
           {currentTrip && (
@@ -386,7 +377,7 @@ function PlanPageContent() {
             <div className="flex flex-col h-full">
               {/* Header */}
               <div className="px-6 pt-6 pb-4 border-b border-white/5">
-                <p className="text-[11px] uppercase tracking-widest text-[#c0c6d6] font-medium mb-1">
+                <p className="text-[11px] uppercase tracking-widest text-[#c0c6d6] font-medium mb-1 capitalize">
                   {currentTrip?.destination}{currentTrip?.country ? `, ${currentTrip.country}` : ""}
                 </p>
                 <h1 className="text-[20px] font-bold text-white">{currentTrip?.name}</h1>

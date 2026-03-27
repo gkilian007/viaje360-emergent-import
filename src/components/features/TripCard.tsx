@@ -44,7 +44,7 @@ export function TripCard() {
         <h1 className="text-[22px] font-bold text-white leading-tight">
           {currentTrip.name ?? `Explorando ${currentTrip.destination}`}
         </h1>
-        <p className="text-[13px] text-[#c0c6d6] mt-0.5">
+        <p className="text-[13px] text-[#c0c6d6] mt-0.5 capitalize">
           {currentTrip.destination}{currentTrip.country ? `, ${currentTrip.country}` : ""}
         </p>
       </div>
