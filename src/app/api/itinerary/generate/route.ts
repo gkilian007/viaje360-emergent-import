@@ -31,8 +31,13 @@ export async function POST(req: NextRequest) {
 
     const generatedItinerary = await generateItinerary(body, { userId: identity.userId, personalization })
 
-    // Server-side geocoding: resolve coordinates for all activities before saving
-    await geocodeItinerary(generatedItinerary, body.destination)
+    // Quick inline geocoding pass: only validate LLM coords (fast, no Nominatim calls).
+    // Full Nominatim geocoding runs in background after the trip is saved to DB.
+    // This lets us respond to the user in ~2s instead of ~40s.
+    {
+      const { geocodeItineraryFast } = await import("@/lib/services/geocode.server")
+      await geocodeItineraryFast(generatedItinerary, body.destination)
+    }
 
     const localTripId = `trip-${Date.now()}`
     const { trip, days } = mapToAppTypes(generatedItinerary, localTripId)
@@ -109,6 +114,18 @@ export async function POST(req: NextRequest) {
         ingestItineraryKnowledge(generatedItinerary, body.destination).catch((err) =>
           console.warn("[generate] activity_knowledge ingestion error:", err)
         )
+
+        // Background full geocoding — fills missing coords via Nominatim after saving
+        // This runs async and updates the DB directly via /api/trips/backfill-geocode
+        const tripIdForGeocode = resolvedTripId
+        if (tripIdForGeocode !== localTripId) {
+          const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://viaje360.app"
+          fetch(`${baseUrl}/api/trips/backfill-geocode`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ tripId: tripIdForGeocode }),
+          }).catch((err) => console.warn("[generate] background geocode error:", err))
+        }
 
     // Pre-fetch images for the first 10 activities — fire-and-forget, never block the response
     const allActivities = generatedItinerary.days.flatMap((d) => d.activities).slice(0, 10)

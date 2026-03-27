@@ -291,3 +291,31 @@ export async function geocodeItinerary(
 
   return itinerary
 }
+
+/**
+ * Fast validation-only pass — no Nominatim calls, just removes hallucinated LLM coords.
+ * Use this inline during generation to keep response time <5s.
+ * Full geocoding (filling missing coords via Nominatim) runs in background after save.
+ */
+export async function geocodeItineraryFast(
+  itinerary: GeneratedItinerary,
+  destination: string
+): Promise<GeneratedItinerary> {
+  const destCoords = await geocodeDestination(destination)
+  // Note: no delay needed since we only make 1 request (for the destination itself)
+
+  if (!destCoords) return itinerary
+
+  for (const day of itinerary.days) {
+    for (const act of day.activities) {
+      if (hasValidCoords(act.lat, act.lng)) {
+        if (!isNearDestination({ lat: act.lat!, lng: act.lng! }, destCoords)) {
+          act.lat = undefined
+          act.lng = undefined
+        }
+      }
+    }
+  }
+
+  return itinerary
+}
