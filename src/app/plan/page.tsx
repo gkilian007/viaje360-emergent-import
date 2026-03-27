@@ -30,6 +30,8 @@ import { WeatherBadge } from "@/components/features/WeatherBadge"
 import { useWeather } from "@/lib/hooks/useWeather"
 import { ProactiveAdaptationBanner } from "@/components/features/ProactiveAdaptationBanner"
 import { useProactiveAdaptation } from "@/lib/hooks/useProactiveAdaptation"
+import { MagicMomentCard } from "@/components/features/MagicMomentCard"
+import { useMagicMoment } from "@/lib/hooks/useMagicMoment"
 import type { TimelineActivity, Trip } from "@/lib/types"
 
 function DaySelector({
@@ -212,6 +214,16 @@ function PlanPageContent() {
       tripId: currentTrip?.id ?? "",
       onAdapted: (days) => setGeneratedItinerary(days),
     })
+
+  // Magic Moment: nearby hidden gem detection while between activities
+  const { suggestion: magicSuggestion, dismiss: dismissMagic, accept: acceptMagic } =
+    useMagicMoment({
+      today,
+      currentIndex: liveStatus.currentIndex,
+      minutesToNext: liveStatus.minutesToNext,
+      dayProgress: liveStatus.progress,
+      destination: currentTrip?.destination ?? "",
+    })
   const totalDays = itinerary.length
   const onboardingData = useOnboardingStore((s) => s.data)
   const mobilityProfile = resolveMobilityProfile({
@@ -292,6 +304,15 @@ function PlanPageContent() {
                 </p>
               </div>
             </div>
+          )}
+
+          {/* Magic Moment — nearby hidden gem detected in real time */}
+          {magicSuggestion && (
+            <MagicMomentCard
+              suggestion={magicSuggestion}
+              onAccept={acceptMagic}
+              onDismiss={dismissMagic}
+            />
           )}
 
           {/* Proactive adaptation banner — shows top trip issue (weather, heat, fatigue, ...) */}
@@ -446,6 +467,13 @@ function PlanPageContent() {
                   Itinerario — Día {selectedDay}
                   {todayWeather && <WeatherBadge weather={todayWeather} compact />}
                 </p>
+                {magicSuggestion && (
+                  <MagicMomentCard
+                    suggestion={magicSuggestion}
+                    onAccept={acceptMagic}
+                    onDismiss={dismissMagic}
+                  />
+                )}
                 {topIssue && currentTrip?.id && (
                   <ProactiveAdaptationBanner
                     issue={topIssue}
