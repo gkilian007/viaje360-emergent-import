@@ -108,7 +108,7 @@ Traveler: ${data.companion ?? "solo"}, ${data.groupSize} people. Budget: ${data.
 ${data.accommodationZone ? `Accommodation: ${data.accommodationZone}. ` : ""}Interests: ${data.interests.join(", ") || "general"}.${data.wantsSiesta ? " Leave 14:00-16:00 free (siesta)." : ""}${data.firstTime ? " First visit — include highlights." : " Returning — focus on hidden gems."}${data.mustSee ? ` Must see: ${data.mustSee}.` : ""}${data.mustAvoid ? ` Avoid: ${data.mustAvoid}.` : ""}${data.dietary.length > 0 ? ` Dietary: ${data.dietary.join(", ")}.` : ""}
 ${personalizationBrief ? `\n${personalizationBrief}\n` : ""}
 EVERY activity MUST include ALL of these fields (no exceptions):
-- name, type (restaurant|museum|monument|park|shopping|tour|hotel), location (full address), time (HH:MM), endTime (HH:MM), duration (minutes), cost (entry fee €, 0 if free)
+- name, type (restaurant|museum|monument|park|shopping|tour|hotel), location (the REAL street address or place name IN THE LOCAL LANGUAGE of the destination — e.g. "Piazza del Colosseo, 1" for Rome, "Place du Trocadéro" for Paris — NOT translated names), time (HH:MM), endTime (HH:MM), duration (minutes), cost (entry fee €, 0 if free)
 - description: 2 short sentences MAX explaining EXACTLY what to do there in practical terms (what to see, what to order, where to enter, what makes it worth it)
 - url: official website, ticket purchase page, or restaurant menu/TripAdvisor link (a real working URL)
 - pricePerPerson: average € per person for restaurants (0 for non-restaurants)

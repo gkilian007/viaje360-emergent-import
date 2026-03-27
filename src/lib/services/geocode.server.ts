@@ -6,6 +6,7 @@
 const NOMINATIM_URL = "https://nominatim.openstreetmap.org/search"
 const HEADERS = {
   Accept: "application/json",
+  "Accept-Language": "es,en,it,fr,de,pt",
   "User-Agent": "Viaje360/1.0 (https://viaje360.app)",
 }
 
@@ -32,22 +33,38 @@ async function searchNominatim(query: string): Promise<Coords | null> {
   }
 }
 
-/** Geocode a single activity location with destination context fallback */
+/** Extract a shorter search term from compound names like "Foro Romano y Monte Palatino" */
+function simplifyName(name: string): string | null {
+  // Split on " y ", " e ", " & ", " and "
+  const parts = name.split(/\s+(?:y|e|&|and)\s+/i)
+  if (parts.length > 1 && parts[0].trim().length > 3) {
+    return parts[0].trim()
+  }
+  return null
+}
+
+/** Geocode a single activity location with destination context and multiple fallback strategies */
 async function geocodeLocation(
   name: string,
   location: string,
   destination: string
 ): Promise<Coords | null> {
   // Strategy 1: location + destination context
-  const withContext = `${location}, ${destination}`
-  let result = await searchNominatim(withContext)
+  let result = await searchNominatim(`${location}, ${destination}`)
   if (result) return result
 
   // Strategy 2: activity name + destination
   result = await searchNominatim(`${name}, ${destination}`)
   if (result) return result
 
-  // Strategy 3: location alone
+  // Strategy 3: simplified name (before "y"/"&") + destination
+  const short = simplifyName(name)
+  if (short) {
+    result = await searchNominatim(`${short}, ${destination}`)
+    if (result) return result
+  }
+
+  // Strategy 4: location alone
   result = await searchNominatim(location)
   return result
 }
