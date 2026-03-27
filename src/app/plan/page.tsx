@@ -143,22 +143,32 @@ function PlanPageContent() {
             d.activities.some(a => !a.lat || !a.lng)
           )
           if (missingCoords) {
-            // Run in background — rehydrate again after geocoding completes
-            fetch("/api/trips/backfill-geocode", { method: "POST" })
-              .then(r => r.json())
-              .then(result => {
-                if ((result?.data?.updated ?? 0) > 0) {
-                  // Reload trip data with fresh coords
-                  return fetch("/api/trips/active", { cache: "no-store" })
-                    .then(r => r.json())
-                    .then(freshPayload => {
-                      if (freshPayload?.data?.days) {
-                        setGeneratedItinerary(freshPayload.data.days)
-                      }
-                    })
+            // Backfill geocoding in background — call multiple times until all done
+            async function runBackfill() {
+              let remaining = Infinity
+              let totalUpdated = 0
+              while (remaining > 0) {
+                try {
+                  const r = await fetch("/api/trips/backfill-geocode", { method: "POST" })
+                  const result = await r.json()
+                  totalUpdated += result?.data?.updated ?? 0
+                  remaining = result?.data?.remaining ?? 0
+                } catch {
+                  break
                 }
-              })
-              .catch(() => {})
+              }
+              if (totalUpdated > 0) {
+                // Reload with fresh coords
+                try {
+                  const freshRes = await fetch("/api/trips/active", { cache: "no-store" })
+                  const freshPayload = await freshRes.json()
+                  if (freshPayload?.data?.days) {
+                    setGeneratedItinerary(freshPayload.data.days)
+                  }
+                } catch {}
+              }
+            }
+            void runBackfill()
           }
         }
       } catch {} finally {

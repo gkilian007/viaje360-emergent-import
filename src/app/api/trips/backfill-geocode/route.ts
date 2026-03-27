@@ -80,7 +80,11 @@ export async function POST(request: NextRequest) {
     const cache = new Map<string, { lat: number; lng: number } | null>()
     let updated = 0
 
-    for (const act of activities) {
+    // Process max 10 activities per call (each may need up to 3 requests × 1.1s = ~3.3s each)
+    // This keeps the request under ~40s total
+    const batch = activities.slice(0, 10)
+
+    for (const act of batch) {
       const location = act.location ?? act.neighborhood ?? ""
       if (!location) continue
 
@@ -110,7 +114,6 @@ export async function POST(request: NextRequest) {
         }
 
         cache.set(cacheKey, coords)
-        // Rate limit between different locations
         if (coords) await delay(1100)
       }
 
@@ -123,8 +126,9 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    console.log(`[backfill-geocode] updated ${updated}/${activities.length} activities`)
-    return successResponse({ updated, total: activities.length })
+    const remaining = activities.length - batch.length
+    console.log(`[backfill-geocode] updated ${updated}/${batch.length} activities (${remaining} remaining)`)
+    return successResponse({ updated, total: activities.length, remaining })
   } catch (error) {
     console.error("backfill-geocode error:", error)
     return normalizeRouteError(error, "Failed to geocode activities")
