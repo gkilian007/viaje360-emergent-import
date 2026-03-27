@@ -28,6 +28,7 @@ import {
   formatLearningContextForPrompt,
   getUserLearningContext,
 } from "@/lib/services/recommendation.service"
+import { buildMobilityPlanningBrief } from "@/lib/mobility"
 import type { ItineraryVersionSource } from "@/lib/services/itinerary-versioning"
 
 const GEMINI_API_URL =
@@ -101,11 +102,18 @@ function buildItineraryPrompt(
         destinationKnowledge: personalization.destinationKnowledge,
       })
     : null
+  const mobilityBrief = buildMobilityPlanningBrief({
+    companion: data.companion,
+    kidsPets: data.kidsPets,
+    mobility: data.mobility,
+    transport: data.transport,
+  })
 
   return `Generate a ${numDays}-day travel itinerary for ${data.destination} (${data.startDate} to ${data.endDate}).
 
 Traveler: ${data.companion ?? "solo"}, ${data.groupSize} people. Budget: ${data.budget ?? "moderado"}. Pace: ${paceActivities} activities/day. Start at ${wakeHour}:00.
 ${data.accommodationZone ? `Accommodation: ${data.accommodationZone}. ` : ""}Interests: ${data.interests.join(", ") || "general"}.${data.wantsSiesta ? " Leave 14:00-16:00 free (siesta)." : ""}${data.firstTime ? " First visit — include highlights." : " Returning — focus on hidden gems."}${data.mustSee ? ` Must see: ${data.mustSee}.` : ""}${data.mustAvoid ? ` Avoid: ${data.mustAvoid}.` : ""}${data.dietary.length > 0 ? ` Dietary: ${data.dietary.join(", ")}.` : ""}
+${mobilityBrief}
 ${personalizationBrief ? `\n${personalizationBrief}\n` : ""}
 EVERY activity MUST include ALL of these fields (no exceptions):
 - name, type (restaurant|museum|monument|park|shopping|tour|hotel), location (the REAL street address or place name IN THE LOCAL LANGUAGE of the destination — e.g. "Piazza del Colosseo, 1" for Rome, "Place du Trocadéro" for Paris — NOT translated names), time (HH:MM), endTime (HH:MM), duration (minutes), cost (entry fee €, 0 if free)
@@ -197,6 +205,12 @@ function buildAdaptationPrompt(
         destinationKnowledge: personalization.destinationKnowledge,
       })
     : null
+  const mobilityBrief = buildMobilityPlanningBrief({
+    companion: (onboarding?.companion as OnboardingData["companion"] | null | undefined) ?? null,
+    kidsPets: ((onboarding?.kids_pets ?? []) as OnboardingData["kidsPets"]),
+    mobility: (onboarding?.mobility as OnboardingData["mobility"] | null | undefined) ?? null,
+    transport: ((onboarding?.transport ?? []) as OnboardingData["transport"]),
+  })
 
   return `You are Viaje360 AI. Adapt this itinerary because: "${reason}".
 
@@ -217,6 +231,7 @@ Traveler constraints:
 - Transport: ${(onboarding?.transport ?? []).join(", ") || "mix"}
 - Siesta: ${String(onboarding?.siesta ?? false)}
 - Booked tickets: ${String(onboarding?.booked_tickets ?? "none")}
+${mobilityBrief}
 ${personalizationBrief ? `
 ${personalizationBrief}
 ` : ""}

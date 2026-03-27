@@ -21,6 +21,10 @@ import { useAccess } from "@/lib/hooks/useAccess"
 import { useWalkingTimes } from "@/lib/hooks/useWalkingTimes"
 import { useCurrentActivity } from "@/lib/hooks/useCurrentActivity"
 import { WalkingChip } from "@/components/features/WalkingChip"
+import { TransitChoiceCard } from "@/components/features/TransitChoiceCard"
+import { shouldOfferTransitChoice, getTransitFare } from "@/lib/transit"
+import { resolveMobilityProfile } from "@/lib/mobility"
+import { useOnboardingStore } from "@/store/useOnboardingStore"
 import { CurrentActivityBanner } from "@/components/features/CurrentActivityBanner"
 import { WeatherBadge } from "@/components/features/WeatherBadge"
 import { WeatherAlert } from "@/components/features/WeatherAlert"
@@ -199,6 +203,13 @@ function PlanPageContent() {
   const { getForDate } = useWeather(firstWithCoords?.lat, firstWithCoords?.lng)
   const todayWeather = today ? getForDate(today.date) : undefined
   const totalDays = itinerary.length
+  const onboardingData = useOnboardingStore((s) => s.data)
+  const mobilityProfile = resolveMobilityProfile({
+    companion: onboardingData.companion,
+    kidsPets: onboardingData.kidsPets,
+    mobility: onboardingData.mobility,
+    transport: onboardingData.transport,
+  })
 
   if (!hydrated || !serverLoaded) {
     return (
@@ -299,6 +310,11 @@ function PlanPageContent() {
             {today?.activities.map((activity, i) => {
               const next = today.activities[i + 1]
               const seg = next ? getSegment(activity.id, next.id) : undefined
+              const totalActivities = today.activities.length
+              const dayProgress = totalActivities > 1 ? i / (totalActivities - 1) : 0
+              const offerTransit = seg
+                ? shouldOfferTransitChoice(seg.distanceMeters, mobilityProfile.key)
+                : false
               return (
                 <div key={activity.id}>
                   <TimelineItem
@@ -308,7 +324,18 @@ function PlanPageContent() {
                     isCurrent={activity.id === liveStatus.current?.id}
                     onClick={handleActivityClick}
                   />
-                  {seg && (
+                  {seg && offerTransit && next && (
+                    <TransitChoiceCard
+                      fromActivity={activity.name}
+                      toActivity={next.name}
+                      distanceMeters={seg.distanceMeters}
+                      walkingMinutes={seg.walkingMinutes}
+                      destination={currentTrip?.destination ?? ""}
+                      dayProgress={dayProgress}
+                      walkingMapsUrl={seg.mapsUrl}
+                    />
+                  )}
+                  {seg && !offerTransit && (
                     <WalkingChip
                       walkingMinutes={seg.walkingMinutes}
                       distanceMeters={seg.distanceMeters}
@@ -414,6 +441,11 @@ function PlanPageContent() {
                 {today?.activities.map((activity, i) => {
                   const next = today.activities[i + 1]
                   const seg = next ? getSegment(activity.id, next.id) : undefined
+                  const totalActivities = today.activities.length
+                  const dayProgress = totalActivities > 1 ? i / (totalActivities - 1) : 0
+                  const offerTransit = seg
+                    ? shouldOfferTransitChoice(seg.distanceMeters, mobilityProfile.key)
+                    : false
                   return (
                     <div key={activity.id}>
                       <TimelineItem
@@ -423,7 +455,18 @@ function PlanPageContent() {
                         isCurrent={activity.id === liveStatus.current?.id}
                         onClick={handleActivityClick}
                       />
-                      {seg && (
+                      {seg && offerTransit && next && (
+                        <TransitChoiceCard
+                          fromActivity={activity.name}
+                          toActivity={next.name}
+                          distanceMeters={seg.distanceMeters}
+                          walkingMinutes={seg.walkingMinutes}
+                          destination={currentTrip?.destination ?? ""}
+                          dayProgress={dayProgress}
+                          walkingMapsUrl={seg.mapsUrl}
+                        />
+                      )}
+                      {seg && !offerTransit && (
                         <WalkingChip
                           walkingMinutes={seg.walkingMinutes}
                           distanceMeters={seg.distanceMeters}
