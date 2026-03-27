@@ -116,6 +116,26 @@ export async function POST(req: NextRequest) {
     })
   } catch (error) {
     console.error("itinerary/generate error:", error)
+
+    // Provide user-friendly error messages
+    const errMsg = error instanceof Error ? error.message : ""
+    if (errMsg.includes("429") || errMsg.includes("rate") || errMsg.includes("quota")) {
+      const { errorResponse } = await import("@/lib/api/route-helpers")
+      return errorResponse(
+        "INTERNAL_ERROR",
+        "La IA está muy ocupada en este momento. Por favor, inténtalo de nuevo en unos segundos.",
+        503
+      )
+    }
+    if (errMsg.includes("timed out") || errMsg.includes("timeout") || errMsg.includes("network")) {
+      const { errorResponse } = await import("@/lib/api/route-helpers")
+      return errorResponse(
+        "INTERNAL_ERROR",
+        "La conexión con la IA fue demasiado lenta. Por favor, inténtalo de nuevo.",
+        503
+      )
+    }
+
     return normalizeRouteError(error, "Failed to generate itinerary")
   }
 }

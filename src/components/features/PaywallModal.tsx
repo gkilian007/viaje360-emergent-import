@@ -79,7 +79,7 @@ export function PaywallModal({ destination, onClose }: PaywallModalProps) {
                 Tu trial para {destination} ha terminado
               </h2>
               <p className="text-[14px] text-[#9ca3af] leading-relaxed">
-                Has disfrutado de 2 días gratis con acceso completo.
+                Has disfrutado de 14 días gratis con acceso completo.
                 Desbloquea para seguir usando la IA, adaptación y diario.
               </p>
             </div>

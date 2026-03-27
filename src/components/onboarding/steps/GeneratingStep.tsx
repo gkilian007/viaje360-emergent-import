@@ -12,8 +12,12 @@ const LOADING_MESSAGES = [
   "Optimizando rutas...",
   "Buscando los mejores sitios...",
   "Personalizando tu experiencia...",
+  "Añadiendo toques mágicos...",
   "¡Casi listo!",
 ]
+
+// Fake progress milestones (%) for each message index
+const PROGRESS_MILESTONES = [10, 30, 55, 75, 90, 98]
 
 interface GenerateResponse {
   trip: Trip
@@ -40,14 +44,19 @@ export function GeneratingStep() {
   const [messageIndex, setMessageIndex] = useState(0)
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [progress, setProgress] = useState(0)
 
   const generate = useCallback(async () => {
     setError(null)
     setIsLoading(true)
     setMessageIndex(0)
+    setProgress(0)
 
+    let currentIndex = 0
     const interval = setInterval(() => {
-      setMessageIndex((i) => (i < LOADING_MESSAGES.length - 1 ? i + 1 : i))
+      currentIndex = Math.min(currentIndex + 1, LOADING_MESSAGES.length - 1)
+      setMessageIndex(currentIndex)
+      setProgress(PROGRESS_MILESTONES[currentIndex] ?? 98)
     }, 1400)
 
     try {
@@ -69,6 +78,7 @@ export function GeneratingStep() {
       setCurrentTrip(result.data.trip)
       setGeneratedItinerary(result.data.days)
       setMessageIndex(LOADING_MESSAGES.length - 1)
+      setProgress(100)
 
       setTimeout(() => {
         completeOnboarding()
@@ -162,12 +172,28 @@ export function GeneratingStep() {
         ))}
       </div>
 
+      {/* Fake progress bar */}
+      <div className="w-full max-w-xs mt-8">
+        <div
+          className="w-full h-1.5 rounded-full overflow-hidden"
+          style={{ background: "rgba(255,255,255,0.08)" }}
+        >
+          <motion.div
+            className="h-full rounded-full"
+            style={{ background: "linear-gradient(90deg, #0A84FF, #5856D6)" }}
+            animate={{ width: `${progress}%` }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+          />
+        </div>
+        <p className="text-[11px] text-[#9ca3af] text-right mt-1">{progress}%</p>
+      </div>
+
       {/* Spinner for long waits */}
       {isLoading && messageIndex === LOADING_MESSAGES.length - 1 && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="mt-8"
+          className="mt-4"
         >
           <div className="w-5 h-5 border-2 border-[#0A84FF]/30 border-t-[#0A84FF] rounded-full animate-spin" />
         </motion.div>

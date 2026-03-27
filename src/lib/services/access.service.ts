@@ -13,7 +13,7 @@ export interface AccessResult {
   canDiary: boolean
 }
 
-const TRIAL_DURATION_MS = 2 * 24 * 60 * 60 * 1000 // 2 days
+const TRIAL_DURATION_MS = 14 * 24 * 60 * 60 * 1000 // 14 days
 
 function normalizeDestination(dest: string): string {
   return dest.toLowerCase().trim()
@@ -168,7 +168,7 @@ export async function resolveAccess(
       reason: "new_trial",
       plan: "free",
       trialExpiresAt: expiresAt.toISOString(),
-      daysRemaining: 2,
+      daysRemaining: 14,
       canAdapt: true,
       canGenerate: true,
       canDiary: true,

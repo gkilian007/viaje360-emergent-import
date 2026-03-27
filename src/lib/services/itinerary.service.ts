@@ -244,26 +244,50 @@ Hard requirements:
 - Prefer minimal, credible changes instead of rewriting everything`
 }
 
-async function callGeminiRaw(prompt: string): Promise<string> {
-  const apiKey = requireEnv("GEMINI_API_KEY", "Gemini itinerary generation")
+/**
+ * Check if an error is retryable (429 rate-limit or timeout).
+ */
+function isRetryableGeminiError(status: number): boolean {
+  return status === 429 || status === 503 || status === 408
+}
 
-  const res = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: {
-        temperature: 0.2,
-        maxOutputTokens: 65536,
-        responseMimeType: "application/json",
-        responseSchema: GEMINI_ITINERARY_RESPONSE_SCHEMA,
-      },
-    }),
-  })
+/**
+ * Call Gemini once, throwing a typed error with the HTTP status code.
+ */
+async function callGeminiOnce(prompt: string, apiKey: string): Promise<string> {
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), 90_000) // 90s timeout
+
+  let res: Response
+  try {
+    res = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      signal: controller.signal,
+      body: JSON.stringify({
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: {
+          temperature: 0.2,
+          maxOutputTokens: 65536,
+          responseMimeType: "application/json",
+          responseSchema: GEMINI_ITINERARY_RESPONSE_SCHEMA,
+        },
+      }),
+    })
+  } catch (fetchErr: unknown) {
+    const isTimeout = fetchErr instanceof Error && fetchErr.name === "AbortError"
+    const err = new Error(isTimeout ? "Gemini request timed out" : "Gemini network error") as Error & { status?: number }
+    err.status = 408
+    throw err
+  } finally {
+    clearTimeout(timeoutId)
+  }
 
   if (!res.ok) {
-    const err = await res.text()
-    throw new Error(`Gemini error ${res.status}: ${err}`)
+    const errText = await res.text().catch(() => "")
+    const err = new Error(`Gemini error ${res.status}: ${errText}`) as Error & { status?: number }
+    err.status = res.status
+    throw err
   }
 
   const data = await res.json() as {
@@ -271,11 +295,39 @@ async function callGeminiRaw(prompt: string): Promise<string> {
   }
 
   const raw = data.candidates?.[0]?.content?.parts?.map((part) => part.text ?? "").join("")?.trim() ?? ""
-  if (!raw) {
-    throw new Error("Gemini returned empty itinerary payload")
+  return raw
+}
+
+async function callGeminiRaw(prompt: string): Promise<string> {
+  const apiKey = requireEnv("GEMINI_API_KEY", "Gemini itinerary generation")
+  const MAX_RETRIES = 1
+  let lastError: unknown
+
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      if (attempt > 0) {
+        // Wait 3s before retry
+        await new Promise((resolve) => setTimeout(resolve, 3000))
+        console.warn(`[callGeminiRaw] Retry attempt ${attempt}`)
+      }
+
+      const raw = await callGeminiOnce(prompt, apiKey)
+      if (!raw) {
+        throw new Error("Gemini returned empty itinerary payload")
+      }
+
+      return raw
+    } catch (err: unknown) {
+      lastError = err
+      const status = (err as { status?: number }).status ?? 0
+      if (!isRetryableGeminiError(status) || attempt >= MAX_RETRIES) {
+        throw err
+      }
+      console.warn(`[callGeminiRaw] Retryable error (status ${status}), will retry…`)
+    }
   }
 
-  return raw
+  throw lastError
 }
 
 async function callGeminiWithRepair(prompt: string, reason: string): Promise<string> {

@@ -62,7 +62,7 @@ export const NAV_TABS = [
   { id: "home", label: "Home", icon: "home", href: "/home" },
   { id: "explore", label: "Explorar", icon: "explore", href: "/explore" },
   { id: "plan", label: "Plan", icon: "event_note", href: "/plan" },
+  { id: "trips", label: "Viajes", icon: "luggage", href: "/trips" },
   { id: "mapa", label: "Mapa", icon: "map", href: "/mapa" },
   { id: "ai", label: "IA", icon: "smart_toy", href: "/ai" },
-  { id: "status", label: "Logros", icon: "emoji_events", href: "/status" },
 ] as const
