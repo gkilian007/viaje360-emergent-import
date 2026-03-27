@@ -27,8 +27,9 @@ import { resolveMobilityProfile } from "@/lib/mobility"
 import { useOnboardingStore } from "@/store/useOnboardingStore"
 import { CurrentActivityBanner } from "@/components/features/CurrentActivityBanner"
 import { WeatherBadge } from "@/components/features/WeatherBadge"
-import { WeatherAlert } from "@/components/features/WeatherAlert"
 import { useWeather } from "@/lib/hooks/useWeather"
+import { ProactiveAdaptationBanner } from "@/components/features/ProactiveAdaptationBanner"
+import { useProactiveAdaptation } from "@/lib/hooks/useProactiveAdaptation"
 import type { TimelineActivity, Trip } from "@/lib/types"
 
 function DaySelector({
@@ -202,6 +203,15 @@ function PlanPageContent() {
   const firstWithCoords = itinerary.flatMap(d => d.activities).find(a => a.lat && a.lng)
   const { getForDate } = useWeather(firstWithCoords?.lat, firstWithCoords?.lng)
   const todayWeather = today ? getForDate(today.date) : undefined
+
+  // Proactive adaptation: scan all trip days for issues
+  const { topIssue, adapt: adaptIssue, dismiss: dismissIssue, isAdapting: isAdaptingIssue } =
+    useProactiveAdaptation({
+      itinerary,
+      getWeatherForDate: getForDate,
+      tripId: currentTrip?.id ?? "",
+      onAdapted: (days) => setGeneratedItinerary(days),
+    })
   const totalDays = itinerary.length
   const onboardingData = useOnboardingStore((s) => s.data)
   const mobilityProfile = resolveMobilityProfile({
@@ -284,13 +294,13 @@ function PlanPageContent() {
             </div>
           )}
 
-          {/* Weather alert */}
-          {todayWeather && currentTrip?.id && (
-            <WeatherAlert
-              weather={todayWeather}
-              dayNumber={selectedDay}
-              tripId={currentTrip.id}
-              onAdapted={(days) => setGeneratedItinerary(days as typeof itinerary)}
+          {/* Proactive adaptation banner — shows top trip issue (weather, heat, fatigue, ...) */}
+          {topIssue && currentTrip?.id && (
+            <ProactiveAdaptationBanner
+              issue={topIssue}
+              isAdapting={isAdaptingIssue}
+              onAdapt={adaptIssue}
+              onDismiss={dismissIssue}
             />
           )}
 
@@ -421,12 +431,12 @@ function PlanPageContent() {
                   Itinerario — Día {selectedDay}
                   {todayWeather && <WeatherBadge weather={todayWeather} compact />}
                 </p>
-                {todayWeather && currentTrip?.id && (
-                  <WeatherAlert
-                    weather={todayWeather}
-                    dayNumber={selectedDay}
-                    tripId={currentTrip.id}
-                    onAdapted={(days) => setGeneratedItinerary(days as typeof itinerary)}
+                {topIssue && currentTrip?.id && (
+                  <ProactiveAdaptationBanner
+                    issue={topIssue}
+                    isAdapting={isAdaptingIssue}
+                    onAdapt={adaptIssue}
+                    onDismiss={dismissIssue}
                   />
                 )}
                 <CurrentActivityBanner
