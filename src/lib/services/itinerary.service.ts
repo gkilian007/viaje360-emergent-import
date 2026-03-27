@@ -132,7 +132,19 @@ URL RULES (VERY IMPORTANT):
 - If you are NOT 100% sure the URL exists, use this format instead: https://www.google.com/maps/search/PLACE+NAME+CITY
 - NEVER invent a URL. A Google Maps search link is always better than a fake URL.
 
-LANGUAGE: ALL text content (description, notes, theme, tripName) MUST be written in the user's language: ${data.language ?? "es"}. Write naturally in that language, not translated English.
+LANGUAGE RULES (CRITICAL):
+- ALL text fields (name, description, notes, theme, tripName) MUST be written in the user's language: ${data.language ?? "es"}
+- Write naturally — do NOT translate from English
+- location field: use the LOCAL language of the destination (Italian for Italy, French for France, etc.)
+- NO English words in Spanish content unless it is a proper brand name
+
+QUALITY RULES (MANDATORY — no exceptions):
+- NEVER use generic placeholders like "Family-friendly break", "Accommodation", "Rest stop", "Break time"
+- EVERY activity must have a REAL name: a specific restaurant, monument, park, shop, neighborhood, viewpoint, or cultural experience
+- If someone has kids, suggest specific kid-friendly places (parks with names, museums with specific kids areas, ice cream shops with names)
+- If there is a rest period, name the location (e.g. "Descanso en Parque de la Ciutadella" or "Café en Bar del Pla")
+- The "hotel" activities (start/end of day) are the ONLY exception — those use "Salida del alojamiento" / "Vuelta al alojamiento"
+- Every non-hotel activity should be a real, specific, named place
 
 Make it ACTIONABLE, not generic. Bad: "Visit the cathedral." Good: "Enter through the Puerta del Lagarto, head to the main nave first, then climb the Giralda before the midday queue."
 For restaurants: use REAL names that exist. url = menu page or TripAdvisor link. Mention a signature dish and why it fits the user's dietary needs.
@@ -412,6 +424,14 @@ export function mapDbItineraryToAppTypes(
       booked: act.booked ?? false,
       notes: act.notes ?? undefined,
       icon: act.icon ?? undefined,
+      lat: act.latitude ?? undefined,
+      lng: act.longitude ?? undefined,
+      description: act.description ?? undefined,
+      url: act.url ?? undefined,
+      imageQuery: act.image_query ?? undefined,
+      pricePerPerson: act.price_per_person ?? undefined,
+      recommendationReason: act.recommendation_reason ?? undefined,
+      isLocked: act.is_locked ?? false,
     })),
   }))
 

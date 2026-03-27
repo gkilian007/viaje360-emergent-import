@@ -17,6 +17,15 @@ export default function ExplorePage() {
       m.location.toLowerCase().includes(search.toLowerCase())
   )
 
+  const filteredDestinations = demoDestinations.filter(
+    (d) =>
+      d.name.toLowerCase().includes(search.toLowerCase()) ||
+      d.country.toLowerCase().includes(search.toLowerCase())
+  )
+
+  const hasResults = filteredMonuments.length > 0 || filteredDestinations.length > 0
+  const totalResults = filteredMonuments.length + filteredDestinations.length
+
   return (
     <div className="flex flex-col h-full overflow-y-auto pb-24" style={{ background: "#131315" }}>
       {/* Header */}
@@ -98,10 +107,34 @@ export default function ExplorePage() {
         </div>
       )}
 
+      {/* Search results: destinations */}
+      {search && filteredDestinations.length > 0 && (
+        <div className="px-4 mb-4">
+          <p className="text-[11px] uppercase tracking-widest text-[#c0c6d6] font-medium mb-3">
+            Destinos ({filteredDestinations.length})
+          </p>
+          <div className="flex flex-col gap-2">
+            {filteredDestinations.map((dest) => (
+              <div
+                key={dest.id}
+                className="flex items-center gap-3 p-3 rounded-xl"
+                style={{ background: "rgba(31,31,33,0.9)", border: "1px solid rgba(255,255,255,0.06)" }}
+              >
+                <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${dest.imageColor} shrink-0`} />
+                <div>
+                  <p className="text-[14px] font-semibold text-white">{dest.name}</p>
+                  <p className="text-[12px] text-[#c0c6d6]">{dest.country} · ⭐ {dest.rating}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Monuments / places */}
       <div className="px-4">
         <p className="text-[11px] uppercase tracking-widest text-[#c0c6d6] font-medium mb-3">
-          {search ? `Resultados (${filteredMonuments.length})` : "Lugares para Coleccionar"}
+          {search ? `Resultados (${totalResults})` : "Lugares para Coleccionar"}
         </p>
         <div className="flex flex-col gap-3">
           {filteredMonuments.map((monument) => {

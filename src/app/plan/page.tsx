@@ -136,6 +136,30 @@ function PlanPageContent() {
           if (payload.data.chatMessages) {
             replaceChatMessages(payload.data.chatMessages)
           }
+
+          // Backfill geocoding for legacy trips that have no lat/lng
+          const days: Array<{ activities: Array<{ lat?: number; lng?: number }> }> = payload.data.days ?? []
+          const missingCoords = days.some(d =>
+            d.activities.some(a => !a.lat || !a.lng)
+          )
+          if (missingCoords) {
+            // Run in background — rehydrate again after geocoding completes
+            fetch("/api/trips/backfill-geocode", { method: "POST" })
+              .then(r => r.json())
+              .then(result => {
+                if ((result?.data?.updated ?? 0) > 0) {
+                  // Reload trip data with fresh coords
+                  return fetch("/api/trips/active", { cache: "no-store" })
+                    .then(r => r.json())
+                    .then(freshPayload => {
+                      if (freshPayload?.data?.days) {
+                        setGeneratedItinerary(freshPayload.data.days)
+                      }
+                    })
+                }
+              })
+              .catch(() => {})
+          }
         }
       } catch {} finally {
         setServerLoaded(true)

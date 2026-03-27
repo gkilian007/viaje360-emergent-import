@@ -855,6 +855,13 @@ export function mapDbDaysToGeneratedItinerary(
         petFriendly: activity.pet_friendly ?? false,
         dietaryTags: activity.dietary_tags ?? [],
         isLocked: activity.is_locked ?? false,
+        lat: activity.latitude ?? undefined,
+        lng: activity.longitude ?? undefined,
+        description: activity.description ?? undefined,
+        url: activity.url ?? undefined,
+        imageQuery: activity.image_query ?? undefined,
+        pricePerPerson: activity.price_per_person ?? undefined,
+        recommendationReason: activity.recommendation_reason ?? undefined,
       })),
     })),
   }
