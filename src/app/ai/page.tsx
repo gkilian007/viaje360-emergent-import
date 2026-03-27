@@ -134,7 +134,7 @@ export default function AIPage() {
           <p className="text-[15px] font-semibold text-white">Viaje360 AI</p>
           <p className="text-[11px] text-[#30D158] flex items-center gap-1">
             <span className="w-1.5 h-1.5 rounded-full bg-[#30D158] inline-block pulse-blue" />
-            Activo · {currentTrip?.destination || "Sin destino"}
+            Activo · <span className="capitalize">{currentTrip?.destination || "Sin destino"}</span>
           </p>
         </div>
       </div>
@@ -217,7 +217,7 @@ export default function AIPage() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder={`Pregunta sobre ${currentTrip?.destination || "tu viaje"}...`}
+            placeholder={`Pregunta sobre ${currentTrip?.destination ? currentTrip.destination.charAt(0).toUpperCase() + currentTrip.destination.slice(1) : "tu viaje"}...`}
             rows={1}
             className="flex-1 bg-transparent text-[14px] text-[#e4e2e4] placeholder:text-[#c0c6d6]/50 resize-none leading-relaxed py-1.5"
             style={{ maxHeight: "120px" }}
