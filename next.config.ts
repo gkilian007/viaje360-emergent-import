@@ -13,18 +13,9 @@ const nextConfig: NextConfig = {
           },
         ],
       },
-      // Public assets (icons, images, videos)
+      // Public PWA icons
       {
-        source: "/icon-:size*.png",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: "public, max-age=86400, stale-while-revalidate=604800",
-          },
-        ],
-      },
-      {
-        source: "/apple-touch-icon.png",
+        source: "/:icon(icon-.*\\.png|apple-touch-icon\\.png)",
         headers: [
           {
             key: "Cache-Control",
