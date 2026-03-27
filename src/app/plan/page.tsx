@@ -432,6 +432,9 @@ function PlanPageContent() {
                 tripId={currentTrip?.id ?? ""}
                 onAdapted={(days) => setGeneratedItinerary(days)}
                 disabled={!currentTrip?.id}
+                currentDayNumber={selectedDay}
+                currentActivityName={liveStatus.current?.name}
+                currentTime={liveStatus.current ? new Date().toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" }) : undefined}
               />
             ) : (
               <button
@@ -543,6 +546,9 @@ function PlanPageContent() {
                     tripId={currentTrip?.id ?? ""}
                     onAdapted={(days) => setGeneratedItinerary(days)}
                     disabled={!currentTrip?.id}
+                    currentDayNumber={selectedDay}
+                    currentActivityName={liveStatus.current?.name}
+                    currentTime={liveStatus.current ? new Date().toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" }) : undefined}
                   />
                 ) : (
                   <button

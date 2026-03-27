@@ -57,6 +57,7 @@ function DiaryPageContent() {
         freeTextSummary: existingDiaryData.journal.free_text_summary,
         wouldRepeat: existingDiaryData.journal.would_repeat,
         activityFeedback: existingDiaryData.activityFeedback,
+        conversation: existingDiaryData.journal.conversation ?? [],
       }
     : null
 

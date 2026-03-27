@@ -6,11 +6,17 @@ interface AdaptInputProps {
   tripId: string
   onAdapted: (days: any[]) => void
   disabled?: boolean
+  /** Current day number for context-aware adaptation */
+  currentDayNumber?: number
+  /** Current activity name to include in prompt context */
+  currentActivityName?: string
+  /** Current time for time-aware suggestions */
+  currentTime?: string
 }
 
 type AdaptState = "idle" | "adapting" | "success" | "error"
 
-export function AdaptInput({ tripId, onAdapted, disabled }: AdaptInputProps) {
+export function AdaptInput({ tripId, onAdapted, disabled, currentDayNumber, currentActivityName, currentTime }: AdaptInputProps) {
   const [value, setValue] = useState("")
   const [state, setState] = useState<AdaptState>("idle")
   const [errorMsg, setErrorMsg] = useState("")
@@ -23,14 +29,26 @@ export function AdaptInput({ tripId, onAdapted, disabled }: AdaptInputProps) {
     setState("adapting")
     setErrorMsg("")
 
+    // Enrich the user's free-text reason with current context
+    const timeNow = currentTime ?? new Date().toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })
+    const contextPrefix = [
+      currentDayNumber ? `[Día ${currentDayNumber}` : null,
+      currentTime ? `, ${timeNow}` : null,
+      currentActivityName ? `, durante "${currentActivityName}"` : null,
+      (currentDayNumber || currentTime || currentActivityName) ? "] " : null,
+    ].filter(Boolean).join("")
+
+    const enrichedReason = contextPrefix + reason
+
     try {
       const res = await fetch("/api/itinerary/adapt", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           tripId,
-          reason,
+          reason: enrichedReason,
           source: "manual",
+          startFromDayNumber: currentDayNumber,
         }),
       })
 

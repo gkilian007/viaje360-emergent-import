@@ -31,6 +31,20 @@ export async function POST(req: NextRequest) {
           : { data: null }
 
         if (trip) {
+          // Load full itinerary for complete context
+          const { data: versions } = await supabase
+            .from("trip_itinerary_versions")
+            .select("day_number, activities_snapshot")
+            .eq("trip_id", tripId)
+            .order("day_number")
+
+          const itineraryText = (versions ?? []).map(v => {
+            const acts = (v.activities_snapshot as Array<{name: string; time: string; location: string; type: string}> ?? [])
+              .map(a => `    ${a.time} ${a.name} (${a.location})`)
+              .join("\n")
+            return `  Day ${v.day_number}:\n${acts}`
+          }).join("\n")
+
           const persistedContext = `
 Current trip context:
 - Destination: ${trip.destination}
@@ -44,7 +58,7 @@ User preferences:
 - Dietary: ${(onboarding.dietary_restrictions as string[]).join(", ") || "none"}
 - Transport: ${(onboarding.transport as string[]).join(", ")}
 - Budget level: ${onboarding.budget_level}
-` : ""}`.trim()
+` : ""}${itineraryText ? `\nFull itinerary:\n${itineraryText}` : ""}`.trim()
 
           systemContext = [systemContext, persistedContext].filter(Boolean).join("\n\n")
         }

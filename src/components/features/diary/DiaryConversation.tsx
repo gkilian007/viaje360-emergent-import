@@ -37,6 +37,7 @@ interface ExistingDiaryState {
   freeTextSummary: string | null
   wouldRepeat: boolean | null
   activityFeedback: ActivityFeedback[]
+  conversation?: Array<{ role: "assistant" | "user"; content: string }>
 }
 
 interface DiaryConversationProps {
@@ -97,7 +98,28 @@ export function DiaryConversation({
     if (messages.length > 0) return
 
     if (isEdit) {
-      // Show summary of existing entry for editing
+      // Restore previous conversation if available
+      const savedConversation = existingDiary?.conversation
+      if (savedConversation && savedConversation.length > 0) {
+        const restored: DiaryMessage[] = savedConversation.map((m, i) => ({
+          id: `restored-${i}`,
+          role: m.role,
+          content: m.content,
+          type: "text" as const,
+        }))
+        // Add a continuation prompt at the end
+        restored.push({
+          id: "edit-continuation",
+          role: "assistant",
+          content: `Aquí está tu entrada del Día ${dayNumber}. Puedes continuar añadiendo notas o guardar de nuevo para actualizar.`,
+          type: "text",
+        })
+        setMessages(restored)
+        setCurrentStep(5)
+        return
+      }
+
+      // Fallback: show summary if no conversation stored
       const moodLabel = diaryState.mood ? getMoodLabel(diaryState.mood) : "Sin mood"
       const feedbackCount = diaryState.activityFeedback.filter((f) => f.liked !== null).length
       const editGreeting: DiaryMessage = {
