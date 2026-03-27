@@ -7,6 +7,7 @@ import { ACTIVITY_ICONS } from "@/lib/constants"
 import { useActivityEvent } from "@/lib/hooks/useActivityEvent"
 import { useActivityAssets } from "@/lib/hooks/useActivityAssets"
 import { useAppStore } from "@/store/useAppStore"
+import { AffiliateLinks } from "@/components/features/AffiliateLinks"
 
 interface ActivityDetailModalProps {
   activity: TimelineActivity | null
@@ -403,6 +404,16 @@ export function ActivityDetailModal({ activity, tripId, currentDayNumber, onClos
                 <p className="text-[13px] text-[#d7d9df] leading-relaxed">
                   {activity.notes || "Abre el mapa o la web asociada para confirmar horario, acceso y tiempos antes de ir."}
                 </p>
+              </div>
+
+              {/* Affiliate booking links */}
+              <div className="mb-4">
+                <AffiliateLinks
+                  activityName={activity.name}
+                  activityType={activity.type ?? "cultural"}
+                  destination={currentTrip?.destination ?? ""}
+                  cost={activity.cost}
+                />
               </div>
 
               <div className="mb-4">
