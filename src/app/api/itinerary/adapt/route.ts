@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server"
+import { rateLimit } from "@/lib/rate-limit"
 import { adaptRequestSchema } from "@/lib/api/contracts"
 import {
   normalizeRouteError,
@@ -11,6 +12,10 @@ import { adaptItinerary } from "@/lib/services/itinerary.service"
 import { createServiceClient } from "@/lib/supabase/server"
 
 export async function POST(req: NextRequest) {
+  // Rate limit: max 20 adaptations per IP per day
+  const rl = await rateLimit(req, "itinerary-adapt", 20, "1 d")
+  if (!rl.ok) return rl.response!
+
   try {
     const body = await parseJsonBody(req, adaptRequestSchema)
     const adapted = await adaptItinerary(body.tripId, body.reason, body.source, body.startFromDayNumber)

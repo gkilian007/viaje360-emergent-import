@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server"
+import { rateLimit } from "@/lib/rate-limit"
 import { onboardingRequestSchema } from "@/lib/api/contracts"
 import {
   normalizeRouteError,
@@ -14,6 +15,10 @@ import { createTrip } from "@/lib/services/trip.service"
 import { createServiceClient } from "@/lib/supabase/server"
 
 export async function POST(req: NextRequest) {
+  // Rate limit: max 5 generations per IP per day
+  const rl = await rateLimit(req, "itinerary-generate", 5, "1 d")
+  if (!rl.ok) return rl.response!
+
   try {
     const body = await parseJsonBody(req, onboardingRequestSchema)
     const identity = await resolveRequestIdentity()
