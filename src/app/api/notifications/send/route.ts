@@ -13,12 +13,20 @@ import { NextRequest, NextResponse } from "next/server"
 import webpush from "web-push"
 import { createClient } from "@supabase/supabase-js"
 
-const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? ""
-const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY ?? ""
-const VAPID_EMAIL = process.env.VAPID_EMAIL ?? "mailto:admin@viaje360.app"
+let vapidInitialized = false
 
-if (VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY) {
-  webpush.setVapidDetails(VAPID_EMAIL, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY)
+function ensureVapidInitialized() {
+  if (vapidInitialized) return true
+
+  const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
+  const privateKey = process.env.VAPID_PRIVATE_KEY
+  const email = process.env.VAPID_EMAIL ?? "mailto:admin@viaje360.app"
+
+  if (!publicKey || !privateKey) return false
+
+  webpush.setVapidDetails(email, publicKey, privateKey)
+  vapidInitialized = true
+  return true
 }
 
 export async function POST(req: NextRequest) {
@@ -30,7 +38,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
-  if (!VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY) {
+  if (!ensureVapidInitialized()) {
     return NextResponse.json(
       { error: "VAPID keys not configured" },
       { status: 500 }
