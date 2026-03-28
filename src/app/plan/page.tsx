@@ -703,6 +703,37 @@ function PlanPageContent() {
         />
       )}
 
+      {/* Share toast */}
+      <AnimatePresence>
+        {showShareToast && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.3 }}
+            className="fixed bottom-28 left-4 right-4 lg:left-auto lg:right-8 lg:w-80 p-4 rounded-2xl z-50"
+            style={{
+              background: "rgba(10,132,255,0.15)",
+              border: "1px solid rgba(10,132,255,0.35)",
+              backdropFilter: "blur(20px)",
+            }}
+          >
+            <div className="flex items-center gap-3">
+              <div
+                className="w-10 h-10 rounded-xl flex items-center justify-center"
+                style={{ background: "rgba(10,132,255,0.2)" }}
+              >
+                <span className="material-symbols-outlined text-[20px] text-[#0A84FF]">link</span>
+              </div>
+              <div>
+                <p className="text-[14px] font-semibold text-white">¡Enlace copiado!</p>
+                <p className="text-[11px] text-[#c0c6d6]">Comparte tu plan con quien quieras</p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Diary saved toast */}
       {showDiarySaved && (
         <div
