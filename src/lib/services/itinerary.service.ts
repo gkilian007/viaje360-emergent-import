@@ -125,11 +125,28 @@ EVERY activity MUST include ALL of these fields (no exceptions):
 - lat: latitude of the location (decimal, e.g. 35.6762). MANDATORY — look up the real GPS coordinates. DO NOT omit or leave as 0.
 - lng: longitude of the location (decimal, e.g. 139.6503). MANDATORY — look up the real GPS coordinates. DO NOT omit or leave as 0.
 
+IMPORTANT — COORDINATES:
+- Include ALWAYS exact lat and lng for EACH activity
+- Use real GPS coordinates of the specific place, NOT the city center
+- For well-known monuments, use their exact coords (e.g. Sagrada Família: 41.4036, 2.1744; Eiffel Tower: 48.8584, 2.2945; Colosseum: 41.8902, 12.4922)
+- If you don't know the exact coords, use those of the correct neighborhood/zone — never a generic city centroid
+- Never invent coordinates outside the city or country
+
 DAILY STRUCTURE: Every day MUST start and end at the accommodation.
 - FIRST activity of each day: type "hotel", name = accommodation name or "Salida del alojamiento", location = accommodation address, duration = 0, cost = 0. This marks the departure point.
 - LAST activity of each day: type "hotel", name = "Vuelta al alojamiento", location = accommodation address, duration = 0, cost = 0. This marks the return.
 - Plan activities geographically efficient: group nearby places together to minimize backtracking.
 ${data.accommodationZone ? `The traveler is staying at/near: ${data.accommodationZone}. Use this as the start/end point.` : "If no accommodation specified, use a central location in the destination as the base."}
+
+SCHEDULES — STRICT RULES:
+- Breakfast/café: 09:00, duration 30-45 min
+- Museums and large monuments: minimum 90 min
+- Lunch restaurant: 13:30-15:00 (minimum 60 min)
+- Afternoon activities: do NOT start before 15:30
+- Dinner restaurant: 20:30-22:00 (Spain), 19:00-20:30 (rest of world)
+- Maximum 6 activities per day (excluding hotel start/end) to allow transit time
+- Leave at least 30 min between consecutive activities for transfers
+- Times must be coherent: endTime = time + duration; next activity must start after endTime + transfer gap
 
 CRITICAL: NEVER repeat the same restaurant, museum, monument, or activity on different days. Each activity must appear only ONCE in the entire trip. Every day should have completely different places.
 
@@ -145,6 +162,13 @@ LANGUAGE RULES (CRITICAL):
 - Write naturally — do NOT translate from English
 - location field: use the LOCAL language of the destination (Italian for Italy, French for France, etc.)
 - NO English words in Spanish content unless it is a proper brand name
+
+DAILY VARIETY (MANDATORY):
+- Mix each day: culture + gastronomy + open space + local activity
+- Never more than 2 museums on the same day
+- Include at least 1 outdoor activity per day (park, viewpoint, market, waterfront, square)
+- Include at least 1 local restaurant (no chains) per day
+- Last day: plan activities near the airport/station or light ones — the traveler has to catch transport
 
 QUALITY RULES (MANDATORY — no exceptions):
 - NEVER use generic placeholders like "Family-friendly break", "Accommodation", "Rest stop", "Break time"
