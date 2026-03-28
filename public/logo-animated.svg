@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <style>
+      .globe-lines { animation: globe-spin 8s linear infinite; transform-origin: 100px 100px; }
+      .orbit-ring  { animation: orbit-spin 4s linear infinite; transform-origin: 100px 100px; }
+      .plane       { animation: orbit-spin 4s linear infinite; transform-origin: 100px 100px; }
+      .trail       { animation: orbit-spin 4s linear infinite; transform-origin: 100px 100px; opacity: 0.4; }
+
+      @keyframes globe-spin {
+        from { transform: rotate(0deg); }
+        to   { transform: rotate(360deg); }
+      }
+      @keyframes orbit-spin {
+        from { transform: rotate(0deg); }
+        to   { transform: rotate(360deg); }
+      }
+    </style>
+
+    <!-- Clip to globe circle -->
+    <clipPath id="globe-clip">
+      <circle cx="100" cy="100" r="62"/>
+    </clipPath>
+
+    <!-- Gradient for globe fill -->
+    <radialGradient id="globe-bg" cx="40%" cy="35%">
+      <stop offset="0%"   stop-color="#1a2a4a"/>
+      <stop offset="100%" stop-color="#0a0e1a"/>
+    </radialGradient>
+
+    <!-- Gradient for lines -->
+    <linearGradient id="line-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#0A84FF"/>
+      <stop offset="100%" stop-color="#5856D6"/>
+    </linearGradient>
+
+    <!-- Trail gradient -->
+    <linearGradient id="trail-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#0A84FF" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#0A84FF" stop-opacity="0.8"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background rounded square -->
+  <rect width="200" height="200" rx="44" ry="44" fill="#131315"/>
+
+  <!-- Globe base circle -->
+  <circle cx="100" cy="100" r="62" fill="url(#globe-bg)" stroke="url(#line-grad)" stroke-width="1.5"/>
+
+  <!-- Spinning globe lines (clipped to circle) -->
+  <g class="globe-lines" clip-path="url(#globe-clip)">
+    <!-- Latitude lines -->
+    <ellipse cx="100" cy="100" rx="62" ry="18" fill="none" stroke="url(#line-grad)" stroke-width="1.2" opacity="0.7"/>
+    <ellipse cx="100" cy="100" rx="62" ry="38" fill="none" stroke="url(#line-grad)" stroke-width="1.2" opacity="0.5"/>
+    <line x1="38" y1="100" x2="162" y2="100" stroke="url(#line-grad)" stroke-width="1.2" opacity="0.6"/>
+    <line x1="38" y1="72"  x2="162" y2="72"  stroke="url(#line-grad)" stroke-width="1" opacity="0.4"/>
+    <line x1="38" y1="128" x2="162" y2="128" stroke="url(#line-grad)" stroke-width="1" opacity="0.4"/>
+
+    <!-- Longitude lines (vertical ellipses) -->
+    <ellipse cx="100" cy="100" rx="20" ry="62" fill="none" stroke="url(#line-grad)" stroke-width="1.2" opacity="0.7"/>
+    <ellipse cx="100" cy="100" rx="44" ry="62" fill="none" stroke="url(#line-grad)" stroke-width="1" opacity="0.5"/>
+    <line x1="100" y1="38" x2="100" y2="162" stroke="url(#line-grad)" stroke-width="1.2" opacity="0.6"/>
+  </g>
+
+  <!-- Globe border on top -->
+  <circle cx="100" cy="100" r="62" fill="none" stroke="url(#line-grad)" stroke-width="1.8"/>
+
+  <!-- Orbit ring (tilted ellipse path for the plane) -->
+  <ellipse cx="100" cy="100" rx="82" ry="28" fill="none" stroke="#0A84FF" stroke-width="1" opacity="0.25"
+    transform="rotate(-20 100 100)"/>
+
+  <!-- Plane trail -->
+  <g class="trail" transform="rotate(-20 100 100)">
+    <path d="M 182 100 A 82 28 0 0 0 140 75" fill="none" stroke="url(#trail-grad)" stroke-width="2.5" stroke-linecap="round"/>
+  </g>
+
+  <!-- Orbiting airplane -->
+  <g class="plane" transform="rotate(-20 100 100)">
+    <!-- Plane at rightmost point of the tilted ellipse -->
+    <g transform="translate(182, 100) rotate(-35)">
+      <!-- Airplane SVG shape -->
+      <path d="M0,-7 L14,0 L0,4 L0,-7 Z" fill="white"/>
+      <path d="M-2,-1 L6,-5 L8,-3 L0,2 Z" fill="white" opacity="0.9"/>
+      <path d="M-1,2 L3,5 L4,4 L1,1 Z" fill="white" opacity="0.8"/>
+    </g>
+  </g>
+
+</svg>
