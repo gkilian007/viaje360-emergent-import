@@ -4,7 +4,16 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import { MapContainer, TileLayer, Marker, Popup, Polyline, Circle, useMap } from "react-leaflet"
 import L from "leaflet"
 import "leaflet/dist/leaflet.css"
+import "leaflet.markercluster/dist/MarkerCluster.css"
+import "leaflet.markercluster/dist/MarkerCluster.Default.css"
 import { useRouteGeometry } from "@/lib/hooks/useRouteGeometry"
+
+// Dynamic import for MarkerClusterGroup (ESM-only package)
+import dynamic from "next/dynamic"
+const MarkerClusterGroup = dynamic(
+  () => import("react-leaflet-cluster").then(m => ({ default: m.default })),
+  { ssr: false }
+)
 
 interface GeocodedActivity {
   activity: {
@@ -76,6 +85,17 @@ const TYPE_COLOR: Record<string, string> = {
   beach: "#FF6B6B",       // coral
   entertainment: "#FF2D55", // rojo rosa
   cafe: "#A2845E",        // marrón
+}
+
+// Detect iOS for navigation URL
+function getDirectionsUrl(lat: number, lng: number): string {
+  const isIOS =
+    typeof navigator !== "undefined" &&
+    (navigator.userAgent.includes("iPhone") || navigator.userAgent.includes("iPad"))
+  if (isIOS) {
+    return `maps://maps.apple.com/?daddr=${lat},${lng}`
+  }
+  return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`
 }
 
 // Create marker icon with emoji by type + number badge
@@ -181,6 +201,20 @@ function injectMapStyles() {
     .custom-marker > div {
       cursor: pointer;
     }
+    /* Cluster styles — dark theme */
+    .marker-cluster-small,
+    .marker-cluster-medium,
+    .marker-cluster-large {
+      background-color: rgba(10, 132, 255, 0.18) !important;
+    }
+    .marker-cluster-small div,
+    .marker-cluster-medium div,
+    .marker-cluster-large div {
+      background-color: rgba(10, 132, 255, 0.72) !important;
+      color: #fff !important;
+      font-weight: 700;
+      font-size: 13px;
+    }
   `
   document.head.appendChild(style)
 }
@@ -223,17 +257,18 @@ function RealRouteSegments({ geocoded }: { geocoded: GeocodedActivity[] }) {
   const segments = useRouteGeometry(activities, TYPE_COLOR)
 
   if (segments.length === 0) {
-    // Fallback to straight lines while loading
+    // Fallback to straight lines while OSRM loads — visible solid line
+    const valid = geocoded.filter(g => isFinite(g.lat) && isFinite(g.lng))
     return (
       <>
-        {geocoded.length >= 2 && geocoded.map((g, i) => {
-          if (i === geocoded.length - 1) return null
-          const next = geocoded[i + 1]
+        {valid.length >= 2 && valid.map((g, i) => {
+          if (i === valid.length - 1) return null
+          const next = valid[i + 1]
           return (
             <Polyline
               key={`fallback-${i}`}
               positions={[[g.lat, g.lng], [next.lat, next.lng]]}
-              pathOptions={{ color: TYPE_COLOR[next.activity.type] ?? "#5856D6", weight: 2, opacity: 0.3, dashArray: "6, 8" }}
+              pathOptions={{ color: "#0A84FF", weight: 2.5, opacity: 0.5, dashArray: "6, 8" }}
             />
           )
         })}
@@ -379,6 +414,8 @@ export function RealMapView({
     // Still render map with default center, just no markers yet
   }
 
+  const validGeo = geocoded.filter(g => isFinite(g.lat) && isFinite(g.lng))
+
   return (
     <div className="relative w-full h-full">
       <MapContainer
@@ -413,96 +450,131 @@ export function RealMapView({
         {/* User location */}
         <UserLocation />
 
-        {/* Activity markers */}
-        {geocoded.filter(g => isFinite(g.lat) && isFinite(g.lng)).map((geo, index) => {
-          const isSelected = geo.activity.id === selectedActivityId
-          const isFirst = index === 0
-          const isLast = index === geocoded.length - 1
-          const emoji = TYPE_EMOJI[geo.activity.type] ?? "📍"
-          const typeLabel = TYPE_LABEL[geo.activity.type] ?? geo.activity.type
+        {/* Activity markers — wrapped in cluster group */}
+        <MarkerClusterGroup
+          chunkedLoading
+          maxClusterRadius={60}
+          showCoverageOnHover={false}
+          spiderfyOnMaxZoom
+        >
+          {validGeo.map((geo, index) => {
+            const isSelected = geo.activity.id === selectedActivityId
+            const isFirst = index === 0
+            const isLast = index === validGeo.length - 1
+            const emoji = TYPE_EMOJI[geo.activity.type] ?? "📍"
+            const typeLabel = TYPE_LABEL[geo.activity.type] ?? geo.activity.type
 
-          const accentColor = isSelected
-            ? "#0A84FF"
-            : TYPE_COLOR[geo.activity.type] ?? "#5856D6"
+            const accentColor = isSelected
+              ? "#0A84FF"
+              : TYPE_COLOR[geo.activity.type] ?? "#5856D6"
 
-          return (
-            <Marker
-              key={geo.activity.id}
-              position={[geo.lat, geo.lng]}
-              icon={createActivityIcon(index, geo.activity.type, isSelected, isFirst, isLast)}
-              eventHandlers={{
-                click: () => onMarkerClick?.(geo.activity.id),
-              }}
-            >
-              <Popup>
-                <div style={{ minWidth: 200, padding: "12px 14px" }}>
-                  {/* Header: badge + name */}
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+            const directionsUrl = getDirectionsUrl(geo.lat, geo.lng)
+
+            return (
+              <Marker
+                key={geo.activity.id}
+                position={[geo.lat, geo.lng]}
+                icon={createActivityIcon(index, geo.activity.type, isSelected, isFirst, isLast)}
+                eventHandlers={{
+                  click: () => onMarkerClick?.(geo.activity.id),
+                }}
+              >
+                <Popup>
+                  <div style={{ minWidth: 200, padding: "12px 14px" }}>
+                    {/* Header: badge + name */}
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                      <div style={{
+                        padding: "3px 8px",
+                        borderRadius: 8,
+                        background: `${accentColor}20`,
+                        border: `1px solid ${accentColor}40`,
+                        fontSize: 11,
+                        fontWeight: 600,
+                        color: accentColor,
+                        whiteSpace: "nowrap",
+                      }}>
+                        {emoji} {typeLabel}
+                      </div>
+                      <span style={{
+                        fontSize: 10,
+                        color: "#888",
+                        fontWeight: 600,
+                      }}>#{index + 1}</span>
+                    </div>
+
+                    {/* Name */}
                     <div style={{
-                      padding: "3px 8px",
-                      borderRadius: 8,
-                      background: `${accentColor}20`,
-                      border: `1px solid ${accentColor}40`,
-                      fontSize: 11,
-                      fontWeight: 600,
-                      color: accentColor,
-                      whiteSpace: "nowrap",
+                      fontWeight: 700,
+                      fontSize: 14,
+                      color: "#f0f0f0",
+                      marginBottom: 6,
+                      lineHeight: 1.3,
                     }}>
-                      {emoji} {typeLabel}
+                      {geo.activity.name}
                     </div>
-                    <span style={{
+
+                    {/* Details row */}
+                    <div style={{
+                      display: "flex",
+                      gap: 10,
+                      fontSize: 11,
+                      color: "#9ca3af",
+                      marginBottom: geo.activity.cost > 0 ? 4 : 0,
+                    }}>
+                      <span>🕐 {geo.activity.time}</span>
+                      <span>⏱ {geo.activity.duration}min</span>
+                    </div>
+
+                    {/* Cost */}
+                    {geo.activity.cost > 0 && (
+                      <div style={{ fontSize: 11, color: "#9ca3af" }}>
+                        💰 €{geo.activity.cost}
+                      </div>
+                    )}
+
+                    {/* Location */}
+                    <div style={{
                       fontSize: 10,
-                      color: "#888",
-                      fontWeight: 600,
-                    }}>#{index + 1}</span>
-                  </div>
-
-                  {/* Name */}
-                  <div style={{
-                    fontWeight: 700,
-                    fontSize: 14,
-                    color: "#f0f0f0",
-                    marginBottom: 6,
-                    lineHeight: 1.3,
-                  }}>
-                    {geo.activity.name}
-                  </div>
-
-                  {/* Details row */}
-                  <div style={{
-                    display: "flex",
-                    gap: 10,
-                    fontSize: 11,
-                    color: "#9ca3af",
-                    marginBottom: geo.activity.cost > 0 ? 4 : 0,
-                  }}>
-                    <span>🕐 {geo.activity.time}</span>
-                    <span>⏱ {geo.activity.duration}min</span>
-                  </div>
-
-                  {/* Cost */}
-                  {geo.activity.cost > 0 && (
-                    <div style={{ fontSize: 11, color: "#9ca3af" }}>
-                      💰 €{geo.activity.cost}
+                      color: "#6b7280",
+                      marginTop: 6,
+                      paddingTop: 6,
+                      borderTop: "1px solid rgba(255,255,255,0.06)",
+                      lineHeight: 1.4,
+                    }}>
+                      📍 {geo.activity.location}
                     </div>
-                  )}
 
-                  {/* Location */}
-                  <div style={{
-                    fontSize: 10,
-                    color: "#6b7280",
-                    marginTop: 6,
-                    paddingTop: 6,
-                    borderTop: "1px solid rgba(255,255,255,0.06)",
-                    lineHeight: 1.4,
-                  }}>
-                    📍 {geo.activity.location}
+                    {/* Cómo llegar button */}
+                    <a
+                      href={directionsUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 6,
+                        marginTop: 10,
+                        padding: "7px 12px",
+                        borderRadius: 10,
+                        background: `${accentColor}22`,
+                        border: `1px solid ${accentColor}55`,
+                        color: accentColor,
+                        fontSize: 12,
+                        fontWeight: 600,
+                        textDecoration: "none",
+                        cursor: "pointer",
+                        transition: "background 0.2s",
+                      }}
+                    >
+                      🧭 Cómo llegar
+                    </a>
                   </div>
-                </div>
-              </Popup>
-            </Marker>
-          )
-        })}
+                </Popup>
+              </Marker>
+            )
+          })}
+        </MarkerClusterGroup>
       </MapContainer>
 
       {/* Loading overlay */}
