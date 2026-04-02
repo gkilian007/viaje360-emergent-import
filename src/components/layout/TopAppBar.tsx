@@ -6,9 +6,10 @@ import { useAppStore } from "@/store/useAppStore"
 interface TopAppBarProps {
   title?: string
   showBack?: boolean
+  onShare?: () => void
 }
 
-export function TopAppBar({ title, showBack = false }: TopAppBarProps) {
+export function TopAppBar({ title, showBack = false, onShare }: TopAppBarProps) {
   const { currentTrip, user } = useAppStore()
   const displayTitle = title ?? currentTrip?.name ?? "Viaje360"
 
@@ -45,8 +46,17 @@ export function TopAppBar({ title, showBack = false }: TopAppBarProps) {
           </div>
         </div>
 
-        {/* Right: notifications + avatar */}
+        {/* Right: share + notifications + avatar */}
         <div className="flex items-center gap-2">
+          {onShare && (
+            <button
+              onClick={onShare}
+              className="w-9 h-9 flex items-center justify-center rounded-full text-[#c0c6d6] hover:text-white hover:bg-white/10 transition-all"
+              title="Compartir itinerario"
+            >
+              <span className="material-symbols-outlined text-[20px]">share</span>
+            </button>
+          )}
           <button className="w-9 h-9 flex items-center justify-center rounded-full text-[#c0c6d6] hover:text-white hover:bg-white/10 transition-all relative">
             <span className="material-symbols-outlined text-[22px]">notifications</span>
             <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#0A84FF] rounded-full pulse-blue" />

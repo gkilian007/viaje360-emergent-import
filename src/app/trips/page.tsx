@@ -16,10 +16,12 @@ function TripRow({
   trip,
   onActivate,
   activating,
+  onShare,
 }: {
   trip: TripSummary
   onActivate: (id: string) => void
   activating: string | null
+  onShare: (trip: TripSummary) => void
 }) {
   const router = useRouter()
   const isActive = trip.status === "active"
@@ -49,6 +51,14 @@ function TripRow({
           </div>
           <p className="text-[12px] text-[#9ca3af]">{trip.destination}</p>
         </div>
+        <button
+          onClick={() => onShare(trip)}
+          className="shrink-0 w-8 h-8 rounded-xl flex items-center justify-center hover:bg-white/5 transition-colors"
+          style={{ border: "1px solid rgba(255,255,255,0.08)" }}
+          title="Compartir itinerario"
+        >
+          <span className="material-symbols-outlined text-[16px] text-[#888]">share</span>
+        </button>
       </div>
 
       <div className="flex flex-wrap gap-3 text-[12px] text-[#9ca3af] mb-3">
@@ -99,6 +109,7 @@ export default function TripsPage() {
   const [trips, setTrips] = useState<TripSummary[]>([])
   const [loading, setLoading] = useState(true)
   const [activating, setActivating] = useState<string | null>(null)
+  const [shareToast, setShareToast] = useState("")
   const router = useRouter()
 
   const fetchTrips = useCallback(async () => {
@@ -130,8 +141,34 @@ export default function TripsPage() {
     }
   }
 
+  async function handleShare(trip: TripSummary) {
+    const shareUrl = `${window.location.origin}/share/${trip.id}`
+    const shareText = `Mira mi itinerario de ${trip.destination} en Viaje360!`
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: shareText, url: shareUrl })
+        return
+      } catch {}
+    }
+    try {
+      await navigator.clipboard.writeText(shareUrl)
+      setShareToast("¡Enlace copiado!")
+      setTimeout(() => setShareToast(""), 2500)
+    } catch {}
+  }
+
   return (
     <div className="min-h-screen pb-28" style={{ background: "#131315" }}>
+      {/* Share toast */}
+      {shareToast && (
+        <div
+          className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-2xl text-[13px] font-semibold text-white"
+          style={{ background: "rgba(48,209,88,0.9)", backdropFilter: "blur(12px)" }}
+        >
+          {shareToast}
+        </div>
+      )}
+
       <div className="px-4 pb-4 page-header-safe-lg">
         <h1 className="text-[24px] font-bold text-white mb-1">Mis viajes</h1>
         <p className="text-[14px] text-[#9ca3af]">
@@ -176,6 +213,7 @@ export default function TripsPage() {
               trip={trip}
               onActivate={handleActivate}
               activating={activating}
+              onShare={handleShare}
             />
           ))}
       </div>

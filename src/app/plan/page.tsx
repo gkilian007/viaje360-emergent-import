@@ -204,9 +204,16 @@ function PlanPageContent() {
     localStorage.setItem("viaje360_plan_toured_v1", "1")
   }, [])
 
-  const handleShare = useCallback(() => {
+  const handleShare = useCallback(async () => {
     if (!currentTrip?.id) return
-    const shareUrl = `https://viaje360.app/share/${currentTrip.id}`
+    const shareUrl = `${window.location.origin}/share/${currentTrip.id}`
+    const shareText = `Mira mi itinerario de ${currentTrip.destination} en Viaje360!`
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: shareText, url: shareUrl })
+        return
+      } catch {}
+    }
     navigator.clipboard.writeText(shareUrl).then(() => {
       setShareCopied(true)
       setShowShareToast(true)
@@ -215,7 +222,7 @@ function PlanPageContent() {
         setShowShareToast(false)
       }, 2500)
     }).catch(() => {})
-  }, [currentTrip?.id])
+  }, [currentTrip?.id, currentTrip?.destination])
 
   // Always rehydrate from server to get rich activity fields and ensure trip is loaded
   useEffect(() => {
@@ -374,7 +381,7 @@ function PlanPageContent() {
       {/* ── Mobile Layout ── */}
       <div className="lg:hidden flex flex-col h-screen bg-[#0f1117]">
         {/* Top bar */}
-        <TopAppBar />
+        <TopAppBar onShare={currentTrip?.id ? handleShare : undefined} />
 
         {/* Scrollable content */}
         <div className="flex-1 overflow-y-auto pt-[72px] pb-24">
