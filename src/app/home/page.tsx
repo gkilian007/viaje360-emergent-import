@@ -8,7 +8,7 @@ import { createClient, isSupabaseBrowserConfigured } from "@/lib/supabase/client
 import { BottomNav } from "@/components/layout/BottomNav"
 import { motion } from "framer-motion"
 import type { User as SupabaseUser } from "@supabase/supabase-js"
-import type { DayItinerary } from "@/lib/types"
+import type { TripSummary } from "@/app/api/trips/route"
 
 // ─── Trending destinations ───────────────────────────────────────────────────
 
@@ -145,19 +145,23 @@ function CreatePostCTA({ onNewTrip }: { onNewTrip: () => void }) {
   )
 }
 
+function getDestinationImageUrl(destination: string): string {
+  const encoded = encodeURIComponent(destination.toLowerCase())
+  return `https://source.unsplash.com/featured/800x400/?${encoded},travel`
+}
+
 function TripCard({
   trip,
-  itinerary,
   onContinue,
   onViewRecap,
+  onShare,
 }: {
-  trip: { id: string; name: string; destination: string; country: string; status: string; budget: number; startDate: string; endDate: string }
-  itinerary: DayItinerary[] | null
+  trip: TripSummary
   onContinue: () => void
   onViewRecap: () => void
+  onShare: () => void
 }) {
-  const totalActivities = itinerary?.reduce((sum, d) => sum + d.activities.length, 0) ?? 0
-  const totalDays = itinerary?.length ?? 0
+  const imageUrl = getDestinationImageUrl(trip.destination)
 
   return (
     <motion.div
@@ -170,42 +174,60 @@ function TripCard({
       }}
     >
       {/* Trip header image area */}
-      <div
-        className="h-36 lg:h-44 relative"
-        style={{
-          background: "linear-gradient(135deg, rgba(10,132,255,0.3), rgba(88,86,214,0.3))",
-        }}
-      >
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-[64px]">✈️</span>
-        </div>
+      <div className="h-36 lg:h-44 relative overflow-hidden">
+        {/* Destination photo */}
+        <img
+          src={imageUrl}
+          alt={trip.destination}
+          className="absolute inset-0 w-full h-full object-cover"
+          onError={(e) => {
+            (e.currentTarget as HTMLImageElement).style.display = "none"
+          }}
+        />
+        {/* Dark gradient overlay for text readability */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background: "linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.55) 100%)",
+          }}
+        />
+        {/* Status badge */}
         <div
           className="absolute top-3 right-3 px-3 py-1 rounded-full text-[11px] font-semibold"
           style={{
             background: trip.status === "active"
-              ? "rgba(48,209,88,0.2)"
-              : "rgba(142,142,147,0.2)",
-            color: trip.status === "active" ? "#30D158" : "#8E8E93",
-            border: `1px solid ${trip.status === "active" ? "rgba(48,209,88,0.3)" : "rgba(142,142,147,0.3)"}`,
+              ? "rgba(48,209,88,0.85)"
+              : "rgba(0,0,0,0.55)",
+            color: trip.status === "active" ? "#fff" : "#ccc",
+            backdropFilter: "blur(8px)",
+            border: `1px solid ${trip.status === "active" ? "rgba(48,209,88,0.5)" : "rgba(255,255,255,0.15)"}`,
           }}
         >
-          {trip.status === "active" ? "En curso" : trip.status === "planning" ? "Planificando" : "Completado"}
+          {trip.status === "active" ? "● En curso" : trip.status === "planning" ? "Planificando" : "Completado"}
+        </div>
+        {/* Destination label at bottom-left */}
+        <div className="absolute bottom-3 left-3">
+          <p className="text-[18px] font-bold text-white capitalize drop-shadow-md">{trip.destination}</p>
+          {trip.country && (
+            <p className="text-[11px] text-white/75 drop-shadow-sm">{trip.country}</p>
+          )}
         </div>
       </div>
 
       {/* Trip info */}
       <div className="p-4">
-        <h3 className="text-[16px] font-bold text-white capitalize">{trip.destination}</h3>
-        <p className="text-[12px] text-[#888] mt-0.5">
-          {trip.country ? `${trip.country} · ` : ""}
-          {totalDays} días · {totalActivities} actividades · €{trip.budget}
+        <p className="text-[12px] text-[#888]">
+          {trip.totalDays} días · {trip.totalActivities} actividades · €{trip.budget}
         </p>
 
         {/* Action row */}
         <div className="flex items-center gap-3 mt-4 pt-3" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-          <button className="flex items-center gap-1.5 text-[12px] text-[#888] hover:text-white transition-colors">
-            <span className="material-symbols-outlined text-[18px]">favorite</span>
-            Me gusta
+          <button
+            onClick={onShare}
+            className="flex items-center gap-1.5 text-[12px] text-[#888] hover:text-white transition-colors"
+          >
+            <span className="material-symbols-outlined text-[18px]">share</span>
+            Compartir
           </button>
           <button
             onClick={onViewRecap}
@@ -362,12 +384,13 @@ function TipsWidget() {
 
 export default function HomePage() {
   const router = useRouter()
-  const { currentTrip, generatedItinerary } = useAppStore()
   const resetOnboarding = useOnboardingStore((s) => s.reset)
   const setOnboardingField = useOnboardingStore((s) => s.setField)
   const { setCurrentTrip, setGeneratedItinerary, replaceChatMessages } = useAppStore()
   const [authUser, setAuthUser] = useState<SupabaseUser | null>(null)
   const [loadingAuth, setLoadingAuth] = useState(true)
+  const [allTrips, setAllTrips] = useState<TripSummary[]>([])
+  const [shareToast, setShareToast] = useState("")
 
   useEffect(() => {
     async function loadUser() {
@@ -383,7 +406,20 @@ export default function HomePage() {
     void loadUser()
   }, [])
 
-  // Load active trip from server on mount
+  // Load all trips for the feed
+  useEffect(() => {
+    async function loadTrips() {
+      try {
+        const res = await fetch("/api/trips", { cache: "no-store" })
+        if (!res.ok) return
+        const payload = await res.json()
+        setAllTrips(payload?.data?.trips ?? [])
+      } catch {}
+    }
+    if (!loadingAuth) void loadTrips()
+  }, [loadingAuth])
+
+  // Also load the active trip into the store so /plan still works
   useEffect(() => {
     async function loadActiveTrip() {
       try {
@@ -413,14 +449,33 @@ export default function HomePage() {
     router.push("/onboarding")
   }
 
-  function handleContinueTrip() {
+  async function handleActivateAndNavigate(trip: TripSummary) {
+    if (trip.status !== "active") {
+      try {
+        await fetch(`/api/trips/${trip.id}/activate`, { method: "POST" })
+      } catch {}
+    }
     router.push("/plan")
   }
 
-  function handleViewRecap() {
-    if (currentTrip?.id) {
-      router.push(`/recap/${currentTrip.id}`)
+  function handleViewRecap(tripId: string) {
+    router.push(`/recap/${tripId}`)
+  }
+
+  async function handleShare(trip: TripSummary) {
+    const shareUrl = `${window.location.origin}/share/${trip.id}`
+    const shareText = `Mira mi itinerario de ${trip.destination} en Viaje360!`
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: shareText, url: shareUrl })
+        return
+      } catch {}
     }
+    try {
+      await navigator.clipboard.writeText(shareUrl)
+      setShareToast("¡Enlace copiado!")
+      setTimeout(() => setShareToast(""), 2500)
+    } catch {}
   }
 
   async function handleLogout() {
@@ -444,8 +499,8 @@ export default function HomePage() {
     .slice(0, 2)
 
   const email = authUser?.email ?? "Modo demo"
-  const tripCount = currentTrip ? 1 : 0
-  const totalDays = generatedItinerary?.length ?? 0
+  const tripCount = allTrips.length
+  const totalDays = allTrips.reduce((sum, t) => sum + t.totalDays, 0)
 
   if (loadingAuth) {
     return (
@@ -457,6 +512,16 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen pb-28 lg:pb-8" style={{ background: "#131315" }}>
+      {/* Share toast */}
+      {shareToast && (
+        <div
+          className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-2xl text-[13px] font-semibold text-white"
+          style={{ background: "rgba(48,209,88,0.9)", backdropFilter: "blur(12px)" }}
+        >
+          {shareToast}
+        </div>
+      )}
+
       {/* Top bar — desktop */}
       <header
         className="hidden lg:flex items-center justify-between px-6 py-3 sticky top-0 z-50"
@@ -564,14 +629,17 @@ export default function HomePage() {
               <CreatePostCTA onNewTrip={handleNewTrip} />
             </div>
 
-            {/* Trip feed */}
-            {currentTrip ? (
-              <TripCard
-                trip={currentTrip}
-                itinerary={generatedItinerary}
-                onContinue={handleContinueTrip}
-                onViewRecap={handleViewRecap}
-              />
+            {/* Trip feed — all trips */}
+            {allTrips.length > 0 ? (
+              allTrips.map((trip) => (
+                <TripCard
+                  key={trip.id}
+                  trip={trip}
+                  onContinue={() => handleActivateAndNavigate(trip)}
+                  onViewRecap={() => handleViewRecap(trip.id)}
+                  onShare={() => handleShare(trip)}
+                />
+              ))
             ) : (
               <EmptyFeed onNewTrip={handleNewTrip} />
             )}
