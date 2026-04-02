@@ -17,6 +17,7 @@ export interface TripSummary {
   budget: number
   spent: number
   createdAt: string
+  imageUrl: string | null
 }
 
 export async function GET(_req: NextRequest) {
@@ -85,6 +86,7 @@ export async function GET(_req: NextRequest) {
       budget: Number(trip.budget ?? 0),
       spent: Number(trip.spent ?? 0),
       createdAt: trip.created_at,
+      imageUrl: trip.image_url ?? null,
     }))
 
     return successResponse({ trips: result })

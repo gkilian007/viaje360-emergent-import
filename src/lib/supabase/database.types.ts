@@ -66,6 +66,7 @@ export interface DbTrip {
   weather_temp: number | null
   weather_condition: string | null
   weather_icon: string | null
+  image_url: string | null
   created_at: string
   updated_at: string
 }

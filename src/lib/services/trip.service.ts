@@ -281,6 +281,12 @@ export async function createTrip(
       source: "generate",
     })
 
+    // Cache destination image asynchronously (non-blocking)
+    const supabase = createServiceClient()
+    const encoded = encodeURIComponent(destination.toLowerCase())
+    const imageUrl = `https://source.unsplash.com/featured/800x400/?${encoded},travel,city`
+    supabase.from("trips").update({ image_url: imageUrl }).eq("id", trip.id as string).then(() => {})
+
     return trip as DbTrip
   } catch (err) {
     console.error("createTrip exception:", err)

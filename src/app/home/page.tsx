@@ -435,7 +435,14 @@ export default function HomePage() {
         const res = await fetch("/api/trips", { cache: "no-store" })
         if (!res.ok) return
         const payload = await res.json()
-        setAllTrips(payload?.data?.trips ?? [])
+        const trips: TripSummary[] = payload?.data?.trips ?? []
+        setAllTrips(trips)
+        // Fire background image caching for trips without a cached image URL
+        for (const trip of trips) {
+          if (!trip.imageUrl) {
+            fetch(`/api/trips/${trip.id}/image`, { method: "POST" }).catch(() => {})
+          }
+        }
       } catch {}
     }
     if (!loadingAuth) void loadTrips()
