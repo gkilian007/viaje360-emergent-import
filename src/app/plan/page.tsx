@@ -259,6 +259,11 @@ function PlanPageContent() {
     localStorage.setItem("viaje360_plan_toured_v1", "1")
   }, [])
 
+  const handleCalendarExport = useCallback(() => {
+    if (!currentTrip?.id) return
+    window.open(`/api/trips/${currentTrip.id}/calendar`, "_blank")
+  }, [currentTrip?.id])
+
   const handleShare = useCallback(async () => {
     if (!currentTrip?.id) return
     const shareUrl = `${window.location.origin}/share/${currentTrip.id}`
@@ -468,7 +473,7 @@ function PlanPageContent() {
       {/* ── Mobile Layout ── */}
       <div className="lg:hidden flex flex-col h-screen bg-[#0f1117]">
         {/* Top bar */}
-        <TopAppBar onShare={currentTrip?.id ? handleShare : undefined} />
+        <TopAppBar onShare={currentTrip?.id ? handleShare : undefined} onCalendarExport={currentTrip?.id ? handleCalendarExport : undefined} />
 
         {/* Scrollable content */}
         <div className="flex-1 overflow-y-auto pt-[72px] pb-24">

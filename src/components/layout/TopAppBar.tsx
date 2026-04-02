@@ -7,9 +7,10 @@ interface TopAppBarProps {
   title?: string
   showBack?: boolean
   onShare?: () => void
+  onCalendarExport?: () => void
 }
 
-export function TopAppBar({ title, showBack = false, onShare }: TopAppBarProps) {
+export function TopAppBar({ title, showBack = false, onShare, onCalendarExport }: TopAppBarProps) {
   const { currentTrip, user } = useAppStore()
   const displayTitle = title ?? currentTrip?.name ?? "Viaje360"
 
@@ -48,6 +49,15 @@ export function TopAppBar({ title, showBack = false, onShare }: TopAppBarProps) 
 
         {/* Right: share + notifications + avatar */}
         <div className="flex items-center gap-2">
+          {onCalendarExport && (
+            <button
+              onClick={onCalendarExport}
+              className="w-9 h-9 flex items-center justify-center rounded-full text-[#c0c6d6] hover:text-white hover:bg-white/10 transition-all"
+              title="Exportar a calendario"
+            >
+              <span className="material-symbols-outlined text-[20px]">calendar_month</span>
+            </button>
+          )}
           {onShare && (
             <button
               onClick={onShare}
