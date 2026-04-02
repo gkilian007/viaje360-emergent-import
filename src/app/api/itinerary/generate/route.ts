@@ -116,6 +116,20 @@ export async function POST(req: NextRequest) {
           console.warn("[generate] activity_knowledge ingestion error:", err)
         )
 
+        // Schedule push notifications if trip starts today or tomorrow
+        if (identity.userId && resolvedTripId !== localTripId) {
+          const { scheduleNotificationsForTrip } = await import("@/lib/services/notification-scheduler")
+          const firstActivity = generatedItinerary.days[0]?.activities[0]
+          scheduleNotificationsForTrip({
+            userId: identity.userId,
+            tripId: resolvedTripId,
+            destination: body.destination,
+            startDate: body.startDate,
+            endDate: body.endDate,
+            firstActivityName: firstActivity?.name,
+          }).catch((err) => console.warn("[generate] notification scheduling error:", err))
+        }
+
         // Background full geocoding — fills missing coords via Nominatim after saving
         // This runs async and updates the DB directly via /api/trips/backfill-geocode
         const tripIdForGeocode = resolvedTripId
