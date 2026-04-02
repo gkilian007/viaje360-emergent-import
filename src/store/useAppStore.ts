@@ -44,6 +44,7 @@ interface AppState {
   setCurrentTrip: (trip: Trip | null) => void
   setGeneratedItinerary: (itinerary: DayItinerary[] | null) => void
   updateActivity: (activityId: string, patch: Partial<TimelineActivity>) => void
+  reorderDayActivities: (dayNumber: number, orderedIds: string[]) => void
 }
 
 export const useAppStore = create<AppState>()(
@@ -140,6 +141,18 @@ export const useAppStore = create<AppState>()(
               a.id === activityId ? { ...a, ...patch } : a
             ),
           })) ?? null,
+        })),
+
+      reorderDayActivities: (dayNumber, orderedIds) =>
+        set((state) => ({
+          generatedItinerary: state.generatedItinerary?.map((day) => {
+            if (day.dayNumber !== dayNumber) return day
+            const actMap = new Map(day.activities.map((a) => [a.id, a]))
+            const reordered = orderedIds
+              .map((id) => actMap.get(id))
+              .filter((a): a is TimelineActivity => a !== undefined)
+            return { ...day, activities: reordered }
+          }) ?? null,
         })),
     }),
     {

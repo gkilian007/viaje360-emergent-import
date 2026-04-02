@@ -11,6 +11,7 @@ import { useAppStore } from "@/store/useAppStore"
 import { DesktopLayout } from "@/components/layout/DesktopLayout"
 import { DynamicMapView } from "@/components/features/DynamicMapView"
 import { TimelineItem } from "@/components/features/TimelineItem"
+import { SortableTimeline } from "@/components/features/SortableTimeline"
 import { ActivityDetailModal } from "@/components/features/ActivityDetailModal"
 import { ErrorBoundary } from "@/components/ErrorBoundary"
 import { DiaryPromptCard } from "@/components/features/diary"
@@ -190,7 +191,7 @@ function PlanSkeleton() {
 }
 
 function PlanPageContent() {
-  const { pendingAchievement, currentTrip, generatedItinerary, setGeneratedItinerary, setCurrentTrip, replaceChatMessages, updateActivity } = useAppStore()
+  const { pendingAchievement, currentTrip, generatedItinerary, setGeneratedItinerary, setCurrentTrip, replaceChatMessages, updateActivity, reorderDayActivities } = useAppStore()
   const searchParams = useSearchParams()
   const itinerary = generatedItinerary ?? []
   const [selectedDay, setSelectedDay] = useState(1)
@@ -598,53 +599,22 @@ function PlanPageContent() {
             isDayNotStarted={liveStatus.isDayNotStarted}
           />
 
-          {/* Timeline */}
+          {/* Timeline — sortable via drag & drop */}
           <div className="px-5">
-            {today?.activities.map((activity, i) => {
-              const next = today.activities[i + 1]
-              const seg = next ? getSegment(activity.id, next.id) : undefined
-              const totalActivities = today.activities.length
-              const dayProgress = totalActivities > 1 ? i / (totalActivities - 1) : 0
-              const offerTransit = seg
-                ? shouldOfferTransitChoice(seg.distanceMeters, mobilityProfile.key)
-                : false
-              return (
-                <div key={activity.id}>
-                  <TimelineItem
-                    activity={activity}
-                    isFirst={i === 0}
-                    isLast={i === today.activities.length - 1}
-                    isCurrent={activity.id === liveStatus.current?.id}
-                    onClick={handleActivityClick}
-                    onEdit={currentTrip?.id ? handleActivityEdit : undefined}
-                  />
-                  {seg && offerTransit && next && (
-                    <TransitChoiceCard
-                      fromActivity={activity.name}
-                      toActivity={next.name}
-                      distanceMeters={seg.distanceMeters}
-                      walkingMinutes={seg.walkingMinutes}
-                      destination={currentTrip?.destination ?? ""}
-                      dayProgress={dayProgress}
-                      walkingMapsUrl={seg.mapsUrl}
-                    />
-                  )}
-                  {seg && !offerTransit && (
-                    <WalkingChip
-                      walkingMinutes={seg.walkingMinutes}
-                      distanceMeters={seg.distanceMeters}
-                      mapsUrl={seg.mapsUrl}
-                    />
-                  )}
-                </div>
-              )
-            })}
-            {(!today || today.activities.length === 0) && (
-              <div className="text-center py-12">
-                <span className="material-symbols-outlined text-[48px] text-[#c0c6d6]/30">beach_access</span>
-                <p className="text-[#c0c6d6] mt-2">Día libre — ¡disfruta!</p>
-              </div>
-            )}
+            <SortableTimeline
+              activities={today?.activities ?? []}
+              dayNumber={selectedDay}
+              tripId={currentTrip?.id}
+              isCurrent={(id) => id === liveStatus.current?.id}
+              onClick={handleActivityClick}
+              onEdit={currentTrip?.id ? handleActivityEdit : undefined}
+              getSegment={(fromId, toId) => getSegment(fromId, toId)}
+              shouldOfferTransit={(distanceMeters) =>
+                shouldOfferTransitChoice(distanceMeters, mobilityProfile.key)
+              }
+              destination={currentTrip?.destination ?? ""}
+              onReorder={reorderDayActivities}
+            />
           </div>
 
           {/* Trial banner */}
