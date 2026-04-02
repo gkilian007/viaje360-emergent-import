@@ -49,17 +49,15 @@ export async function PATCH(
     }
 
     // Type-narrow the nested join result
-    const day = Array.isArray(existing.itinerary_days)
-      ? existing.itinerary_days[0]
-      : existing.itinerary_days
-    const tripRow = day
-      ? (Array.isArray((day as { trips: unknown }).trips)
-          ? (day as { trips: { user_id: string }[] }).trips[0]
-          : (day as { trips: { user_id: string } }).trips)
+    const dayRaw = existing.itinerary_days as unknown
+    const day = Array.isArray(dayRaw) ? (dayRaw as { trips: unknown }[])[0] : (dayRaw as { trips: unknown } | null)
+    const tripsRaw = day ? (day as { trips: unknown }).trips : null
+    const tripRow = tripsRaw
+      ? (Array.isArray(tripsRaw) ? (tripsRaw as { user_id: string }[])[0] : (tripsRaw as { user_id: string }))
       : null
 
     if (!tripRow || (tripRow as { user_id: string }).user_id !== identity.userId) {
-      return errorResponse("FORBIDDEN", "Acceso denegado", 403)
+      return errorResponse("UNAUTHORIZED", "Acceso denegado", 403)
     }
 
     // Build update payload
@@ -74,7 +72,7 @@ export async function PATCH(
     if (body.name && body.name !== existing.name) {
       try {
         // Get destination from trip for better geocoding accuracy
-        const tripId = (day as { trip_id: string })?.trip_id
+        const tripId = (day as { trip_id?: string })?.trip_id
         let destination = ""
         if (tripId) {
           const { data: trip } = await supabase

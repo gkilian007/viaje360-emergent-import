@@ -301,6 +301,7 @@ function PlanPageContent() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hydrated])
 
+  // Preload images for visible activities (background, rate-limited to 1/s)
   // Check if diary was just saved
   useEffect(() => {
     const diarySaved = searchParams.get("diary")
@@ -355,6 +356,36 @@ function PlanPageContent() {
     prevActivityIndexRef.current = curr
   }, [liveStatus.currentIndex, magicSuggestion])
   const totalDays = itinerary.length
+
+  // Preload images for visible activities (background, rate-limited to 1/s)
+  useEffect(() => {
+    if (!today || !hydrated) return
+    const activitiesWithoutImage = today.activities.filter((a) => !a.imageUrl)
+    if (activitiesWithoutImage.length === 0) return
+    let cancelled = false
+    let index = 0
+    const fetchNext = () => {
+      if (cancelled || index >= activitiesWithoutImage.length) return
+      const activity = activitiesWithoutImage[index++]
+      fetch("/api/activity-assets", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: activity.name,
+          location: activity.location ?? "",
+          destination: currentTrip?.destination ?? "",
+          type: activity.type ?? "tour",
+          imageQuery: activity.imageQuery ?? activity.name,
+          url: activity.url ?? undefined,
+        }),
+      }).catch(() => {}).finally(() => {
+        if (!cancelled) setTimeout(fetchNext, 1000)
+      })
+    }
+    const timer = setTimeout(fetchNext, 2000)
+    return () => { cancelled = true; clearTimeout(timer) }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [today?.activities, hydrated])
   const onboardingData = useOnboardingStore((s) => s.data)
   const mobilityProfile = resolveMobilityProfile({
     companion: onboardingData.companion,

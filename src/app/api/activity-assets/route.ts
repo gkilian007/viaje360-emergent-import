@@ -37,6 +37,26 @@ async function fetchWithTimeout<T>(promise: Promise<T>, ms = 5000): Promise<T | 
   }
 }
 
+/**
+ * Builds an Unsplash Source URL for a given query.
+ * Uses the free source.unsplash.com redirect — no API key required.
+ * Returns a URL string (it's always valid, even if the photo isn't ideal).
+ */
+function buildUnsplashUrl(activityType: string, name: string, destination: string): string {
+  let query: string
+  const dest = destination.trim()
+
+  if (activityType === "restaurant") {
+    query = dest ? `food ${dest}` : "food restaurant"
+  } else if (activityType === "park") {
+    query = dest ? `park garden ${dest}` : "park garden nature"
+  } else {
+    query = dest ? `${name} ${dest}` : name
+  }
+
+  return `https://source.unsplash.com/featured/400x300/?${encodeURIComponent(query)}`
+}
+
 async function fetchWikipediaImage(searchTerm: string): Promise<string | null> {
   try {
     const params = new URLSearchParams({
@@ -198,6 +218,13 @@ export async function POST(req: NextRequest) {
       const nameWithDest = normalizedDestination ? `${body.name} ${body.destination}` : body.name
       imageUrl = await fetchWithTimeout(fetchWikipediaImage(nameWithDest), 5000)
       if (imageUrl) imageSource = "wikipedia"
+    }
+
+    // Unsplash fallback: use when no image found OR source is Wikipedia (often wrong/generic)
+    if (!imageUrl || imageSource === "wikipedia") {
+      const unsplashUrl = buildUnsplashUrl(body.type, body.name, body.destination)
+      imageUrl = unsplashUrl
+      imageSource = "unsplash"
     }
 
     if (knowledge?.id) {

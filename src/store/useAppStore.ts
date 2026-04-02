@@ -2,7 +2,7 @@
 
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
-import type { Trip, User, Monument, Achievement, ChatMessage, QuizQuestion, DayItinerary } from "@/lib/types"
+import type { Trip, User, Monument, Achievement, ChatMessage, QuizQuestion, DayItinerary, TimelineActivity } from "@/lib/types"
 import { demoUser } from "@/lib/demo-data"
 
 interface AppState {
