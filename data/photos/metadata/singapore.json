@@ -1,0 +1,103 @@
+{
+  "city": "Singapur",
+  "country": "Singapur",
+  "wiki": "Singapore",
+  "hero": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/4/48/Flag_of_Singapore.svg",
+    "width": 900,
+    "height": 600,
+    "source": "wikipedia",
+    "articleTitle": "Singapore",
+    "method": "wikipedia_main"
+  },
+  "pois": [
+    {
+      "name": "Marina Bay Sands",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/c/c7/Marina_Bay_Sands_%28I%29.jpg",
+        "width": 6366,
+        "height": 4244,
+        "source": "wikipedia",
+        "articleTitle": "Marina Bay Sands",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Gardens by the Bay",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/5/5d/Supertree_Grove%2C_Gardens_by_the_Bay%2C_Singapore_-_20120712-02.jpg",
+        "width": 5760,
+        "height": 3840,
+        "source": "wikipedia",
+        "articleTitle": "Gardens by the Bay",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Merlion",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/2/2e/Singapore_Skyline_2019-10.jpg",
+        "width": 4032,
+        "height": 3024,
+        "source": "wikipedia",
+        "articleTitle": "Merlion",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Sentosa",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/c/c3/1_sentosa_aerial_2016.jpg",
+        "width": 6976,
+        "height": 3071,
+        "source": "wikipedia",
+        "articleTitle": "Sentosa",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Chinatown, Singapore",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/5/5d/Aerial_perspective_of_Singapore%27s_Chinatown.jpg",
+        "width": 3992,
+        "height": 2992,
+        "source": "wikipedia",
+        "articleTitle": "Chinatown, Singapore",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Orchard Road",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/5/59/Presenting..._the_real_ION_%288200217734%29.jpg",
+        "width": 5144,
+        "height": 3430,
+        "source": "wikipedia",
+        "articleTitle": "Orchard Road",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Singapore Botanic Gardens",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/2/24/Symphony_Lake%2C_Singapore_Botanic_Gardens_-_20041025.jpg",
+        "width": 1296,
+        "height": 972,
+        "source": "wikipedia",
+        "articleTitle": "Singapore Botanic Gardens",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Clarke Quay",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/e/e1/1_clarke_quay_singapore_night_2014.jpg",
+        "width": 16276,
+        "height": 6974,
+        "source": "wikipedia",
+        "articleTitle": "Clarke Quay",
+        "method": "wikipedia_main"
+      }
+    }
+  ]
+}

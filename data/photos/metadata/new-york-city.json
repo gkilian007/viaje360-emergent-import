@@ -1,0 +1,107 @@
+{
+  "city": "Nueva York",
+  "country": "Estados Unidos",
+  "wiki": "New York City",
+  "hero": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/7/7a/View_of_Empire_State_Building_from_Rockefeller_Center_New_York_City_dllu_%28cropped%29.jpg",
+    "width": 8207,
+    "height": 4616,
+    "source": "wikipedia",
+    "articleTitle": "New York City",
+    "method": "wikipedia_main"
+  },
+  "pois": [
+    {
+      "name": "Statue of Liberty",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/8/89/Front_view_of_Statue_of_Liberty_%28cropped%29.jpg",
+        "width": 2498,
+        "height": 3828,
+        "source": "wikipedia",
+        "articleTitle": "Statue of Liberty",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Central Park",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/f/f1/Global_Citizen_Festival_Central_Park_New_York_City_from_NYonAir_%2815351915006%29.jpg",
+        "width": 5369,
+        "height": 3579,
+        "source": "wikipedia",
+        "articleTitle": "Central Park",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Times Square",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/4/47/New_york_times_square-terabass.jpg",
+        "width": 3904,
+        "height": 2602,
+        "source": "wikipedia",
+        "articleTitle": "Times Square",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Empire State Building",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/0/05/View_of_Empire_State_Building_from_Rockefeller_Center_New_York_City_dllu.jpg",
+        "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/View_of_Empire_State_Building_from_Rockefeller_Center_New_York_City_dllu.jpg/960px-View_of_Empire_State_Building_from_Rockefeller_Center_New_York_City_dllu.jpg",
+        "width": 8207,
+        "height": 6167,
+        "title": "View of Empire State Building from Rockefeller Center New York City dllu.jpg",
+        "attribution": "Dllu",
+        "license": "CC BY-SA 4.0",
+        "description": "View of the Empire State Building in New York City from the Top of the Rock at 30 Rockefeller Plaza during sunset. The tower was illuminated in green in honor of Climate Week NYC.[1]",
+        "source": "commons",
+        "method": "commons_search"
+      }
+    },
+    {
+      "name": "Brooklyn Bridge",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/0/00/Brooklyn_Bridge_Manhattan.jpg",
+        "width": 2100,
+        "height": 1400,
+        "source": "wikipedia",
+        "articleTitle": "Brooklyn Bridge",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Metropolitan Museum of Art",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/3/30/Metropolitan_Museum_of_Art_%28The_Met%29_-_Central_Park%2C_NYC.jpg",
+        "width": 2666,
+        "height": 1488,
+        "source": "wikipedia",
+        "articleTitle": "Metropolitan Museum of Art",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "One World Trade Center",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/f/f1/One_WTC_logo.svg",
+        "width": 100,
+        "height": 46,
+        "source": "wikipedia",
+        "articleTitle": "One World Trade Center",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Broadway theatre",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/c/cd/Various_Pictures_from_New_York_City_-_September%2C_2025.jpg",
+        "width": 4000,
+        "height": 6000,
+        "source": "wikipedia",
+        "articleTitle": "Broadway theatre",
+        "method": "wikipedia_main"
+      }
+    }
+  ]
+}

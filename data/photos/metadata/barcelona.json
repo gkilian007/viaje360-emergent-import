@@ -1,0 +1,107 @@
+{
+  "city": "Barcelona",
+  "country": "España",
+  "wiki": "Barcelona",
+  "hero": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/5/5d/Aerial_view_of_Barcelona%2C_Spain_%2851227309370%29_edited.jpg",
+    "width": 5211,
+    "height": 2278,
+    "source": "wikipedia",
+    "articleTitle": "Barcelona",
+    "method": "wikipedia_main"
+  },
+  "pois": [
+    {
+      "name": "Sagrada Família",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/2/26/%CE%A3%CE%B1%CE%B3%CF%81%CE%AC%CE%B4%CE%B1_%CE%A6%CE%B1%CE%BC%CE%AF%CE%BB%CE%B9%CE%B1_2941.jpg",
+        "width": 2774,
+        "height": 4099,
+        "source": "wikipedia",
+        "articleTitle": "Sagrada Família",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Park Güell",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/3/33/Parc_guell_-_panoramio.jpg",
+        "width": 2048,
+        "height": 1536,
+        "source": "wikipedia",
+        "articleTitle": "Park Güell",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Casa Batlló",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/b/bf/Casa_Batllo_Overview_Barcelona_Spain_cut.jpg",
+        "width": 2244,
+        "height": 2765,
+        "source": "wikipedia",
+        "articleTitle": "Casa Batlló",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "La Rambla, Barcelona",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/f/f2/15-10-27-Vista_des_de_l%27est%C3%A0tua_de_Colom_a_Barcelona-WMA_2791.jpg",
+        "width": 4016,
+        "height": 6016,
+        "source": "wikipedia",
+        "articleTitle": "La Rambla, Barcelona",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Gothic Quarter, Barcelona",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/6/6d/Barcelona_-_Carrer_del_Bisbe.jpg",
+        "width": 794,
+        "height": 1094,
+        "source": "wikipedia",
+        "articleTitle": "Gothic Quarter, Barcelona",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Casa Milà",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/d/de/Casa_Mil%C3%A0%2C_general_view.jpg",
+        "width": 4299,
+        "height": 3348,
+        "source": "wikipedia",
+        "articleTitle": "Casa Milà",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Camp Nou",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/a/ad/Camp_Nou_aerial.jpg",
+        "width": 2207,
+        "height": 1659,
+        "source": "wikipedia",
+        "articleTitle": "Camp Nou",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Barceloneta",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/c/c4/IMG1760_Los_Outlets_De_Barceloneta_desde_Ruta_22%2C_Barceloneta%2C_Puerto_Rico.jpg",
+        "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/IMG1760_Los_Outlets_De_Barceloneta_desde_Ruta_22%2C_Barceloneta%2C_Puerto_Rico.jpg/960px-IMG1760_Los_Outlets_De_Barceloneta_desde_Ruta_22%2C_Barceloneta%2C_Puerto_Rico.jpg",
+        "width": 3529,
+        "height": 2647,
+        "title": "IMG1760 Los Outlets De Barceloneta desde Ruta 22, Barceloneta, Puerto Rico.jpg",
+        "attribution": "The Eloquent Peasant",
+        "license": "CC BY-SA 4.0",
+        "description": "traveling west to east on PR-22 Barceloneta, Puerto Rico",
+        "source": "commons",
+        "method": "commons_search"
+      }
+    }
+  ]
+}

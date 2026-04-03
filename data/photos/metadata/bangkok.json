@@ -1,0 +1,111 @@
+{
+  "city": "Bangkok",
+  "country": "Tailandia",
+  "wiki": "Bangkok",
+  "hero": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/0/02/Bangkok_Montage_2024_2.jpg",
+    "width": 1333,
+    "height": 2000,
+    "source": "wikipedia",
+    "articleTitle": "Bangkok",
+    "method": "wikipedia_main"
+  },
+  "pois": [
+    {
+      "name": "Grand Palace, Bangkok",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/e/e8/%E0%B8%A7%E0%B8%B1%E0%B8%94%E0%B8%9E%E0%B8%A3%E0%B8%B0%E0%B8%A8%E0%B8%A3%E0%B8%B5%E0%B8%A3%E0%B8%B1%E0%B8%95%E0%B8%99%E0%B8%A8%E0%B8%B2%E0%B8%AA%E0%B8%94%E0%B8%B2%E0%B8%A3%E0%B8%B2%E0%B8%A1_%E0%B8%A7%E0%B8%B1%E0%B8%94%E0%B8%9E%E0%B8%A3%E0%B8%B0%E0%B9%81%E0%B8%81%E0%B9%89%E0%B8%A7_%E0%B8%81%E0%B8%A3%E0%B8%B8%E0%B8%87%E0%B9%80%E0%B8%97%E0%B8%9E%E0%B8%A1%E0%B8%AB%E0%B8%B2%E0%B8%99%E0%B8%84%E0%B8%A3_-_Wat_Phra_Kaew%2C_Temple_of_Emerald_Buddha%2C_Bangkok%2C_Thailand.jpg",
+        "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/%E0%B8%A7%E0%B8%B1%E0%B8%94%E0%B8%9E%E0%B8%A3%E0%B8%B0%E0%B8%A8%E0%B8%A3%E0%B8%B5%E0%B8%A3%E0%B8%B1%E0%B8%95%E0%B8%99%E0%B8%A8%E0%B8%B2%E0%B8%AA%E0%B8%94%E0%B8%B2%E0%B8%A3%E0%B8%B2%E0%B8%A1_%E0%B8%A7%E0%B8%B1%E0%B8%94%E0%B8%9E%E0%B8%A3%E0%B8%B0%E0%B9%81%E0%B8%81%E0%B9%89%E0%B8%A7_%E0%B8%81%E0%B8%A3%E0%B8%B8%E0%B8%87%E0%B9%80%E0%B8%97%E0%B8%9E%E0%B8%A1%E0%B8%AB%E0%B8%B2%E0%B8%99%E0%B8%84%E0%B8%A3_-_Wat_Phra_Kaew%2C_Temple_of_Emerald_Buddha%2C_Bangkok%2C_Thailand.jpg/960px-thumbnail.jpg",
+        "width": 4156,
+        "height": 3014,
+        "title": "วัดพระศรีรัตนศาสดาราม วัดพระแก้ว กรุงเทพมหานคร - Wat Phra Kaew, Temple of Emerald Buddha, Bangkok, Thailand.jpg",
+        "attribution": "Basile Morin",
+        "license": "CC BY-SA 4.0",
+        "description": "Eastern view of Prasat Phra Thep Bidorn (center) and two Golden Chedis (on the left and right) in Wat Phra Kaew, Temple of Emerald Buddha, front view, within the precincts of the Grand Palace, in Bang",
+        "source": "commons",
+        "method": "commons_search"
+      }
+    },
+    {
+      "name": "Wat Arun",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/2/2a/%E0%B9%80%E0%B8%88%E0%B8%94%E0%B8%B5%E0%B8%A2%E0%B9%8C%E0%B8%9B%E0%B8%A3%E0%B8%B0%E0%B8%98%E0%B8%B2%E0%B8%99%E0%B8%97%E0%B8%A3%E0%B8%87%E0%B8%9B%E0%B8%A3%E0%B8%B2%E0%B8%87%E0%B8%84%E0%B9%8C%E0%B8%A7%E0%B8%B1%E0%B8%94%E0%B8%AD%E0%B8%A3%E0%B8%B8%E0%B8%932.jpg",
+        "width": 8192,
+        "height": 5464,
+        "source": "wikipedia",
+        "articleTitle": "Wat Arun",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Wat Pho",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/5/53/%E0%B8%9E%E0%B8%A3%E0%B8%B0%E0%B8%9E%E0%B8%B8%E0%B8%97%E0%B8%98%E0%B9%84%E0%B8%AA%E0%B8%A2%E0%B8%B2%E0%B8%AA%E0%B8%A7%E0%B8%B1%E0%B8%94%E0%B8%9E%E0%B8%A3%E0%B8%B0%E0%B9%80%E0%B8%8A%E0%B8%95%E0%B8%B8%E0%B8%9E%E0%B8%99.jpg",
+        "width": 3612,
+        "height": 5418,
+        "source": "wikipedia",
+        "articleTitle": "Wat Pho",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Chatuchak Weekend Market",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/3/33/Bangkok_-_Jatujak_Market_02.JPG",
+        "width": 3776,
+        "height": 2520,
+        "source": "wikipedia",
+        "articleTitle": "Chatuchak Weekend Market",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Khao San Road",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/6/69/Khao_San_Road_Walmgate_York_Sep25.jpg",
+        "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Khao_San_Road_Walmgate_York_Sep25.jpg/960px-Khao_San_Road_Walmgate_York_Sep25.jpg",
+        "width": 4474,
+        "height": 3355,
+        "title": "Khao San Road Walmgate York Sep25.jpg",
+        "attribution": "Malcolmxl5",
+        "license": "CC0",
+        "description": "Khao San Road, Walmgate, York",
+        "source": "commons",
+        "method": "commons_search"
+      }
+    },
+    {
+      "name": "Jim Thompson House",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/c/c0/Main_House_of_Jim_Thompson_photo_Don_Ramey_Logan.jpg",
+        "width": 4800,
+        "height": 3200,
+        "source": "wikipedia",
+        "articleTitle": "Jim Thompson House",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Lumphini Park",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/3/3e/Aerial_view_of_Lumphini_Park.jpg",
+        "width": 1362,
+        "height": 920,
+        "source": "wikipedia",
+        "articleTitle": "Lumphini Park",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Chinatown, Bangkok",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/6/64/Yaowarat_at_night_%2832455695783%29.jpg",
+        "width": 3007,
+        "height": 1995,
+        "source": "wikipedia",
+        "articleTitle": "Chinatown, Bangkok",
+        "method": "wikipedia_main"
+      }
+    }
+  ]
+}

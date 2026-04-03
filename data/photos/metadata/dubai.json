@@ -1,0 +1,107 @@
+{
+  "city": "Dubái",
+  "country": "Emiratos Árabes",
+  "wiki": "Dubai",
+  "hero": {
+    "url": "https://upload.wikimedia.org/wikipedia/en/c/c7/Burj_Khalifa_2021.jpg",
+    "width": 5854,
+    "height": 4049,
+    "source": "wikipedia",
+    "articleTitle": "Dubai",
+    "method": "wikipedia_main"
+  },
+  "pois": [
+    {
+      "name": "Burj Khalifa",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/9/90/Burj_Khalifa_%28worlds_tallest_building%29_and_the_Dubai_skyline_%2825781049892%29.jpg",
+        "width": 5496,
+        "height": 3670,
+        "source": "wikipedia",
+        "articleTitle": "Burj Khalifa",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Palm Jumeirah",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/3/30/Artificial_Archipelagos%2C_Dubai%2C_United_Arab_Emirates_ISS022-E-024940_lrg_%28cropped%29.jpg",
+        "width": 1265,
+        "height": 1233,
+        "source": "wikipedia",
+        "articleTitle": "Palm Jumeirah",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Dubai Mall",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/en/d/df/Dubai_Mall_10.jpg",
+        "width": 4000,
+        "height": 3000,
+        "source": "wikipedia",
+        "articleTitle": "Dubai Mall",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Dubai Marina",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/e/e6/Dubai_Marina_Skyline.jpg",
+        "width": 6000,
+        "height": 4000,
+        "source": "wikipedia",
+        "articleTitle": "Dubai Marina",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Burj Al Arab",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/en/2/2a/Burj_Al_Arab%2C_Dubai%2C_by_Joi_Ito_Dec2007.jpg",
+        "width": 1500,
+        "height": 2100,
+        "source": "wikipedia",
+        "articleTitle": "Burj Al Arab",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Dubai Frame",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/en/e/e6/The_Dubai_Frame.jpg",
+        "width": 4367,
+        "height": 2916,
+        "source": "wikipedia",
+        "articleTitle": "Dubai Frame",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Gold Souk",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/4/43/Dubai_Gold_Souk_on_31_May_2007_Pict_1.jpg",
+        "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Dubai_Gold_Souk_on_31_May_2007_Pict_1.jpg/960px-Dubai_Gold_Souk_on_31_May_2007_Pict_1.jpg",
+        "width": 1210,
+        "height": 742,
+        "title": "Dubai Gold Souk on 31 May 2007 Pict 1.jpg",
+        "attribution": "Imre Solt",
+        "license": "CC BY-SA 3.0",
+        "description": "This is a photo showing the Dubai Gold Souk in Deira, Dubai, United Arab Emirates on 31 May 2007.",
+        "source": "commons",
+        "method": "commons_search"
+      }
+    },
+    {
+      "name": "Dubai Miracle Garden",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/9/94/Miracle_Garden_1.jpg",
+        "width": 6016,
+        "height": 3328,
+        "source": "wikipedia",
+        "articleTitle": "Dubai Miracle Garden",
+        "method": "wikipedia_main"
+      }
+    }
+  ]
+}

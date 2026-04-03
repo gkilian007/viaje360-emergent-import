@@ -1,0 +1,111 @@
+{
+  "city": "Madrid",
+  "country": "España",
+  "wiki": "Madrid",
+  "hero": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/1/14/Madrid_-_Sky_Bar_360%C2%BA_%28Hotel_Riu_Plaza_Espa%C3%B1a%29%2C_vistas_19.jpg",
+    "width": 4422,
+    "height": 2328,
+    "source": "wikipedia",
+    "articleTitle": "Madrid",
+    "method": "wikipedia_main"
+  },
+  "pois": [
+    {
+      "name": "Royal Palace of Madrid",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/4/44/Palacio_Real_%28Madrid%29_21.jpg",
+        "width": 3927,
+        "height": 1944,
+        "source": "wikipedia",
+        "articleTitle": "Royal Palace of Madrid",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Museo del Prado",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/6/68/Museo_del_Prado_2016_%2825185969599%29.jpg",
+        "width": 4045,
+        "height": 3021,
+        "source": "wikipedia",
+        "articleTitle": "Museo del Prado",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Puerta del Sol",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/3/31/Puerta_del_Sol_%28Madrid%29_10.jpg",
+        "width": 5616,
+        "height": 3744,
+        "source": "wikipedia",
+        "articleTitle": "Puerta del Sol",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Plaza Mayor, Madrid",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/d/d2/Madrid_Plaza_Mayor_%2848733706273%29.jpg",
+        "width": 4419,
+        "height": 2652,
+        "source": "wikipedia",
+        "articleTitle": "Plaza Mayor, Madrid",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Retiro Park",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/8/85/Estanque_del_Parque_del_Retiro_-_01.jpg",
+        "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Estanque_del_Parque_del_Retiro_-_01.jpg/960px-Estanque_del_Parque_del_Retiro_-_01.jpg",
+        "width": 3888,
+        "height": 2333,
+        "title": "Estanque del Parque del Retiro - 01.jpg",
+        "attribution": "Carlos Delgado",
+        "license": "CC BY-SA 4.0",
+        "description": "Pond of Retiro Park, Madrid, Spain.",
+        "source": "commons",
+        "method": "commons_search"
+      }
+    },
+    {
+      "name": "Reina Sofía Museum",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/6/64/Patio_Nouvel_del_Museo_Reina_Sof%C3%ADa.jpg",
+        "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/Patio_Nouvel_del_Museo_Reina_Sof%C3%ADa.jpg/960px-Patio_Nouvel_del_Museo_Reina_Sof%C3%ADa.jpg",
+        "width": 1280,
+        "height": 960,
+        "title": "Patio Nouvel del Museo Reina Sofía.jpg",
+        "attribution": "Iama Fairground",
+        "license": "CC BY-SA 4.0",
+        "description": "Este es un plano picado del Patio Nouvel del Museo Nacional Centro de Arte Reina Sofía (Madrid, España). El patio fue diseñado por el arquitecto francés Jean Nouvel como parte de la ampliación del mus",
+        "source": "commons",
+        "method": "commons_search"
+      }
+    },
+    {
+      "name": "Gran Vía, Madrid",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/9/92/Gran_V%C3%ADa_%28Madrid%29_1.jpg",
+        "width": 4310,
+        "height": 2868,
+        "source": "wikipedia",
+        "articleTitle": "Gran Vía, Madrid",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Temple of Debod",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/a/a6/Templo_de_Debod_in_Madrid.jpg",
+        "width": 5510,
+        "height": 3597,
+        "source": "wikipedia",
+        "articleTitle": "Temple of Debod",
+        "method": "wikipedia_main"
+      }
+    }
+  ]
+}

@@ -1,0 +1,107 @@
+{
+  "city": "Berlín",
+  "country": "Alemania",
+  "wiki": "Berlin",
+  "hero": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/1/1a/Blue_Hour_in_Berlin.jpg",
+    "width": 8551,
+    "height": 4810,
+    "source": "wikipedia",
+    "articleTitle": "Berlin",
+    "method": "wikipedia_main"
+  },
+  "pois": [
+    {
+      "name": "Brandenburg Gate",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/a/a6/Brandenburger_Tor_abends.jpg",
+        "width": 1920,
+        "height": 1280,
+        "source": "wikipedia",
+        "articleTitle": "Brandenburg Gate",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Berlin Wall",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/5/5d/Berlinermauer.jpg",
+        "width": 1200,
+        "height": 913,
+        "source": "wikipedia",
+        "articleTitle": "Berlin Wall",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Reichstag building",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/0/0d/Berlin_reichstag_west_panorama_2.jpg",
+        "width": 5980,
+        "height": 2664,
+        "source": "wikipedia",
+        "articleTitle": "Reichstag building",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Museum Island, Berlin",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/c/c9/Berlin_Museumsinsel_Fernsehturm.jpg",
+        "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Berlin_Museumsinsel_Fernsehturm.jpg/960px-Berlin_Museumsinsel_Fernsehturm.jpg",
+        "width": 5454,
+        "height": 3684,
+        "title": "Berlin Museumsinsel Fernsehturm.jpg",
+        "attribution": "Thomas Wolf, www.foto-tw.de",
+        "license": "CC BY-SA 3.0",
+        "description": "Berlin Museum Island with Fernsehturm",
+        "source": "commons",
+        "method": "commons_search"
+      }
+    },
+    {
+      "name": "Checkpoint Charlie",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/7/75/Berlin_-_Checkpoint_Charlie_1963.jpg",
+        "width": 900,
+        "height": 600,
+        "source": "wikipedia",
+        "articleTitle": "Checkpoint Charlie",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "East Side Gallery",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/2/2b/Segment_with_Graffiti_of_the_Berlin_Wall_%283_of_4%29_%28cropped%29.jpg",
+        "width": 1604,
+        "height": 981,
+        "source": "wikipedia",
+        "articleTitle": "East Side Gallery",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Berlin Cathedral",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/8/84/141227_Berliner_Dom.jpg",
+        "width": 4182,
+        "height": 2928,
+        "source": "wikipedia",
+        "articleTitle": "Berlin Cathedral",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Alexanderplatz",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/d/da/Alexanderplatz_by_the_night_-_ProtoplasmaKid.webm",
+        "width": 1920,
+        "height": 1080,
+        "source": "wikipedia",
+        "articleTitle": "Alexanderplatz",
+        "method": "wikipedia_main"
+      }
+    }
+  ]
+}

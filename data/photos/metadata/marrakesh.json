@@ -1,0 +1,115 @@
+{
+  "city": "Marrakech",
+  "country": "Marruecos",
+  "wiki": "Marrakesh",
+  "hero": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/9/9c/Pavillon_Menarag%C3%A4rten.jpg",
+    "width": 1024,
+    "height": 680,
+    "source": "wikipedia",
+    "articleTitle": "Marrakesh",
+    "method": "wikipedia_main"
+  },
+  "pois": [
+    {
+      "name": "Jemaa el-Fnaa",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/7/79/Djemaa_el_Fna.jpg",
+        "width": 5472,
+        "height": 3648,
+        "source": "wikipedia",
+        "articleTitle": "Jemaa el-Fnaa",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Bahia Palace",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/f/fc/Bahia_Palace_large_court.jpg",
+        "width": 4873,
+        "height": 3253,
+        "source": "wikipedia",
+        "articleTitle": "Bahia Palace",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Majorelle Garden",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/c/c2/Le_jardin_des_majorelle_40.JPG",
+        "width": 3216,
+        "height": 2136,
+        "source": "wikipedia",
+        "articleTitle": "Majorelle Garden",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Koutoubia Mosque",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/1/14/Mosqu%C3%A9e_de_la_Koutoubia_-_marakesh.jpg",
+        "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Mosqu%C3%A9e_de_la_Koutoubia_-_marakesh.jpg/960px-Mosqu%C3%A9e_de_la_Koutoubia_-_marakesh.jpg",
+        "width": 3648,
+        "height": 2736,
+        "title": "Mosquée de la Koutoubia - marakesh.jpg",
+        "attribution": "Baca12",
+        "license": "CC BY-SA 4.0",
+        "description": "Koutoubia Mosque, in Marrakesh, Morocco",
+        "source": "commons",
+        "method": "commons_search"
+      }
+    },
+    {
+      "name": "Saadian Tombs",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/3/3b/Saadian_Tombs_1044-HDR.jpg",
+        "width": 3431,
+        "height": 4574,
+        "source": "wikipedia",
+        "articleTitle": "Saadian Tombs",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Medina of Marrakesh",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/f/f7/Tanner_at_work%2C_Medina_of_Marrakesh.jpg",
+        "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Tanner_at_work%2C_Medina_of_Marrakesh.jpg/960px-Tanner_at_work%2C_Medina_of_Marrakesh.jpg",
+        "width": 5183,
+        "height": 3090,
+        "title": "Tanner at work, Medina of Marrakesh.jpg",
+        "attribution": "Petar Milošević",
+        "license": "CC BY-SA 4.0",
+        "description": "Tanner at work, Medina of Marrakech, Morocco",
+        "source": "commons",
+        "method": "commons_search"
+      }
+    },
+    {
+      "name": "Ben Youssef Madrasa",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/3/3a/Coranic_School_%28106589859%29.jpeg",
+        "width": 2048,
+        "height": 1366,
+        "source": "wikipedia",
+        "articleTitle": "Ben Youssef Madrasa",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Souks of Marrakesh",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/4/4d/Leather_at_the_Dyers%27_Souk_in_Marrakech_2.jpg",
+        "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Leather_at_the_Dyers%27_Souk_in_Marrakech_2.jpg/960px-Leather_at_the_Dyers%27_Souk_in_Marrakech_2.jpg",
+        "width": 5953,
+        "height": 3969,
+        "title": "Leather at the Dyers' Souk in Marrakech 2.jpg",
+        "attribution": "Adam Harangozó",
+        "license": "CC BY-SA 4.0",
+        "description": "Leather at the Dyers' Souk in Marrakech",
+        "source": "commons",
+        "method": "commons_search"
+      }
+    }
+  ]
+}

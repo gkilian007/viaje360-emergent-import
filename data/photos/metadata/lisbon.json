@@ -1,0 +1,115 @@
+{
+  "city": "Lisboa",
+  "country": "Portugal",
+  "wiki": "Lisbon",
+  "hero": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/f/f2/Lisboa_-_Portugal_%2852597836992%29.jpg",
+    "width": 2048,
+    "height": 1313,
+    "source": "wikipedia",
+    "articleTitle": "Lisbon",
+    "method": "wikipedia_main"
+  },
+  "pois": [
+    {
+      "name": "Belém Tower",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/6/65/Torre_Bel%C3%A9m_April_2009-4a.jpg",
+        "width": 5035,
+        "height": 4805,
+        "source": "wikipedia",
+        "articleTitle": "Belém Tower",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Jerónimos Monastery",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/The_Jer%C3%B3nimos_Monastery_or_Hieronymites_Monastery.png",
+        "width": 3000,
+        "height": 2000,
+        "source": "wikipedia",
+        "articleTitle": "Jerónimos Monastery",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Praça do Comércio",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/6/63/Lisbon_%2836211708233%29_%28cropped%29.jpg",
+        "width": 1977,
+        "height": 1023,
+        "source": "wikipedia",
+        "articleTitle": "Praça do Comércio",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Alfama",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/0/07/Lisbon_alfalma.jpg",
+        "width": 5464,
+        "height": 3070,
+        "source": "wikipedia",
+        "articleTitle": "Alfama",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Tram 28, Lisbon",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/6/62/Tram_28_Lisbon_Portuguese.jpg",
+        "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Tram_28_Lisbon_Portuguese.jpg/960px-Tram_28_Lisbon_Portuguese.jpg",
+        "width": 2796,
+        "height": 1752,
+        "title": "Tram 28 Lisbon Portuguese.jpg",
+        "attribution": "Ввласенко",
+        "license": "CC BY-SA 4.0",
+        "description": "Tram 28 in Lisbon, Portuguese",
+        "source": "commons",
+        "method": "commons_search"
+      }
+    },
+    {
+      "name": "Pastéis de Belém",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/9/9c/Pastel_de_nata_septembre_2015.jpg",
+        "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Pastel_de_nata_septembre_2015.jpg/960px-Pastel_de_nata_septembre_2015.jpg",
+        "width": 3200,
+        "height": 2133,
+        "title": "Pastel de nata septembre 2015.jpg",
+        "attribution": "Photo Claude TRUONG-NGOC",
+        "license": "CC BY-SA 3.0",
+        "description": "Pastel de nata",
+        "source": "commons",
+        "method": "commons_search"
+      }
+    },
+    {
+      "name": "São Jorge Castle",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/c/cf/LisbonCastle.jpg",
+        "width": 2205,
+        "height": 1206,
+        "source": "wikipedia",
+        "articleTitle": "São Jorge Castle",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "LX Factory",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/5/54/LX_Factory_%2822379332901%29.jpg",
+        "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/54/LX_Factory_%2822379332901%29.jpg/960px-LX_Factory_%2822379332901%29.jpg",
+        "width": 2448,
+        "height": 2448,
+        "title": "LX Factory (22379332901).jpg",
+        "attribution": "Bex Walton from London, England",
+        "license": "CC BY 2.0",
+        "description": "LX Factory",
+        "source": "commons",
+        "method": "commons_search"
+      }
+    }
+  ]
+}

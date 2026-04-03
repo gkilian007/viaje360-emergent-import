@@ -1,0 +1,111 @@
+{
+  "city": "Ámsterdam",
+  "country": "Países Bajos",
+  "wiki": "Amsterdam",
+  "hero": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/5/57/Imagen_de_los_canales_conc%C3%A9ntricos_en_%C3%81msterdam.png",
+    "width": 2480,
+    "height": 1654,
+    "source": "wikipedia",
+    "articleTitle": "Amsterdam",
+    "method": "wikipedia_main"
+  },
+  "pois": [
+    {
+      "name": "Rijksmuseum",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/8/80/South_facade_of_the_Rijksmuseum_Amsterdam_%28DSCF0528%29.jpg",
+        "width": 4291,
+        "height": 3123,
+        "source": "wikipedia",
+        "articleTitle": "Rijksmuseum",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Anne Frank House",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/c/cb/Amsterdam_%28NL%29%2C_Anne-Frank-Huis_--_2015_--_7185.jpg",
+        "width": 4073,
+        "height": 3176,
+        "source": "wikipedia",
+        "articleTitle": "Anne Frank House",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Van Gogh Museum",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/0/0f/Logo_-_Van_Gogh_Museum.png",
+        "width": 1400,
+        "height": 1080,
+        "source": "wikipedia",
+        "articleTitle": "Van Gogh Museum",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Vondelpark",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/3/3b/Amsterdam%2C_Vondelpark%2C_at_the_pond-2.jpg",
+        "width": 2551,
+        "height": 1701,
+        "source": "wikipedia",
+        "articleTitle": "Vondelpark",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Jordaan, Amsterdam",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/4/42/Canals_of_Amsterdam_-_Jordaan_area.jpg",
+        "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/4/42/Canals_of_Amsterdam_-_Jordaan_area.jpg",
+        "width": 750,
+        "height": 563,
+        "title": "Canals of Amsterdam - Jordaan area.jpg",
+        "attribution": "No machine-readable author provided. Jonik assumed (based on copyright claims).",
+        "license": "CC BY-SA 2.0",
+        "description": "Canals of Amsterdam - the corner of Prinsengracht and Bloemgracht, in the Jordaan area.\n\nTaken by me, Jonik, April 2004.",
+        "source": "commons",
+        "method": "commons_search"
+      }
+    },
+    {
+      "name": "Amsterdam Canal Ring",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/c/ce/Amsterdam_-_the_Canal_Ring_%288652262148%29.jpg",
+        "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Amsterdam_-_the_Canal_Ring_%288652262148%29.jpg/960px-Amsterdam_-_the_Canal_Ring_%288652262148%29.jpg",
+        "width": 3500,
+        "height": 2322,
+        "title": "Amsterdam - the Canal Ring (8652262148).jpg",
+        "attribution": "Lies Thru a Lens ",
+        "license": "CC BY 2.0",
+        "description": "Alongside tulips and windmills, the global image of Amsterdam is one of a city entwined with water. Since its development in the 17th century, Amsterdam’s Canal Ring has grown to be one of the world’s",
+        "source": "commons",
+        "method": "commons_search"
+      }
+    },
+    {
+      "name": "Dam Square",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/2/2e/Dam_Square_2024.jpg",
+        "width": 5993,
+        "height": 3995,
+        "source": "wikipedia",
+        "articleTitle": "Dam Square",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Bloemenmarkt",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/5/55/SingelBloemenmarkt.jpg",
+        "width": 3456,
+        "height": 2304,
+        "source": "wikipedia",
+        "articleTitle": "Bloemenmarkt",
+        "method": "wikipedia_main"
+      }
+    }
+  ]
+}

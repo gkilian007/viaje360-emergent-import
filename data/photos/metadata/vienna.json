@@ -1,0 +1,103 @@
+{
+  "city": "Viena",
+  "country": "Austria",
+  "wiki": "Vienna",
+  "hero": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/5/5b/Schoenbrunn_philharmoniker_2012.jpg",
+    "width": 5073,
+    "height": 2282,
+    "source": "wikipedia",
+    "articleTitle": "Vienna",
+    "method": "wikipedia_main"
+  },
+  "pois": [
+    {
+      "name": "Schönbrunn Palace",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/c/c9/Wien_-_Schloss_Sch%C3%B6nbrunn.JPG",
+        "width": 5650,
+        "height": 3860,
+        "source": "wikipedia",
+        "articleTitle": "Schönbrunn Palace",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "St. Stephen's Cathedral, Vienna",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/d/dd/Wien_-_Stephansdom_%281%29.JPG",
+        "width": 2625,
+        "height": 3937,
+        "source": "wikipedia",
+        "articleTitle": "St. Stephen's Cathedral, Vienna",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Belvedere, Vienna",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/8/84/Palacio_Belvedere%2C_Viena%2C_Austria%2C_2020-02-01%2C_DD_93-95_HDR.jpg",
+        "width": 7785,
+        "height": 3428,
+        "source": "wikipedia",
+        "articleTitle": "Belvedere, Vienna",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Hofburg",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/3/31/Wien_-_Neue_Hofburg.JPG",
+        "width": 5050,
+        "height": 2220,
+        "source": "wikipedia",
+        "articleTitle": "Hofburg",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Vienna State Opera",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/9/94/Wiener_Staatsoper_Front.jpg",
+        "width": 2362,
+        "height": 1527,
+        "source": "wikipedia",
+        "articleTitle": "Vienna State Opera",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Naschmarkt",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/d/dc/Wien_-_Naschmarkt.JPG",
+        "width": 4961,
+        "height": 2048,
+        "source": "wikipedia",
+        "articleTitle": "Naschmarkt",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Prater",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/7/78/Wien_02_Prater_a.jpg",
+        "width": 3000,
+        "height": 1688,
+        "source": "wikipedia",
+        "articleTitle": "Prater",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Kunsthistorisches Museum",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/en/a/a3/Kunsthistorisches_Museum_logo.svg",
+        "width": 206,
+        "height": 128,
+        "source": "wikipedia",
+        "articleTitle": "Kunsthistorisches Museum",
+        "method": "wikipedia_main"
+      }
+    }
+  ]
+}

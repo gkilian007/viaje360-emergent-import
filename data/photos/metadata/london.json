@@ -1,0 +1,103 @@
+{
+  "city": "Londres",
+  "country": "Reino Unido",
+  "wiki": "London",
+  "hero": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/6/67/London_Skyline_%28125508655%29.jpeg",
+    "width": 2048,
+    "height": 1152,
+    "source": "wikipedia",
+    "articleTitle": "London",
+    "method": "wikipedia_main"
+  },
+  "pois": [
+    {
+      "name": "Tower of London",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Tower_of_London_from_the_Shard_%288515883950%29.jpg",
+        "width": 4728,
+        "height": 3069,
+        "source": "wikipedia",
+        "articleTitle": "Tower of London",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Big Ben",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/4/43/Elizabeth_Tower%2C_June_2022.jpg",
+        "width": 2764,
+        "height": 4146,
+        "source": "wikipedia",
+        "articleTitle": "Big Ben",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Buckingham Palace",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/8/8d/Buckingham_Palace_London_Morning_2020_01_%28cropped%29.jpg",
+        "width": 3455,
+        "height": 2070,
+        "source": "wikipedia",
+        "articleTitle": "Buckingham Palace",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Tower Bridge",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/5/59/Tower_Bridge_at_Dawn.jpg",
+        "width": 5554,
+        "height": 3703,
+        "source": "wikipedia",
+        "articleTitle": "Tower Bridge",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "British Museum",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/8/86/British_Museum_%28aerial%29.jpg",
+        "width": 2100,
+        "height": 1575,
+        "source": "wikipedia",
+        "articleTitle": "British Museum",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "London Eye",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/London-Eye-2009.JPG",
+        "width": 4272,
+        "height": 2848,
+        "source": "wikipedia",
+        "articleTitle": "London Eye",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Westminster Abbey",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/8/8b/Westminster_Abbey_St_Peter.jpg",
+        "width": 2811,
+        "height": 3497,
+        "source": "wikipedia",
+        "articleTitle": "Westminster Abbey",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Hyde Park, London",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/f/f3/Hyde_Park_London_from_the_air.jpg",
+        "width": 5184,
+        "height": 3456,
+        "source": "wikipedia",
+        "articleTitle": "Hyde Park, London",
+        "method": "wikipedia_main"
+      }
+    }
+  ]
+}

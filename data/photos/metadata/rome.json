@@ -1,0 +1,103 @@
+{
+  "city": "Roma",
+  "country": "Italia",
+  "wiki": "Rome",
+  "hero": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/7/7e/Trevi_Fountain%2C_Rome%2C_Italy_2_-_May_2007.jpg",
+    "width": 3500,
+    "height": 2325,
+    "source": "wikipedia",
+    "articleTitle": "Rome",
+    "method": "wikipedia_main"
+  },
+  "pois": [
+    {
+      "name": "Colosseum",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/d/de/Colosseo_2020.jpg",
+        "width": 12051,
+        "height": 8442,
+        "source": "wikipedia",
+        "articleTitle": "Colosseum",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Trevi Fountain",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/c/c7/Trevi_Fountain_-_Roma.jpg",
+        "width": 8734,
+        "height": 4738,
+        "source": "wikipedia",
+        "articleTitle": "Trevi Fountain",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Pantheon, Rome",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/e/ef/Pantheon_Rom_1_cropped.jpg",
+        "width": 4109,
+        "height": 3034,
+        "source": "wikipedia",
+        "articleTitle": "Pantheon, Rome",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Roman Forum",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/6/6a/Foro_Romano_Musei_Capitolini_Roma.jpg",
+        "width": 17000,
+        "height": 6980,
+        "source": "wikipedia",
+        "articleTitle": "Roman Forum",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "St. Peter's Basilica",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/f/f5/Basilica_di_San_Pietro_in_Vaticano_September_2015-1a.jpg",
+        "width": 13066,
+        "height": 6823,
+        "source": "wikipedia",
+        "articleTitle": "St. Peter's Basilica",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Spanish Steps",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/b/b8/Piazza_di_Spagna_%28Rome%29_0004.jpg",
+        "width": 1200,
+        "height": 1600,
+        "source": "wikipedia",
+        "articleTitle": "Spanish Steps",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Piazza Navona",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/0/08/Piazza_Navona_%28Rome%29_at_night.jpg",
+        "width": 9031,
+        "height": 6389,
+        "source": "wikipedia",
+        "articleTitle": "Piazza Navona",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Vatican Museums",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/5/54/Musei_vaticani_Coat_of_Arms.svg",
+        "width": 1053,
+        "height": 572,
+        "source": "wikipedia",
+        "articleTitle": "Vatican Museums",
+        "method": "wikipedia_main"
+      }
+    }
+  ]
+}

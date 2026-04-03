@@ -1,0 +1,115 @@
+{
+  "city": "Estambul",
+  "country": "Turquía",
+  "wiki": "Istanbul",
+  "hero": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/c/cb/Historical_peninsula_and_modern_skyline_of_Istanbul.jpg",
+    "width": 3301,
+    "height": 1595,
+    "source": "wikipedia",
+    "articleTitle": "Istanbul",
+    "method": "wikipedia_main"
+  },
+  "pois": [
+    {
+      "name": "Hagia Sophia",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/4/4a/Hagia_Sophia_%28228968325%29.jpeg",
+        "width": 2048,
+        "height": 1238,
+        "source": "wikipedia",
+        "articleTitle": "Hagia Sophia",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Blue Mosque",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/9/90/Kabood_%28Blue%29_mosque%2C_Tabriz%2C_Iran.jpg",
+        "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Kabood_%28Blue%29_mosque%2C_Tabriz%2C_Iran.jpg/960px-Kabood_%28Blue%29_mosque%2C_Tabriz%2C_Iran.jpg",
+        "width": 4000,
+        "height": 4000,
+        "title": "Kabood (Blue) mosque, Tabriz, Iran.jpg",
+        "attribution": "Hameddaeipic",
+        "license": "CC BY-SA 4.0",
+        "description": "The Blue Mosque is a historic mosque in Tabriz, Iran. The mosque was constructed in 1465 upon the order of Jahan Shah, the ruler of Kara Koyunlu.",
+        "source": "commons",
+        "method": "commons_search"
+      }
+    },
+    {
+      "name": "Grand Bazaar, Istanbul",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/d/de/Istanbul_asv2021-11_img41_Grand_Bazaar.jpg",
+        "width": 3791,
+        "height": 5687,
+        "source": "wikipedia",
+        "articleTitle": "Grand Bazaar, Istanbul",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Topkapi Palace",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/c/c5/Istanbul_asv2020-02_img19_Topkap%C4%B1_Palace.jpg",
+        "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Istanbul_asv2020-02_img19_Topkap%C4%B1_Palace.jpg/960px-Istanbul_asv2020-02_img19_Topkap%C4%B1_Palace.jpg",
+        "width": 4777,
+        "height": 4777,
+        "title": "Istanbul asv2020-02 img19 Topkapı Palace.jpg",
+        "attribution": "A.Savin",
+        "license": "FAL",
+        "description": "Queen Mother's Apartments in Harem of Topkapı Palace in Istanbul, Turkey",
+        "source": "commons",
+        "method": "commons_search"
+      }
+    },
+    {
+      "name": "Galata Tower",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/a/ad/Galata_tower_01_23.jpg",
+        "width": 2416,
+        "height": 3292,
+        "source": "wikipedia",
+        "articleTitle": "Galata Tower",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Basilica Cistern",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/a/ae/Cisterna_Bas%C3%ADlica%2C_Estambul%2C_Turqu%C3%ADa%2C_2024-09-28%2C_DD_58-60_HDR.jpg",
+        "width": 5495,
+        "height": 8505,
+        "source": "wikipedia",
+        "articleTitle": "Basilica Cistern",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Bosphorus",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/e/ea/Istanbul_and_Bosporus_big.jpg",
+        "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Istanbul_and_Bosporus_big.jpg/960px-Istanbul_and_Bosporus_big.jpg",
+        "width": 1000,
+        "height": 1163,
+        "title": "Istanbul and Bosporus big.jpg",
+        "attribution": "Astronaut photograph ISS008-E-21752",
+        "license": "Public domain",
+        "description": "Istanbul, Turkey: The Crossroads of Europe and Asia\nThis digital camera image was taken by the crew of the International Space Station on April 16, 2004. When this image was taken, strong currents car",
+        "source": "commons",
+        "method": "commons_search"
+      }
+    },
+    {
+      "name": "Dolmabahçe Palace",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/8/85/Dolmabahce_Istanbul_Turkey.jpg",
+        "width": 4365,
+        "height": 2385,
+        "source": "wikipedia",
+        "articleTitle": "Dolmabahçe Palace",
+        "method": "wikipedia_main"
+      }
+    }
+  ]
+}

@@ -1,0 +1,107 @@
+{
+  "city": "Sevilla",
+  "country": "España",
+  "wiki": "Seville",
+  "hero": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/2/2b/Sevilla_Cathedral_-_Southeast.jpg",
+    "width": 3900,
+    "height": 2908,
+    "source": "wikipedia",
+    "articleTitle": "Seville",
+    "method": "wikipedia_main"
+  },
+  "pois": [
+    {
+      "name": "Alcázar of Seville",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/f/fd/Sevilla-2-2_%2848040287512%29.jpg",
+        "width": 4569,
+        "height": 3427,
+        "source": "wikipedia",
+        "articleTitle": "Alcázar of Seville",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Seville Cathedral",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/2/2b/Sevilla_Cathedral_-_Southeast.jpg",
+        "width": 3900,
+        "height": 2908,
+        "source": "wikipedia",
+        "articleTitle": "Seville Cathedral",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Plaza de España, Seville",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/b/b6/Plaza_de_Espa%C3%B1a_%28Sevilla%29_-_01.jpg",
+        "width": 3888,
+        "height": 2592,
+        "source": "wikipedia",
+        "articleTitle": "Plaza de España, Seville",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Giralda",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/4/47/Sevilla_Cathedral_-_Giralda.jpg",
+        "width": 3602,
+        "height": 3816,
+        "source": "wikipedia",
+        "articleTitle": "Giralda",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Triana, Seville",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/7/7a/Sevilla-3-12_%2848040411218%29.jpg",
+        "width": 4135,
+        "height": 3101,
+        "source": "wikipedia",
+        "articleTitle": "Triana, Seville",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Metropol Parasol",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/e/e4/Metropolparasolnov2011001.jpg",
+        "width": 3872,
+        "height": 2592,
+        "source": "wikipedia",
+        "articleTitle": "Metropol Parasol",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Torre del Oro",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/b/b2/Torre_del_Oro_flag_Seville_Spain.jpg",
+        "width": 2059,
+        "height": 3094,
+        "source": "wikipedia",
+        "articleTitle": "Torre del Oro",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Barrio de Santa Cruz, Seville",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/7/75/Windows_Iglesia_de_El_Salvador_-_Santa_Cruz_de_La_Palma.jpg",
+        "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Windows_Iglesia_de_El_Salvador_-_Santa_Cruz_de_La_Palma.jpg/960px-Windows_Iglesia_de_El_Salvador_-_Santa_Cruz_de_La_Palma.jpg",
+        "width": 11401,
+        "height": 5401,
+        "title": "Windows Iglesia de El Salvador - Santa Cruz de La Palma.jpg",
+        "attribution": "H. Zell",
+        "license": "CC BY-SA 3.0",
+        "description": "Stained glass windows in the Iglesia de El Salvador, Santa Cruz de La Palma, Canary Islands, Spain. From left to right:Baptism of JesusParable of the Prodigal SonResurrection of JesusCalming the storm",
+        "source": "commons",
+        "method": "commons_search"
+      }
+    }
+  ]
+}

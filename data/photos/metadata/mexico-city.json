@@ -1,0 +1,107 @@
+{
+  "city": "Ciudad de México",
+  "country": "México",
+  "wiki": "Mexico City",
+  "hero": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/4/4f/Sobrevuelos_CDMX_HJ2A4913_%2825514321687%29_%28cropped%29.jpg",
+    "width": 6405,
+    "height": 3358,
+    "source": "wikipedia",
+    "articleTitle": "Mexico City",
+    "method": "wikipedia_main"
+  },
+  "pois": [
+    {
+      "name": "Zócalo, Mexico City",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/5/51/Monumental_Flag%2C_Zocalo%2C_Mexico_20250907_p1.jpg",
+        "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/Monumental_Flag%2C_Zocalo%2C_Mexico_20250907_p1.jpg/960px-Monumental_Flag%2C_Zocalo%2C_Mexico_20250907_p1.jpg",
+        "width": 2489,
+        "height": 4147,
+        "title": "Monumental Flag, Zocalo, Mexico 20250907 p1.jpg",
+        "attribution": "Cvmontuy",
+        "license": "CC BY 4.0",
+        "description": "Mexican Flag at  Zocalo, Mexico City",
+        "source": "commons",
+        "method": "commons_search"
+      }
+    },
+    {
+      "name": "Palacio de Bellas Artes",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/9/97/Bellas_Artes_01.jpg",
+        "width": 4140,
+        "height": 2760,
+        "source": "wikipedia",
+        "articleTitle": "Palacio de Bellas Artes",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Chapultepec Castle",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/d/d2/Chapultepec_Castle_Mexico_City.webp",
+        "width": 1600,
+        "height": 1066,
+        "source": "wikipedia",
+        "articleTitle": "Chapultepec Castle",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Teotihuacan",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/5/58/Teotihuac%C3%A1n-5973.JPG",
+        "width": 3470,
+        "height": 2504,
+        "source": "wikipedia",
+        "articleTitle": "Teotihuacan",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Coyoacán",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/5/57/Puerta_a_Coyoac%C3%A1n.JPG",
+        "width": 2944,
+        "height": 1656,
+        "source": "wikipedia",
+        "articleTitle": "Coyoacán",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Frida Kahlo Museum",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/4/4c/Museo_Frida_Kahlo.JPG",
+        "width": 1590,
+        "height": 2213,
+        "source": "wikipedia",
+        "articleTitle": "Frida Kahlo Museum",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Angel of Independence",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Angel_de_la_independencia170409.jpg",
+        "width": 5874,
+        "height": 3998,
+        "source": "wikipedia",
+        "articleTitle": "Angel of Independence",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Xochimilco",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/7/70/Trajinera_en_canal_Nativitas.jpg",
+        "width": 2896,
+        "height": 1944,
+        "source": "wikipedia",
+        "articleTitle": "Xochimilco",
+        "method": "wikipedia_main"
+      }
+    }
+  ]
+}

@@ -1,0 +1,107 @@
+{
+  "city": "París",
+  "country": "Francia",
+  "wiki": "Paris",
+  "hero": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/4/4b/La_Tour_Eiffel_vue_de_la_Tour_Saint-Jacques%2C_Paris_ao%C3%BBt_2014_%282%29.jpg",
+    "width": 4592,
+    "height": 2870,
+    "source": "wikipedia",
+    "articleTitle": "Paris",
+    "method": "wikipedia_main"
+  },
+  "pois": [
+    {
+      "name": "Eiffel Tower",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/8/85/Tour_Eiffel_Wikimedia_Commons_%28cropped%29.jpg",
+        "width": 2900,
+        "height": 4830,
+        "source": "wikipedia",
+        "articleTitle": "Eiffel Tower",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Louvre",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/6/66/Louvre_Museum_Wikimedia_Commons.jpg",
+        "width": 6740,
+        "height": 2832,
+        "source": "wikipedia",
+        "articleTitle": "Louvre",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Notre-Dame de Paris",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/f/f7/Notre-Dame_de_Paris%2C_4_October_2017.jpg",
+        "width": 4938,
+        "height": 3261,
+        "source": "wikipedia",
+        "articleTitle": "Notre-Dame de Paris",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Arc de Triomphe",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/7/79/Arc_de_Triomphe%2C_Paris_21_October_2010.jpg",
+        "width": 4192,
+        "height": 3168,
+        "source": "wikipedia",
+        "articleTitle": "Arc de Triomphe",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Sacré-Cœur, Paris",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/c/c5/Le_sacre_coeur.jpg",
+        "width": 2304,
+        "height": 2598,
+        "source": "wikipedia",
+        "articleTitle": "Sacré-Cœur, Paris",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Musée d'Orsay",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/0/0c/Musee_d%27Orsay_and_Pont_Royal%2C_North-West_view_140402_1.jpg",
+        "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Musee_d%27Orsay_and_Pont_Royal%2C_North-West_view_140402_1.jpg/960px-Musee_d%27Orsay_and_Pont_Royal%2C_North-West_view_140402_1.jpg",
+        "width": 11745,
+        "height": 3406,
+        "title": "Musee d'Orsay and Pont Royal, North-West view 140402 1.jpg",
+        "attribution": "DXR",
+        "license": "CC BY-SA 3.0",
+        "description": "The Musée d'Orsay and its surroundings as seen from the Passerelle Léopold Sédar Senghor",
+        "source": "commons",
+        "method": "commons_search"
+      }
+    },
+    {
+      "name": "Champs-Élysées",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/6/6d/Avenue_des_Champs-%C3%89lys%C3%A9es_July_24%2C_2009_N1.jpg",
+        "width": 3449,
+        "height": 2299,
+        "source": "wikipedia",
+        "articleTitle": "Champs-Élysées",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Montmartre",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/1/10/View_from_Notre-Dame_de_Paris%2C_24_June_2014_004.jpg",
+        "width": 5136,
+        "height": 3424,
+        "source": "wikipedia",
+        "articleTitle": "Montmartre",
+        "method": "wikipedia_main"
+      }
+    }
+  ]
+}

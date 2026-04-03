@@ -1,0 +1,107 @@
+{
+  "city": "Buenos Aires",
+  "country": "Argentina",
+  "wiki": "Buenos Aires",
+  "hero": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/e/ea/Avenida_9_de_Julio%2C_Buenos_Aires_%2840089810910%29.jpg",
+    "width": 5616,
+    "height": 3296,
+    "source": "wikipedia",
+    "articleTitle": "Buenos Aires",
+    "method": "wikipedia_main"
+  },
+  "pois": [
+    {
+      "name": "La Boca",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/e/ed/LaBoca_ST_98.jpg",
+        "width": 1412,
+        "height": 945,
+        "source": "wikipedia",
+        "articleTitle": "La Boca",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Plaza de Mayo",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/f/fc/Vista_a%C3%A9rea_de_Plaza_de_Mayo_03.jpg",
+        "width": 8039,
+        "height": 4522,
+        "source": "wikipedia",
+        "articleTitle": "Plaza de Mayo",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Recoleta Cemetery",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/d/d0/Recoleta_Cemetery_-_Our_Lady_of_Pilar.jpg",
+        "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Recoleta_Cemetery_-_Our_Lady_of_Pilar.jpg/960px-Recoleta_Cemetery_-_Our_Lady_of_Pilar.jpg",
+        "width": 1836,
+        "height": 3293,
+        "title": "Recoleta Cemetery - Our Lady of Pilar.jpg",
+        "attribution": "Godot13",
+        "license": "CC BY-SA 4.0",
+        "description": "The Recoleta Cemetery (Spanish: Cementerio de la Recoleta) is located in the Recoleta neighborhood of Buenos Aires,  Argentina. The church of Our Lady of Pilar (Nuestra Señora del Pilar Basilica) was ",
+        "source": "commons",
+        "method": "commons_search"
+      }
+    },
+    {
+      "name": "Teatro Colón",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/8/82/Fachada_del_Teatro_Col%C3%B3n_en_Buenos_Aires%2C_Argentina.jpg",
+        "width": 3847,
+        "height": 2748,
+        "source": "wikipedia",
+        "articleTitle": "Teatro Colón",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Obelisco de Buenos Aires",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/f/fc/Buenos_Aires_%2820234294752%29.jpg",
+        "width": 1825,
+        "height": 2738,
+        "source": "wikipedia",
+        "articleTitle": "Obelisco de Buenos Aires",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "San Telmo, Buenos Aires",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/5/53/San_Telmo_montage.jpg",
+        "width": 1187,
+        "height": 842,
+        "source": "wikipedia",
+        "articleTitle": "San Telmo, Buenos Aires",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Palermo, Buenos Aires",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/f/f7/Palermo_montage.jpg",
+        "width": 1187,
+        "height": 842,
+        "source": "wikipedia",
+        "articleTitle": "Palermo, Buenos Aires",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Casa Rosada",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/9/95/Casa_Rosada_exterior_from_Plaza_de_Mayo.JPG",
+        "width": 5184,
+        "height": 3456,
+        "source": "wikipedia",
+        "articleTitle": "Casa Rosada",
+        "method": "wikipedia_main"
+      }
+    }
+  ]
+}

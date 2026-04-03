@@ -1,0 +1,111 @@
+{
+  "city": "Praga",
+  "country": "República Checa",
+  "wiki": "Prague",
+  "hero": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/a/a7/Prague_%286365119737%29.jpg",
+    "width": 3840,
+    "height": 2284,
+    "source": "wikipedia",
+    "articleTitle": "Prague",
+    "method": "wikipedia_main"
+  },
+  "pois": [
+    {
+      "name": "Charles Bridge",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/2/22/Prague_07-2016_view_from_Lesser_Town_Tower_of_Charles_Bridge_img3.jpg",
+        "width": 4555,
+        "height": 3037,
+        "source": "wikipedia",
+        "articleTitle": "Charles Bridge",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Prague Castle",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/5/5e/Karl%C5%AFv_most_Praha%2C_Star%C3%A9_M%C4%9Bsto_20170810_007.jpg",
+        "width": 6016,
+        "height": 4016,
+        "source": "wikipedia",
+        "articleTitle": "Prague Castle",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Old Town Square, Prague",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/4/44/Prague_07-2016_View_from_Old_Town_Hall_Tower_img3.jpg",
+        "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Prague_07-2016_View_from_Old_Town_Hall_Tower_img3.jpg/960px-Prague_07-2016_View_from_Old_Town_Hall_Tower_img3.jpg",
+        "width": 4433,
+        "height": 2771,
+        "title": "Prague 07-2016 View from Old Town Hall Tower img3.jpg",
+        "attribution": "A.Savin",
+        "license": "FAL",
+        "description": "View from the tower of Old Town Hall in Prague (Czech Republic).",
+        "source": "commons",
+        "method": "commons_search"
+      }
+    },
+    {
+      "name": "Prague astronomical clock",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/3/37/Astronomical_Clock_%288341899828%29.jpg",
+        "width": 1068,
+        "height": 1600,
+        "source": "wikipedia",
+        "articleTitle": "Prague astronomical clock",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "St. Vitus Cathedral",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/f/f4/PragueCathedral03.jpg",
+        "width": 2116,
+        "height": 1575,
+        "source": "wikipedia",
+        "articleTitle": "St. Vitus Cathedral",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "John Lennon Wall",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/9/94/John_Lennon_%22Walls_and_Bridges%22_1974_press_photo_%28color%29.jpg",
+        "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/John_Lennon_%22Walls_and_Bridges%22_1974_press_photo_%28color%29.jpg/960px-John_Lennon_%22Walls_and_Bridges%22_1974_press_photo_%28color%29.jpg",
+        "width": 2362,
+        "height": 1764,
+        "title": "John Lennon \"Walls and Bridges\" 1974 press photo (color).jpg",
+        "attribution": "Bob Gruen; Distributed by Capitol Records",
+        "license": "Public domain",
+        "description": "Press photo of John Lennon dated to 1974. It was a part of a press kit themed \"Listen to This __\" to promote his album Walls and Bridges. Bottom right reads \"Apple Records by Capitol Records\". No copy",
+        "source": "commons",
+        "method": "commons_search"
+      }
+    },
+    {
+      "name": "Dancing House",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/9/97/Tanzendes_Haus_2023.jpg",
+        "width": 3000,
+        "height": 3000,
+        "source": "wikipedia",
+        "articleTitle": "Dancing House",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Petřín",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/4/4b/Petrin_Praha.jpg",
+        "width": 2592,
+        "height": 1944,
+        "source": "wikipedia",
+        "articleTitle": "Petřín",
+        "method": "wikipedia_main"
+      }
+    }
+  ]
+}

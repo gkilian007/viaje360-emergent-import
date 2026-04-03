@@ -1,0 +1,111 @@
+{
+  "city": "Tokyo",
+  "country": "Japón",
+  "wiki": "Tokyo",
+  "hero": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/b/b2/Skyscrapers_of_Shinjuku_2009_January.jpg",
+    "width": 2560,
+    "height": 1364,
+    "source": "wikipedia",
+    "articleTitle": "Tokyo",
+    "method": "wikipedia_main"
+  },
+  "pois": [
+    {
+      "name": "Senso-ji",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/c/cd/Omikuji%2C_Sens%C5%8D-ji%2C_Tokyo.jpg",
+        "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Omikuji%2C_Sens%C5%8D-ji%2C_Tokyo.jpg/960px-Omikuji%2C_Sens%C5%8D-ji%2C_Tokyo.jpg",
+        "width": 3783,
+        "height": 3707,
+        "title": "Omikuji, Sensō-ji, Tokyo.jpg",
+        "attribution": "Marco Almbauer",
+        "license": "CC BY-SA 4.0",
+        "description": "O-mikuji, Sensō-ji temple, Tokyo",
+        "source": "commons",
+        "method": "commons_search"
+      }
+    },
+    {
+      "name": "Shibuya Crossing",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/8/88/Shibuya_Crossing%2C_Aerial.jpg",
+        "width": 3840,
+        "height": 2160,
+        "source": "wikipedia",
+        "articleTitle": "Shibuya Crossing",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Meiji Shrine",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/8/8b/Meiji_Jingu_2023-3.jpg",
+        "width": 4032,
+        "height": 2268,
+        "source": "wikipedia",
+        "articleTitle": "Meiji Shrine",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Tokyo Tower",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/5/58/Tokyo_Tower_2023.jpg",
+        "width": 3456,
+        "height": 4608,
+        "source": "wikipedia",
+        "articleTitle": "Tokyo Tower",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Shinjuku",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/b/b2/Skyscrapers_of_Shinjuku_2009_January.jpg",
+        "width": 2560,
+        "height": 1364,
+        "source": "wikipedia",
+        "articleTitle": "Shinjuku",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Akihabara",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/6/60/Sotokanda%2C_Akihabara_Electric_Town_at_night_20231114.png",
+        "width": 4032,
+        "height": 3024,
+        "source": "wikipedia",
+        "articleTitle": "Akihabara",
+        "method": "wikipedia_main"
+      }
+    },
+    {
+      "name": "Imperial Palace, Tokyo",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/5/5b/Imperial_Palace%2C_Tokyo_JP.jpg",
+        "thumbUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Imperial_Palace%2C_Tokyo_JP.jpg/960px-Imperial_Palace%2C_Tokyo_JP.jpg",
+        "width": 3008,
+        "height": 2000,
+        "title": "Imperial Palace, Tokyo JP.jpg",
+        "attribution": "Stefano Vigorelli",
+        "license": "CC BY-SA 4.0",
+        "description": "Imperial Palace, Tokyo",
+        "source": "commons",
+        "method": "commons_search"
+      }
+    },
+    {
+      "name": "Tsukiji fish market",
+      "photo": {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/f/fd/2018_Tsukiji_fish_market.jpg",
+        "width": 2500,
+        "height": 1608,
+        "source": "wikipedia",
+        "articleTitle": "Tsukiji fish market",
+        "method": "wikipedia_main"
+      }
+    }
+  ]
+}
