@@ -6,6 +6,7 @@ import { useAppStore } from "@/store/useAppStore"
 import { useOnboardingStore } from "@/store/useOnboardingStore"
 import { createClient, isSupabaseBrowserConfigured } from "@/lib/supabase/client"
 import { BottomNav } from "@/components/layout/BottomNav"
+import { SideNav } from "@/components/layout/SideNav"
 import { motion } from "framer-motion"
 import type { User as SupabaseUser } from "@supabase/supabase-js"
 import type { TripSummary } from "@/app/api/trips/route"
@@ -540,7 +541,9 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen pb-28 lg:pb-8" style={{ background: "#131315" }}>
+    <div className="flex min-h-screen" style={{ background: "#131315" }}>
+    <div className="hidden lg:block"><SideNav /></div>
+    <div className="flex-1 min-h-screen pb-28 lg:pb-8">
       {/* Share toast */}
       {shareToast && (
         <div
@@ -691,7 +694,8 @@ export default function HomePage() {
         </div>
       </div>
 
-      <BottomNav />
+      <div className="lg:hidden"><BottomNav /></div>
+    </div>
     </div>
   )
 }

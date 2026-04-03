@@ -768,10 +768,50 @@ function PlanPageContent() {
             <div className="flex flex-col h-full">
               {/* Header */}
               <div className="px-6 pt-6 pb-4 border-b border-white/5">
-                <p className="text-[11px] uppercase tracking-widest text-[#c0c6d6] font-medium mb-1 capitalize">
-                  {currentTrip?.destination}{currentTrip?.country ? `, ${currentTrip.country}` : ""}
-                </p>
-                <h1 className="text-[20px] font-bold text-white">{currentTrip?.name}</h1>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-[11px] uppercase tracking-widest text-[#c0c6d6] font-medium mb-1 capitalize">
+                      {currentTrip?.destination}{currentTrip?.country ? `, ${currentTrip.country}` : ""}
+                    </p>
+                    <h1 className="text-[20px] font-bold text-white">{currentTrip?.name}</h1>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {currentTrip?.id && (
+                      <button
+                        onClick={handleCalendarExport}
+                        className="w-9 h-9 rounded-xl flex items-center justify-center bg-white/5 hover:bg-white/10 transition-colors"
+                        title="Exportar calendario"
+                      >
+                        <span className="material-symbols-outlined text-[18px] text-[#c0c6d6]">calendar_month</span>
+                      </button>
+                    )}
+                    {currentTrip?.id && (
+                      <button
+                        onClick={handleShare}
+                        className="w-9 h-9 rounded-xl flex items-center justify-center bg-white/5 hover:bg-white/10 transition-colors"
+                        title="Compartir"
+                      >
+                        <span className="material-symbols-outlined text-[18px] text-[#c0c6d6]">{shareCopied ? "check" : "share"}</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+                {/* Desktop stats row */}
+                <div className="flex items-center gap-4 mt-3">
+                  <div className="flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-[14px] text-[#30D158]">payments</span>
+                    <span className="text-[12px] text-[#c0c6d6]">€{currentTrip?.budget}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-[14px] text-purple-400">calendar_month</span>
+                    <span className="text-[12px] text-[#c0c6d6]">{totalDays} días</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-[14px] text-[#0A84FF]">pin_drop</span>
+                    <span className="text-[12px] text-[#c0c6d6]">{currentTrip?.startDate?.slice(5)} → {currentTrip?.endDate?.slice(5)}</span>
+                  </div>
+                  {todayWeather && <WeatherBadge weather={todayWeather} compact />}
+                </div>
               </div>
 
               {/* Day selector */}
@@ -779,12 +819,8 @@ function PlanPageContent() {
                 <DaySelector days={totalDays} selectedDay={selectedDay} onSelect={setSelectedDay} tripStartDate={currentTrip?.startDate} />
               </div>
 
-              {/* Timeline */}
-              <div className="flex-1 overflow-y-auto px-6 py-4">
-                <p className="text-[11px] uppercase tracking-widest text-[#c0c6d6] font-medium mb-4">
-                  Itinerario — Día {selectedDay}
-                  {todayWeather && <WeatherBadge weather={todayWeather} compact />}
-                </p>
+              {/* Alerts & banners */}
+              <div className="px-6 pt-3">
                 <AutoAdaptedBanner days={autoAdaptedDays} onDismiss={clearAutoAdapted} />
                 {topIssue && currentTrip?.id && (
                   <ProactiveAdaptationBanner
@@ -792,14 +828,6 @@ function PlanPageContent() {
                     isAdapting={isAdaptingIssue}
                     onAdapt={adaptIssue}
                     onDismiss={dismissIssue}
-                  />
-                )}
-                {proactiveInsight && (
-                  <ProactiveInsightCard
-                    insight={proactiveInsight}
-                    isAdapting={isAdaptingInsight}
-                    onAction={(action) => handleInsightAction(action, proactiveInsight)}
-                    onDismiss={() => dismissInsight(proactiveInsight.id)}
                   />
                 )}
                 <CurrentActivityBanner
@@ -811,6 +839,10 @@ function PlanPageContent() {
                   isDayOver={liveStatus.isDayOver}
                   isDayNotStarted={liveStatus.isDayNotStarted}
                 />
+              </div>
+
+              {/* Timeline */}
+              <div className="flex-1 overflow-y-auto px-6 py-2">
                 <SortableTimeline
                   activities={today?.activities ?? []}
                   dayNumber={selectedDay}
@@ -828,7 +860,7 @@ function PlanPageContent() {
               </div>
 
               {/* Adapt input */}
-              <div className="px-6 pb-6 pt-2 border-t border-white/5">
+              <div className="px-6 pb-5 pt-2 border-t border-white/5">
                 {access.canAdapt ? (
                   <AdaptInput
                     tripId={currentTrip?.id ?? ""}
@@ -866,6 +898,110 @@ function PlanPageContent() {
                 if (activity) handleActivityClick(activity)
               }}
             />
+          }
+          companionPanel={
+            <div className="flex flex-col h-full">
+              {/* Companion header */}
+              <div className="px-5 pt-5 pb-3 border-b border-white/5">
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[18px] text-[#0A84FF]">assistant</span>
+                  <h2 className="text-[14px] font-semibold text-white">Companion</h2>
+                </div>
+              </div>
+
+              {/* Scrollable companion content */}
+              <div className="flex-1 overflow-y-auto">
+                {/* Proactive insight */}
+                {proactiveInsight && (
+                  <div className="px-4 pt-4">
+                    <ProactiveInsightCard
+                      insight={proactiveInsight}
+                      isAdapting={isAdaptingInsight}
+                      onAction={(action) => handleInsightAction(action, proactiveInsight)}
+                      onDismiss={() => dismissInsight(proactiveInsight.id)}
+                    />
+                  </div>
+                )}
+
+                {/* Budget tracker */}
+                {currentTrip?.id && (
+                  <div className="px-4 pt-4">
+                    <BudgetTracker tripId={currentTrip.id} />
+                  </div>
+                )}
+
+                {/* Packing list */}
+                {currentTrip?.id && (
+                  <div className="px-4 pt-4">
+                    <PackingList tripId={currentTrip.id} />
+                  </div>
+                )}
+
+                {/* Local tips */}
+                {currentTrip?.destination && (
+                  <div className="px-4 pt-4">
+                    <LocalTipsCard destination={String(currentTrip.destination)} />
+                  </div>
+                )}
+
+                {/* Trial banner */}
+                {!access.loading && (
+                  <div className="px-4 pt-4">
+                    <TrialBanner
+                      destination={currentTrip?.destination ?? ""}
+                      daysRemaining={access.daysRemaining}
+                      reason={access.reason}
+                    />
+                  </div>
+                )}
+
+                {/* Diary prompt */}
+                {today && access.canDiary && (
+                  <div className="px-4 pt-4">
+                    <DiaryPromptCard dayNumber={selectedDay} hasExistingDiary={hasExistingDiary} />
+                  </div>
+                )}
+
+                {/* Notification banner */}
+                <div className="px-4 pt-4">
+                  <NotificationBanner />
+                </div>
+
+                {/* Quick actions */}
+                <div className="px-4 pt-4 pb-5 space-y-2">
+                  {/* Recap link */}
+                  {currentTrip?.id && (
+                    <a
+                      href={`/recap/${currentTrip.id}`}
+                      className="flex items-center gap-2 w-full py-3 px-4 rounded-2xl text-[12px] text-[#888] hover:text-white transition-colors"
+                      style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
+                    >
+                      <span className="material-symbols-outlined text-[16px] text-[#BF5AF2]">auto_stories</span>
+                      <span>Ver recap del viaje</span>
+                      <span className="material-symbols-outlined text-[14px] ml-auto">chevron_right</span>
+                    </a>
+                  )}
+
+                  {/* Share button */}
+                  {currentTrip?.id && (
+                    <button
+                      onClick={handleShare}
+                      className="flex items-center gap-2 w-full py-3 px-4 rounded-2xl text-[12px] transition-all hover:bg-white/5"
+                      style={{
+                        background: shareCopied ? "rgba(48,209,88,0.1)" : "rgba(255,255,255,0.03)",
+                        border: shareCopied ? "1px solid rgba(48,209,88,0.3)" : "1px solid rgba(255,255,255,0.06)",
+                        color: shareCopied ? "#30D158" : "#888",
+                      }}
+                    >
+                      <span className="material-symbols-outlined text-[16px] text-[#0A84FF]">
+                        {shareCopied ? "check_circle" : "share"}
+                      </span>
+                      <span>{shareCopied ? "¡Enlace copiado!" : "Compartir plan"}</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
           }
         />
       </div>

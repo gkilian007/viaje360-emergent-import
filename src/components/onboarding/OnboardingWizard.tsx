@@ -145,7 +145,8 @@ export function OnboardingWizard() {
     : `${coreIndex + 1} / ${CORE_STEP_COUNT}`
 
   return (
-    <div className="h-dvh map-bg flex flex-col overflow-hidden">
+    <div className="h-dvh map-bg flex flex-col overflow-hidden lg:items-center lg:justify-center">
+    <div className="flex flex-col h-full lg:h-auto lg:max-h-[90vh] lg:w-full lg:max-w-[540px] lg:rounded-3xl lg:border lg:border-white/10 lg:bg-[#131315]/95 lg:backdrop-blur-xl lg:shadow-2xl lg:overflow-hidden">
       {/* Honeypot: hidden from real users, catches bots that autofill */}
       <input
         type="text"
@@ -202,6 +203,7 @@ export function OnboardingWizard() {
           isLastStep={isLastStep || isCoreLastStep}
         />
       </div>
+    </div>
     </div>
   )
 }

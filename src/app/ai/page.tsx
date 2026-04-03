@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react"
 import { useAppStore } from "@/store/useAppStore"
 import { ChatMessage } from "@/components/features/ChatMessage"
-import { BottomNav } from "@/components/layout/BottomNav"
+import { AppShell } from "@/components/layout/AppShell"
 import type { ChatMessage as ChatMessageType } from "@/lib/types"
 
 function buildTripContextSummary(
@@ -109,7 +109,8 @@ export default function AIPage() {
   ]
 
   return (
-    <div className="flex flex-col h-full overflow-hidden" style={{ background: "#131315" }}>
+    <AppShell hideBottomNav>
+    <div className="flex flex-col h-full overflow-hidden lg:max-w-3xl lg:mx-auto" style={{ background: "#131315" }}>
       {/* Header */}
       <div
         className="safe-area-top flex items-center gap-3 px-4 pb-4 pt-4 shrink-0"
@@ -239,7 +240,7 @@ export default function AIPage() {
         </div>
       </div>
 
-      <BottomNav />
     </div>
+    </AppShell>
   )
 }

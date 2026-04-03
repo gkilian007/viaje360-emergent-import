@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react"
 import { motion } from "framer-motion"
 import { useAppStore } from "@/store/useAppStore"
 import { BottomNav } from "@/components/layout/BottomNav"
+import { SideNav } from "@/components/layout/SideNav"
 import { DynamicMapView } from "@/components/features/DynamicMapView"
 import { ActivityDetailModal } from "@/components/features/ActivityDetailModal"
 import type { TimelineActivity } from "@/lib/types"
@@ -193,7 +194,13 @@ export default function MapaPage() {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-[#0f1117]">
+    <div className="flex h-screen bg-[#0f1117]">
+      {/* Desktop SideNav */}
+      <div className="hidden lg:block">
+        <SideNav />
+      </div>
+      {/* Main content */}
+      <div className="flex-1 flex flex-col h-full">
       {/* Full-screen map */}
       <div className="flex-1 relative">
         <DynamicMapView
@@ -255,7 +262,10 @@ export default function MapaPage() {
         )}
       </div>
 
-      <BottomNav />
+      <div className="lg:hidden">
+        <BottomNav />
+      </div>
+      </div>
 
       <ActivityDetailModal
         activity={selectedActivity}
