@@ -118,14 +118,13 @@ export function CoreFinalizeStep() {
                 className="overflow-hidden"
               >
                 <div className="mt-3 p-4 rounded-2xl border border-[#0A84FF]/20 bg-[#0A84FF]/5">
-                  <p className="text-xs text-[#0A84FF] font-medium mb-1 flex items-center gap-1.5">
-                    <span className="material-symbols-outlined text-[14px]">info</span>
-                    Pulsa Continuar para configurar cada opción paso a paso
-                  </p>
-                  <p className="text-xs text-[#888] mb-3">
-                    Se añadirán {9} pasos adicionales antes de generar tu itinerario.
-                  </p>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="material-symbols-outlined text-[16px] text-[#0A84FF]">tune</span>
+                    <p className="text-sm text-white font-medium">
+                      11 opciones extra para afinar tu viaje
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2 mb-4">
                     {[
                       { emoji: "🏨", label: "Alojamiento" },
                       { emoji: "🗺️", label: "Estilo viajero" },
@@ -142,6 +141,21 @@ export function CoreFinalizeStep() {
                       </span>
                     ))}
                   </div>
+                  <button
+                    onClick={() => {
+                      // Accordion is already expanded, just let them know to continue
+                      const continueBtn = document.querySelector('[data-onboarding-next]') as HTMLButtonElement
+                      if (continueBtn) {
+                        continueBtn.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                        continueBtn.classList.add('animate-pulse')
+                        setTimeout(() => continueBtn.classList.remove('animate-pulse'), 2000)
+                      }
+                    }}
+                    className="w-full py-3 rounded-xl bg-[#0A84FF]/15 border border-[#0A84FF]/30 text-[#0A84FF] text-sm font-semibold transition-all hover:bg-[#0A84FF]/25 flex items-center justify-center gap-2"
+                  >
+                    <span className="material-symbols-outlined text-[16px]">arrow_downward</span>
+                    Pulsa Continuar para configurar paso a paso
+                  </button>
                 </div>
               </motion.div>
             )}

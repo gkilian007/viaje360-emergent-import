@@ -31,6 +31,7 @@ export function NavigationButtons({
         </motion.button>
       )}
       <motion.button
+        data-onboarding-next
         whileTap={{ scale: isNextValid ? 0.97 : 1 }}
         onClick={isNextValid ? onNext : undefined}
         className={`
