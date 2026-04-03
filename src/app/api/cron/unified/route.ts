@@ -32,23 +32,26 @@ function ensureVapid() {
 export const maxDuration = 60
 
 export async function GET(req: NextRequest) {
-  const cronSecret = process.env.CRON_SECRET
-  const authHeader = req.headers.get("Authorization")
-
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
-
-  if (!ensureVapid()) {
-    return NextResponse.json({ error: "VAPID not configured" }, { status: 500 })
-  }
-
-  const context = req.nextUrl.searchParams.get("context") ?? "auto"
-  const results: Record<string, unknown> = { context }
-
   try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+    const cronSecret = process.env.CRON_SECRET
+    const authHeader = req.headers.get("Authorization")
+
+    if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const vapidOk = ensureVapid()
+
+    const context = req.nextUrl.searchParams.get("context") ?? "auto"
+    const results: Record<string, unknown> = { context, vapid: vapidOk }
+
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+    if (!supabaseUrl || !serviceKey) {
+      return NextResponse.json({ error: "Supabase not configured", ...results }, { status: 500 })
+    }
+
     const supabase = createClient(supabaseUrl, serviceKey)
 
     // ── Step 1: Process pending scheduled notifications ──
@@ -78,7 +81,8 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ ok: true, ...results })
   } catch (error) {
     console.error("[cron/unified] Error:", error)
-    return NextResponse.json({ error: "Internal error", ...results }, { status: 500 })
+    const errMsg = error instanceof Error ? error.message : String(error)
+    return NextResponse.json({ error: "Internal error", message: errMsg, ...results }, { status: 500 })
   }
 }
 
