@@ -84,7 +84,8 @@ export async function GET(req: NextRequest) {
 
 // ── Process Scheduled Notifications ──
 
-async function processScheduledNotifications(supabase: ReturnType<typeof createClient>) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function processScheduledNotifications(supabase: any) {
   const now = new Date().toISOString()
 
   const { data: pending, error } = await supabase
@@ -125,7 +126,7 @@ async function processScheduledNotifications(supabase: ReturnType<typeof createC
       })
 
       const results = await Promise.allSettled(
-        subs.map((sub) =>
+        subs.map((sub: { endpoint: string; p256dh: string; auth: string }) =>
           webpush.sendNotification(
             { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
             payload
@@ -167,9 +168,10 @@ async function processScheduledNotifications(supabase: ReturnType<typeof createC
 
 // ── Dispatch Proactive Insights ──
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function dispatchProactiveInsights(
-  supabase: ReturnType<typeof createClient>,
-  serviceKey: string,
+  supabase: any,
+  _serviceKey: string,
   context: "morning" | "evening" | "postday" | "anytime"
 ) {
   const now = new Date()
@@ -247,7 +249,7 @@ async function dispatchProactiveInsights(
           })
 
           const results = await Promise.allSettled(
-            subs.map((sub) =>
+            subs.map((sub: { endpoint: string; p256dh: string; auth: string }) =>
               webpush.sendNotification(
                 { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
                 payload
