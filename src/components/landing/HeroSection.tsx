@@ -1,32 +1,9 @@
 "use client"
 
-import { useRef, Suspense, lazy, useState, Component, type ReactNode } from "react"
+import { useRef } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { motion, useScroll, useTransform, useSpring } from "framer-motion"
-
-const Spline = lazy(() => import("@splinetool/react-spline"))
-
-// Error boundary specifically for the 3D globe — if WebGL/Spline crashes,
-// show a graceful gradient fallback instead of breaking the whole page
-class GlobeErrorBoundary extends Component<
-  { children: ReactNode; fallback: ReactNode },
-  { hasError: boolean }
-> {
-  constructor(props: { children: ReactNode; fallback: ReactNode }) {
-    super(props)
-    this.state = { hasError: false }
-  }
-  static getDerivedStateFromError() {
-    return { hasError: true }
-  }
-  render() {
-    if (this.state.hasError) return this.props.fallback
-    return this.props.children
-  }
-}
-
-const SPLINE_SCENE = "https://prod.spline.design/Hn4x9IDNy2OxVAiw/scene.splinecode"
 
 interface HeroSectionProps {
   isAuthenticated?: boolean
@@ -34,7 +11,6 @@ interface HeroSectionProps {
 
 export function HeroSection({ isAuthenticated = false }: HeroSectionProps) {
   const ref = useRef<HTMLDivElement>(null)
-  const [splineLoaded, setSplineLoaded] = useState(false)
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start start", "end start"],
@@ -42,10 +18,6 @@ export function HeroSection({ isAuthenticated = false }: HeroSectionProps) {
 
   const rawY = useTransform(scrollYProgress, [0, 1], ["0%", "50%"])
   const videoY = useSpring(rawY, { stiffness: 100, damping: 30 })
-
-  // Globe parallax — moves slower than scroll for depth
-  const globeY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"])
-  const globeOpacity = useTransform(scrollYProgress, [0, 0.6, 1], [1, 0.8, 0])
 
   const handleScrollDown = () => {
     const next = document.getElementById("como-funciona")
@@ -86,14 +58,14 @@ export function HeroSection({ isAuthenticated = false }: HeroSectionProps) {
         </div>
       </motion.div>
 
-      {/* Gradient overlay — darker to make globe pop */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-black/85 z-10" />
+      {/* Gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/80 z-10" />
 
-      {/* Split layout: content left, globe right (desktop) / stacked (mobile) */}
-      <div className="relative z-20 h-full flex flex-col lg:flex-row items-center justify-center px-6 max-w-7xl mx-auto gap-4 lg:gap-12">
+      {/* Centered content */}
+      <div className="relative z-20 h-full flex flex-col items-center justify-center px-6 max-w-4xl mx-auto">
         
-        {/* Left side — text content */}
-        <div className="flex-1 flex flex-col items-center lg:items-start text-center lg:text-left max-w-2xl">
+        {/* Text content — centered */}
+        <div className="flex flex-col items-center text-center max-w-2xl">
           {/* Logo */}
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
@@ -166,47 +138,6 @@ export function HeroSection({ isAuthenticated = false }: HeroSectionProps) {
             </button>
           </motion.div>
         </div>
-
-        {/* Right side — 3D Globe (desktop) / smaller below text (mobile) */}
-        <motion.div
-          className="flex-shrink-0 w-[320px] h-[320px] sm:w-[400px] sm:h-[400px] lg:w-[560px] lg:h-[560px] xl:w-[640px] xl:h-[640px] relative"
-          style={{ y: globeY, opacity: globeOpacity, willChange: "transform" }}
-          initial={{ opacity: 0, scale: 0.7 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1.2, delay: 0.3, ease: "easeOut" }}
-        >
-          <GlobeErrorBoundary
-            fallback={
-              <div className="w-full h-full rounded-full bg-gradient-to-br from-[#0A84FF]/20 via-[#5856D6]/10 to-transparent animate-pulse" />
-            }
-          >
-            <Suspense
-              fallback={
-                <div className="w-full h-full flex items-center justify-center">
-                  <div className="w-24 h-24 rounded-full border-2 border-white/10 border-t-blue-500 animate-spin" />
-                </div>
-              }
-            >
-              <Spline
-                scene={SPLINE_SCENE}
-                onLoad={() => setSplineLoaded(true)}
-                style={{ width: "100%", height: "100%", background: "transparent" }}
-              />
-              {/* Override Spline canvas black background */}
-              <style jsx global>{`
-                .spline-watermark { display: none !important; }
-              `}</style>
-            </Suspense>
-          </GlobeErrorBoundary>
-
-          {/* Glow effect behind globe */}
-          <div
-            className="absolute inset-0 -z-10 rounded-full blur-3xl opacity-30"
-            style={{
-              background: "radial-gradient(circle, rgba(10,132,255,0.4) 0%, rgba(88,86,214,0.2) 50%, transparent 70%)",
-            }}
-          />
-        </motion.div>
       </div>
 
       {/* Bounce arrow */}
