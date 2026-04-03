@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { useAppStore } from "@/store/useAppStore"
 import { useOnboardingStore } from "@/store/useOnboardingStore"
 import { BottomNav } from "@/components/layout/BottomNav"
+import { SideNav } from "@/components/layout/SideNav"
 import { motion } from "framer-motion"
 
 // ─── Curated content — no dependency on user state ───────────────────────────
@@ -84,7 +85,9 @@ export default function ExplorePage() {
   const hasResults = filteredDestinations.length > 0 || filteredGems.length > 0
 
   return (
-    <div className="flex flex-col min-h-screen overflow-y-auto pb-28" style={{ background: "#0f1117" }}>
+    <div className="flex min-h-screen" style={{ background: "#0f1117" }}>
+    <div className="hidden lg:block"><SideNav /></div>
+    <div className="flex flex-col flex-1 min-h-screen overflow-y-auto pb-28 lg:pb-8">
 
       {/* Header */}
       <div className="px-5 pb-5 page-header-safe-lg">
@@ -232,46 +235,49 @@ export default function ExplorePage() {
             </div>
           </div>
 
-          {/* Hidden gems */}
-          <div className="px-5 mb-6">
-            <p className="text-[13px] font-bold text-white mb-3">💎 Gemas ocultas</p>
-            <div className="space-y-2">
-              {HIDDEN_GEMS.map(gem => (
-                <motion.button
-                  key={gem.name}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => handleDestinationSelect(gem.name)}
-                  className="w-full flex items-start gap-3 p-4 rounded-2xl text-left"
-                  style={{ background: "rgba(22,22,30,0.95)", border: "1px solid rgba(255,255,255,0.07)" }}
-                >
-                  <span className="text-[28px] shrink-0">{gem.emoji}</span>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-baseline gap-2">
-                      <p className="text-[14px] font-bold text-white">{gem.name}</p>
-                      <p className="text-[11px] text-[#555]">{gem.country}</p>
+          {/* Hidden gems + Tips — side by side on desktop */}
+          <div className="px-5 mb-6 lg:flex lg:gap-6">
+            {/* Hidden gems */}
+            <div className="lg:flex-1 mb-6 lg:mb-0">
+              <p className="text-[13px] font-bold text-white mb-3">💎 Gemas ocultas</p>
+              <div className="space-y-2">
+                {HIDDEN_GEMS.map(gem => (
+                  <motion.button
+                    key={gem.name}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => handleDestinationSelect(gem.name)}
+                    className="w-full flex items-start gap-3 p-4 rounded-2xl text-left"
+                    style={{ background: "rgba(22,22,30,0.95)", border: "1px solid rgba(255,255,255,0.07)" }}
+                  >
+                    <span className="text-[28px] shrink-0">{gem.emoji}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-baseline gap-2">
+                        <p className="text-[14px] font-bold text-white">{gem.name}</p>
+                        <p className="text-[11px] text-[#555]">{gem.country}</p>
+                      </div>
+                      <p className="text-[12px] text-[#888] mt-1 leading-relaxed">{gem.desc}</p>
                     </div>
-                    <p className="text-[12px] text-[#888] mt-1 leading-relaxed">{gem.desc}</p>
-                  </div>
-                  <span className="material-symbols-outlined text-[16px] text-[#333] shrink-0 mt-1">arrow_forward</span>
-                </motion.button>
-              ))}
+                    <span className="material-symbols-outlined text-[16px] text-[#333] shrink-0 mt-1">arrow_forward</span>
+                  </motion.button>
+                ))}
+              </div>
             </div>
-          </div>
 
-          {/* Tips */}
-          <div className="px-5 mb-6">
-            <p className="text-[13px] font-bold text-white mb-3">💡 ¿Sabías que...?</p>
-            <div className="space-y-2">
-              {TRAVEL_TIPS.map((tip, i) => (
-                <div
-                  key={i}
-                  className="flex items-start gap-3 p-3 rounded-xl"
-                  style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)" }}
-                >
-                  <span className="text-[18px] shrink-0">{tip.icon}</span>
-                  <p className="text-[12px] text-[#aaa] leading-relaxed">{tip.tip}</p>
-                </div>
-              ))}
+            {/* Tips */}
+            <div className="lg:flex-1">
+              <p className="text-[13px] font-bold text-white mb-3">💡 ¿Sabías que...?</p>
+              <div className="space-y-2">
+                {TRAVEL_TIPS.map((tip, i) => (
+                  <div
+                    key={i}
+                    className="flex items-start gap-3 p-3 rounded-xl"
+                    style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)" }}
+                  >
+                    <span className="text-[18px] shrink-0">{tip.icon}</span>
+                    <p className="text-[12px] text-[#aaa] leading-relaxed">{tip.tip}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -300,7 +306,8 @@ export default function ExplorePage() {
         </>
       )}
 
-      <BottomNav />
+      <div className="lg:hidden"><BottomNav /></div>
+    </div>
     </div>
   )
 }
