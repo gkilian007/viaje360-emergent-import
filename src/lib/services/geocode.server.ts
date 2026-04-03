@@ -1,9 +1,12 @@
 /**
- * Server-side geocoding using Nominatim.
+ * Server-side geocoding with multi-provider fallback:
+ *   1. Photon (Komoot) — best for tourism POIs, lenient rate limits
+ *   2. Nominatim (OSM) — broader coverage, stricter rate limits
  * Called once when the itinerary is generated so coordinates are persisted in the DB.
  */
 
 const NOMINATIM_URL = "https://nominatim.openstreetmap.org/search"
+const PHOTON_URL = "https://photon.komoot.io/api"
 const HEADERS = {
   Accept: "application/json",
   // Broad accept-language so Nominatim returns results for any language name
@@ -48,6 +51,83 @@ async function searchNominatim(query: string, extra: Record<string, string> = {}
   } catch {
     return null
   }
+}
+
+/**
+ * Photon geocoder (Komoot) — excellent for tourism POIs.
+ * Rate limits are more lenient than Nominatim.
+ * Supports location bias via lat/lon params.
+ */
+async function searchPhoton(
+  query: string,
+  bias?: Coords
+): Promise<Coords | null> {
+  try {
+    const params = new URLSearchParams({
+      q: query,
+      limit: "3",
+      lang: "en",
+    })
+    if (bias) {
+      params.set("lat", bias.lat.toString())
+      params.set("lon", bias.lng.toString())
+    }
+
+    const res = await fetch(`${PHOTON_URL}?${params}`, {
+      headers: { "User-Agent": "Viaje360/1.0 (https://viaje360.app)" },
+    })
+    if (!res.ok) return null
+
+    const data = await res.json()
+    const features = data?.features
+    if (!Array.isArray(features) || features.length === 0) return null
+
+    // Pick the best match: prefer tourism/historic POIs near the bias
+    const best = bias ? pickBestPhotonMatch(features, bias) : features[0]
+    const coords = best?.geometry?.coordinates
+    if (!coords || coords.length < 2) return null
+
+    const lat = coords[1]
+    const lng = coords[0]
+    if (!isFinite(lat) || !isFinite(lng)) return null
+    return { lat, lng }
+  } catch {
+    return null
+  }
+}
+
+function pickBestPhotonMatch(
+  features: Array<{
+    properties?: { osm_key?: string; osm_value?: string }
+    geometry?: { coordinates?: number[] }
+  }>,
+  bias: Coords
+): (typeof features)[0] {
+  const scored = features.map((f) => {
+    let score = 0
+    const props = f.properties ?? {}
+
+    if (props.osm_key === "tourism") score += 10
+    if (props.osm_key === "historic") score += 8
+    if (props.osm_key === "amenity") score += 5
+    if (props.osm_key === "leisure") score += 4
+    if (props.osm_value === "museum") score += 8
+    if (props.osm_value === "place_of_worship") score += 7
+
+    const coords = f.geometry?.coordinates
+    if (coords && coords.length >= 2) {
+      const dLat = coords[1] - bias.lat
+      const dLng = coords[0] - bias.lng
+      const distKm = Math.sqrt(dLat * dLat + dLng * dLng) * 111
+      if (distKm > 50) score -= 20
+      else if (distKm > 20) score -= 5
+    }
+
+    return { feature: f, score }
+  })
+
+  scored.sort((a, b) => b.score - a.score)
+  return scored[0].feature
 }
 
 /** Extract a shorter search term from compound names like "Foro Romano y Monte Palatino" */
@@ -138,24 +218,16 @@ async function delayMs(ms: number) {
 }
 
 /** Geocode a single activity location — returns coords or null.
- *  Each call to searchNominatim counts as 1 request; we space them apart.
+ *  Strategy: try Photon first (faster, better for POIs), then Nominatim as fallback.
  */
 async function geocodeLocation(
   name: string,
   location: string,
-  destination: string
+  destination: string,
+  destBias?: Coords | null
 ): Promise<Coords | null> {
   const cityKey = destination.toLowerCase().trim()
   const viewbox = CITY_VIEWBOXES[cityKey]
-
-  // Helper: search with optional viewbox constraint
-  async function searchWithViewbox(query: string): Promise<Coords | null> {
-    if (viewbox) {
-      const r = await searchNominatim(query, { viewbox, bounded: "1" })
-      if (r) return r
-    }
-    return searchNominatim(query)
-  }
 
   // Build a priority-ordered list of queries (most specific first)
   const queries: string[] = []
@@ -167,7 +239,7 @@ async function geocodeLocation(
   const localName = tryLocalName(name)
   if (localName) {
     queries.push(`${localName}, ${destination}`)
-    queries.push(localName) // name alone is often best for famous landmarks
+    queries.push(localName)
   }
 
   // 3. Fallback: activity name + destination
@@ -186,7 +258,7 @@ async function geocodeLocation(
     queries.push(location)
   }
 
-  // 6. Name alone — Nominatim is good at famous landmarks without city
+  // 6. Name alone
   if (name.length > 3 && !queries.includes(name)) {
     queries.push(name)
   }
@@ -200,8 +272,22 @@ async function geocodeLocation(
     return true
   })
 
+  // Phase 1: Try Photon for all queries (faster, no strict rate limit)
   for (const query of uniqueQueries) {
-    const result = await searchWithViewbox(query)
+    const result = await searchPhoton(query, destBias ?? undefined)
+    if (result) return result
+    await delayMs(200) // Photon is lenient, 200ms is plenty
+  }
+
+  // Phase 2: Fall back to Nominatim
+  for (const query of uniqueQueries) {
+    let result: Coords | null = null
+    if (viewbox) {
+      result = await searchNominatim(query, { viewbox, bounded: "1" })
+    }
+    if (!result) {
+      result = await searchNominatim(query)
+    }
     if (result) return result
     await delayMs(NOMINATIM_DELAY_MS)
   }
@@ -301,9 +387,8 @@ export async function geocodeItinerary(
     if (cache.has(cacheKey)) {
       coords = cache.get(cacheKey)!
     } else {
-      coords = await geocodeLocation(activity.name, activity.location!, destination)
+      coords = await geocodeLocation(activity.name, activity.location!, destination, destCoords)
       cache.set(cacheKey, coords)
-      // geocodeLocation already handles delays between its own Nominatim calls
     }
 
     if (coords) {
@@ -329,8 +414,8 @@ export async function geocodeItineraryFast(
   itinerary: GeneratedItinerary,
   destination: string
 ): Promise<GeneratedItinerary> {
-  const destCoords = await geocodeDestination(destination)
-  // Note: no delay needed since we only make 1 request (for the destination itself)
+  // Try Photon first (faster), then Nominatim
+  const destCoords = await searchPhoton(destination) ?? await geocodeDestination(destination)
 
   if (!destCoords) return itinerary
 
