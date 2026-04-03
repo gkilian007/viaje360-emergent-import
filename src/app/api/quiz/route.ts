@@ -12,6 +12,8 @@ import { createServiceClient } from "@/lib/supabase/server"
 import { updateXp } from "@/lib/services/profile.service"
 import type { QuizQuestion } from "@/lib/types"
 
+export const maxDuration = 60
+
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)

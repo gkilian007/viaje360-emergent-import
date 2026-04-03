@@ -40,6 +40,8 @@ function delay(ms: number) {
   return new Promise(r => setTimeout(r, ms))
 }
 
+export const maxDuration = 60
+
 export async function POST(request: NextRequest) {
   try {
     const identity = await resolveRequestIdentity()

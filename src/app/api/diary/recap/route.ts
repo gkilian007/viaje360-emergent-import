@@ -21,6 +21,8 @@ function moodEmoji(mood: string | null): string {
   return mood ? (map[mood] ?? "😊") : "😊"
 }
 
+export const maxDuration = 60
+
 export async function GET(req: NextRequest) {
   try {
     const sp = req.nextUrl.searchParams

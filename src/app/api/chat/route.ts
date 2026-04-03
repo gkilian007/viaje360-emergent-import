@@ -18,6 +18,8 @@ function isPersistedTripId(tripId: string) {
 // Max message length to prevent prompt injection with huge payloads
 const MAX_MESSAGE_LENGTH = 2000
 
+export const maxDuration = 60
+
 export async function POST(req: NextRequest) {
   // Rate limit: 20 messages per minute per IP (burst protection)
   const rl = await rateLimit(req, "chat", 20, "1 m")

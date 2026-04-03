@@ -17,6 +17,9 @@ import { createTrip } from "@/lib/services/trip.service"
 import { createServiceClient } from "@/lib/supabase/server"
 import { requireAccess } from "@/lib/api/access-guard"
 
+// Allow up to 120s for itinerary generation (Gemini API + geocoding + DB writes)
+export const maxDuration = 120
+
 export async function POST(req: NextRequest) {
   // Rate limit: max 5 generations per IP per day
   const rl = await rateLimit(req, "itinerary-generate", 5, "1 d")

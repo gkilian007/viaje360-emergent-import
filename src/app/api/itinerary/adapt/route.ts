@@ -14,6 +14,8 @@ import { createServiceClient } from "@/lib/supabase/server"
 import { resolveRequestIdentity } from "@/lib/auth/server"
 import { requireAccess } from "@/lib/api/access-guard"
 
+export const maxDuration = 60
+
 export async function POST(req: NextRequest) {
   // Rate limit: max 20 adaptations per IP per day
   const rl = await rateLimit(req, "itinerary-adapt", 20, "1 d")

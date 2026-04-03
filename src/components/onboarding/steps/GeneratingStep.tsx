@@ -78,7 +78,7 @@ export function GeneratingStep() {
     }, 1400)
 
     const abortController = new AbortController()
-    const timeoutId = setTimeout(() => abortController.abort(), 90000)
+    const timeoutId = setTimeout(() => abortController.abort(), 120000)
 
     try {
       const res = await fetch("/api/itinerary/generate", {
@@ -130,7 +130,7 @@ export function GeneratingStep() {
       const isAbort = err instanceof Error && err.name === "AbortError"
       setError(
         isAbort
-          ? "La generación tardó demasiado (más de 90s). Por favor inténtalo de nuevo."
+          ? "La generación tardó demasiado. Por favor inténtalo de nuevo."
           : err instanceof Error
           ? err.message
           : "Error desconocido"
