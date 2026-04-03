@@ -17,7 +17,17 @@ import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 import { evaluateProactiveInsights } from "@/lib/services/proactive-engine"
 
+// Vercel Cron calls GET
+export async function GET(req: NextRequest) {
+  return handleCronDispatch(req)
+}
+
+// Manual trigger uses POST
 export async function POST(req: NextRequest) {
+  return handleCronDispatch(req)
+}
+
+async function handleCronDispatch(req: NextRequest) {
   // Verify cron secret
   const cronSecret = process.env.CRON_SECRET
   const authHeader = req.headers.get("Authorization")
@@ -27,8 +37,10 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const body = await req.json().catch(() => ({}))
-    const context = (body as { context?: string }).context ?? "anytime"
+    // Read context from query param (Vercel Cron) or body (manual POST)
+    const queryContext = req.nextUrl.searchParams.get("context")
+    const body = req.method === "POST" ? await req.json().catch(() => ({})) : {}
+    const context = queryContext ?? (body as { context?: string }).context ?? "anytime"
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
     const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!

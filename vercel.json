@@ -19,12 +19,16 @@
   },
   "crons": [
     {
-      "path": "/api/cron/dispatch-notifications",
+      "path": "/api/cron/dispatch-notifications?context=morning",
       "schedule": "0 6 * * *"
     },
     {
-      "path": "/api/cron/dispatch-notifications",
+      "path": "/api/cron/dispatch-notifications?context=evening",
       "schedule": "0 19 * * *"
+    },
+    {
+      "path": "/api/cron/dispatch-notifications?context=postday",
+      "schedule": "0 21 * * *"
     }
   ]
 }
