@@ -465,10 +465,10 @@ export function RealMapView({
       const count = coordMap.get(key) ?? 0
       coordMap.set(key, count + 1)
       if (count === 0) return geo
-      // Offset ~30m per duplicate in a circle pattern
-      const angle = (count * 2 * Math.PI) / 6 // up to 6 positions
-      const offsetLat = 0.0003 * Math.cos(angle)
-      const offsetLng = 0.0003 * Math.sin(angle)
+      // Offset ~50m per duplicate in a circle pattern
+      const angle = (count * 2 * Math.PI) / 8 // up to 8 positions
+      const offsetLat = 0.0005 * Math.cos(angle)
+      const offsetLng = 0.0005 * Math.sin(angle)
       return { ...geo, lat: geo.lat + offsetLat, lng: geo.lng + offsetLng }
     })
   }, [validGeo])
@@ -510,9 +510,10 @@ export function RealMapView({
         {/* Activity markers — wrapped in cluster group */}
         <MarkerClusterGroup
           chunkedLoading
-          maxClusterRadius={60}
+          maxClusterRadius={1}
           showCoverageOnHover={false}
           spiderfyOnMaxZoom
+          disableClusteringAtZoom={1}
         >
           {offsetGeo.map((geo, index) => {
             const isSelected = geo.activity.id === selectedActivityId
