@@ -159,12 +159,15 @@ function TripCard({
   onContinue,
   onViewRecap,
   onShare,
+  onDelete,
 }: {
   trip: TripSummary
   onContinue: () => void
   onViewRecap: () => void
   onShare: () => void
+  onDelete: () => void
 }) {
+  const [confirmDelete, setConfirmDelete] = useState(false)
   const imageUrl = trip.imageUrl ?? getDestinationImageUrl(trip.destination)
   const isCompleted = trip.status === "completed"
 
@@ -237,6 +240,31 @@ function TripCard({
             <span className="material-symbols-outlined text-[18px]">share</span>
             Compartir
           </button>
+          {confirmDelete ? (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => { onDelete(); setConfirmDelete(false) }}
+                className="flex items-center gap-1 text-[12px] text-red-400 hover:text-red-300 font-semibold transition-colors"
+              >
+                <span className="material-symbols-outlined text-[16px]">check</span>
+                Confirmar
+              </button>
+              <button
+                onClick={() => setConfirmDelete(false)}
+                className="flex items-center gap-1 text-[12px] text-[#888] hover:text-white transition-colors"
+              >
+                Cancelar
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setConfirmDelete(true)}
+              className="flex items-center gap-1.5 text-[12px] text-[#888] hover:text-red-400 transition-colors"
+            >
+              <span className="material-symbols-outlined text-[18px]">delete_outline</span>
+              Eliminar
+            </button>
+          )}
           {!isCompleted && (
             <button
               onClick={onViewRecap}
@@ -417,6 +445,7 @@ export default function HomePage() {
   const [loadingAuth, setLoadingAuth] = useState(true)
   const [allTrips, setAllTrips] = useState<TripSummary[]>([])
   const [shareToast, setShareToast] = useState("")
+  const [showAvatarMenu, setShowAvatarMenu] = useState(false)
 
   useEffect(() => {
     async function loadUser() {
@@ -506,6 +535,23 @@ export default function HomePage() {
     router.push(`/recap/${tripId}`)
   }
 
+  async function handleDeleteTrip(tripId: string) {
+    try {
+      const res = await fetch(`/api/trips/${tripId}/delete`, { method: "DELETE" })
+      if (res.ok) {
+        setAllTrips((prev) => prev.filter((t) => t.id !== tripId))
+        // If we deleted the active trip, clear the store
+        if (useAppStore.getState().currentTrip?.id === tripId) {
+          setCurrentTrip(null)
+          setGeneratedItinerary(null)
+          replaceChatMessages([])
+        }
+        setShareToast("Itinerario eliminado")
+        setTimeout(() => setShareToast(""), 2500)
+      }
+    } catch {}
+  }
+
   async function handleShare(trip: TripSummary) {
     const shareUrl = `${window.location.origin}/share/${trip.id}`
     const shareText = `Mira mi itinerario de ${trip.destination} en Viaje360!`
@@ -589,11 +635,43 @@ export default function HomePage() {
           <button className="w-10 h-10 rounded-xl flex items-center justify-center hover:bg-white/5" style={{ border: "1px solid rgba(255,255,255,0.06)" }}>
             <span className="material-symbols-outlined text-[20px] text-[#c0c6d6]">notifications</span>
           </button>
-          <div
-            className="w-9 h-9 rounded-full flex items-center justify-center text-[12px] font-bold text-white cursor-pointer"
-            style={{ background: "linear-gradient(135deg, #0A84FF, #5856D6)" }}
-          >
-            {initials}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setShowAvatarMenu((v) => !v)}
+              className="w-9 h-9 rounded-full flex items-center justify-center text-[12px] font-bold text-white cursor-pointer"
+              style={{ background: "linear-gradient(135deg, #0A84FF, #5856D6)" }}
+            >
+              {initials}
+            </button>
+            {showAvatarMenu && (
+              <div
+                className="absolute right-0 top-12 w-56 rounded-2xl p-2 z-[60] shadow-2xl"
+                style={{ background: "rgba(36,36,38,0.98)", border: "1px solid rgba(255,255,255,0.1)", backdropFilter: "blur(20px)" }}
+              >
+                <div className="px-3 py-2 mb-1">
+                  <p className="text-[13px] font-semibold text-white truncate">{displayName}</p>
+                  <p className="text-[11px] text-[#888] truncate">{email}</p>
+                </div>
+                <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }} />
+                <button
+                  type="button"
+                  onClick={() => { setShowAvatarMenu(false); router.push("/status") }}
+                  className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[13px] text-[#c0c6d6] hover:bg-white/5 transition-colors text-left mt-1"
+                >
+                  <span className="material-symbols-outlined text-[18px]">emoji_events</span>
+                  Mi perfil y logros
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setShowAvatarMenu(false); handleLogout() }}
+                  className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[13px] text-red-400 hover:bg-red-500/10 transition-colors text-left"
+                >
+                  <span className="material-symbols-outlined text-[18px]">logout</span>
+                  Cerrar sesión
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </header>
@@ -684,6 +762,7 @@ export default function HomePage() {
                   onContinue={() => handleActivateAndNavigate(trip)}
                   onViewRecap={() => handleViewRecap(trip.id)}
                   onShare={() => handleShare(trip)}
+                  onDelete={() => handleDeleteTrip(trip.id)}
                 />
               ))
             ) : (
