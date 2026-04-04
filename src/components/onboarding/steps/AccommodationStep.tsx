@@ -36,6 +36,7 @@ export function AccommodationStep() {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([])
   const [searching, setSearching] = useState(false)
   const [showDropdown, setShowDropdown] = useState(false)
+  const [resolvedAddress, setResolvedAddress] = useState<string | null>(null)
   const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -72,11 +73,11 @@ export function AccommodationStep() {
   }, [data.destination, setField])
 
   const handleSelectResult = (result: SearchResult) => {
-    // Use short name (first part before the comma chain)
     const shortName = result.name.split(",").slice(0, 2).join(",").trim()
     setField("accommodationZone", shortName)
     setField("accommodationLat", result.lat)
     setField("accommodationLng", result.lng)
+    setResolvedAddress(result.name)
     setSearchResults([])
     setShowDropdown(false)
     setShowMap(true)
@@ -89,9 +90,10 @@ export function AccommodationStep() {
     inputRef.current?.focus()
   }
 
-  const handleMapPin = (lat: number, lng: number) => {
+  const handleMapPin = (lat: number, lng: number, address?: string) => {
     setField("accommodationLat", lat)
     setField("accommodationLng", lng)
+    if (address) setResolvedAddress(address)
   }
 
   // Close dropdown on click outside
@@ -168,6 +170,7 @@ export function AccommodationStep() {
                 setField("accommodationLng", null)
                 setShowMap(false)
                 setSearchResults([])
+                setResolvedAddress(null)
               }}
               className="text-[#888] hover:text-white"
             >
@@ -240,7 +243,24 @@ export function AccommodationStep() {
         </button>
       )}
 
-      <p className="mt-4 text-xs text-[#c0c6d6]/60 text-center">
+      {/* Resolved address confirmation */}
+      {hasPinned && resolvedAddress && (
+        <div
+          className="mt-3 px-4 py-3 rounded-xl flex items-start gap-3"
+          style={{
+            background: "rgba(48,209,88,0.08)",
+            border: "1px solid rgba(48,209,88,0.2)",
+          }}
+        >
+          <span className="material-symbols-outlined text-[#30D158] text-[20px] mt-0.5 shrink-0">pin_drop</span>
+          <div className="min-w-0">
+            <p className="text-[11px] uppercase tracking-widest text-[#30D158] font-medium mb-1">Ubicación seleccionada</p>
+            <p className="text-[13px] text-[#e4e2e4] leading-relaxed">{resolvedAddress}</p>
+          </div>
+        </div>
+      )}
+
+      <p className="mt-3 text-xs text-[#c0c6d6]/60 text-center">
         {hasPinned
           ? "📍 Ubicación guardada — las rutas saldrán desde aquí"
           : "Puedes dejarlo en blanco y añadirlo más tarde"}

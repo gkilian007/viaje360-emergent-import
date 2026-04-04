@@ -21,10 +21,22 @@ const pinIcon = L.divIcon({
   iconAnchor: [16, 32],
 })
 
-function ClickHandler({ onPin }: { onPin: (lat: number, lng: number) => void }) {
+function ClickHandler({ onPin }: { onPin: (lat: number, lng: number, address?: string) => void }) {
   useMapEvents({
     click(e) {
-      onPin(e.latlng.lat, e.latlng.lng)
+      const { lat, lng } = e.latlng
+      onPin(lat, lng)
+      // Reverse geocode to get address
+      fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&zoom=18&addressdetails=1`, {
+        headers: { "User-Agent": "Viaje360/1.0", "Accept-Language": "es,en" },
+      })
+        .then(r => r.json())
+        .then(data => {
+          if (data?.display_name) {
+            onPin(lat, lng, data.display_name)
+          }
+        })
+        .catch(() => {})
     },
   })
   return null
@@ -54,7 +66,7 @@ interface HotelMapPickerProps {
   initialQuery?: string
   pinLat?: number
   pinLng?: number
-  onPin: (lat: number, lng: number) => void
+  onPin: (lat: number, lng: number, address?: string) => void
 }
 
 export function HotelMapPicker({ destination, initialQuery, pinLat, pinLng, onPin }: HotelMapPickerProps) {
