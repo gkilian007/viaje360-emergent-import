@@ -41,6 +41,8 @@ interface RealMapViewProps {
   transportPrefs?: string[]
   /** Max comfortable walking distance in meters (from mobility profile) */
   maxWalkMeters?: number
+  /** City/destination name for transit route lookups */
+  destination?: string
 }
 
 // Type → emoji mapping
@@ -249,19 +251,18 @@ function UserLocation() {
 }
 
 // Route segments with transport-mode-aware styling
-function RealRouteSegments({ geocoded, transportPrefs = [], maxWalkMeters = 1500 }: { geocoded: GeocodedActivity[]; transportPrefs?: string[]; maxWalkMeters?: number }) {
+function RealRouteSegments({ geocoded, transportPrefs = [], maxWalkMeters = 1500, destination = "" }: { geocoded: GeocodedActivity[]; transportPrefs?: string[]; maxWalkMeters?: number; destination?: string }) {
   // Stabilize reference — only recompute when the set of activity IDs changes
   const geoKey = geocoded.map(g => g.activity.id).join(",")
   const activities = useMemo(
-    () => geocoded.filter(g => isFinite(g.lat) && isFinite(g.lng)).map(g => ({ id: g.activity.id, type: g.activity.type, lat: g.lat, lng: g.lng })),
+    () => geocoded.filter(g => isFinite(g.lat) && isFinite(g.lng)).map(g => ({ id: g.activity.id, type: g.activity.type, lat: g.lat, lng: g.lng, name: g.activity.name })),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [geoKey]
   )
 
-  const segments = useRouteGeometry(activities, TYPE_COLOR, { transportPrefs, maxWalkMeters })
+  const segments = useRouteGeometry(activities, TYPE_COLOR, { transportPrefs, maxWalkMeters, destination })
 
   if (segments.length === 0) {
-    // Fallback to straight lines while OSRM loads — visible solid line
     const valid = geocoded.filter(g => isFinite(g.lat) && isFinite(g.lng))
     return (
       <>
@@ -280,10 +281,10 @@ function RealRouteSegments({ geocoded, transportPrefs = [], maxWalkMeters = 1500
     )
   }
 
-  // Style segments differently based on transport mode:
+  // Style segments by transport mode:
   // - foot: solid green line
-  // - transit: dashed blue line (walk approximation shown as transit indicator)
-  // - car: solid orange line
+  // - transit: thick colored line (uses actual transit line color from Google)
+  // - car: dashed orange line
   return (
     <>
       {segments.map((seg, i) => {
@@ -295,11 +296,31 @@ function RealRouteSegments({ geocoded, transportPrefs = [], maxWalkMeters = 1500
             positions={seg.coordinates}
             pathOptions={{
               color: seg.color,
-              weight: isTransit ? 4 : 3.5,
-              opacity: 0.85,
-              dashArray: isTransit ? "10, 8" : isCar ? "12, 4" : undefined,
+              weight: isTransit ? 5 : 3.5,
+              opacity: isTransit ? 0.9 : 0.85,
+              dashArray: isCar ? "12, 4" : undefined,
             }}
-          />
+          >
+            {isTransit && seg.transitInfo && (
+              <Popup>
+                <div style={{ minWidth: 160, fontFamily: "system-ui" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+                    <span style={{ background: seg.transitInfo.color, color: seg.transitInfo.textColor, padding: "2px 6px", borderRadius: 4, fontSize: 12, fontWeight: 700 }}>
+                      {seg.transitInfo.lineShort || seg.transitInfo.lineName}
+                    </span>
+                    <span style={{ fontSize: 11, color: "#666" }}>{seg.transitInfo.vehicle}</span>
+                  </div>
+                  <div style={{ fontSize: 12, color: "#333" }}>
+                    <div>🟢 {seg.transitInfo.departureStop}</div>
+                    <div style={{ fontSize: 10, color: "#999", margin: "2px 0 2px 8px" }}>
+                      {seg.transitInfo.stopCount} paradas → {seg.transitInfo.headsign}
+                    </div>
+                    <div>🔴 {seg.transitInfo.arrivalStop}</div>
+                  </div>
+                </div>
+              </Popup>
+            )}
+          </Polyline>
         )
       })}
     </>
@@ -423,6 +444,7 @@ export function RealMapView({
   onMarkerClick,
   transportPrefs,
   maxWalkMeters,
+  destination,
 }: RealMapViewProps) {
   const defaultCenter = center ?? { lat: 0, lng: 0 } // will be overridden by FitBounds
 
@@ -464,7 +486,7 @@ export function RealMapView({
         <FlyToSelected geocoded={geocoded} selectedActivityId={selectedActivityId} />
 
         {/* Route segments with gradient colors */}
-        <RealRouteSegments geocoded={geocoded} transportPrefs={transportPrefs} maxWalkMeters={maxWalkMeters} />
+        <RealRouteSegments geocoded={geocoded} transportPrefs={transportPrefs} maxWalkMeters={maxWalkMeters} destination={destination} />
 
         {/* User location */}
         <UserLocation />

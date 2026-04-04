@@ -60,6 +60,7 @@ export function DynamicMapView({
       onMarkerClick={onMarkerClick}
       transportPrefs={transportPrefs}
       maxWalkMeters={maxWalkMeters}
+      destination={destination}
     />
   )
 }
