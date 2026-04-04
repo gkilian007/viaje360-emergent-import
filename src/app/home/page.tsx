@@ -483,11 +483,22 @@ export default function HomePage() {
   }
 
   async function handleActivateAndNavigate(trip: TripSummary) {
-    if (trip.status !== "active") {
-      try {
-        await fetch(`/api/trips/${trip.id}/activate`, { method: "POST" })
-      } catch {}
-    }
+    try {
+      // Always call activate to ensure this trip becomes the active one
+      await fetch(`/api/trips/${trip.id}/activate`, { method: "POST" })
+
+      // Fetch the fresh trip data into the store BEFORE navigating
+      const res = await fetch("/api/trips/active", { cache: "no-store" })
+      if (res.ok) {
+        const payload = await res.json()
+        if (payload?.data?.trip) {
+          setCurrentTrip(payload.data.trip)
+          setGeneratedItinerary(payload.data.days ?? null)
+          replaceChatMessages(payload.data.chatMessages ?? [])
+        }
+      }
+    } catch {}
+
     router.push("/plan")
   }
 
