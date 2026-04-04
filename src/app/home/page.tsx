@@ -570,9 +570,9 @@ export default function HomePage() {
           <img src="/logo.svg" alt="Viaje360" className="w-8 h-8 rounded-xl"/>
           <span className="text-[18px] font-bold text-white">Viaje360</span>
         </div>
-        <div className="flex items-center gap-2 px-4 py-2 rounded-xl" style={{ background: "rgba(42,42,44,0.8)", border: "1px solid rgba(255,255,255,0.06)" }}>
-          <span className="material-symbols-outlined text-[18px] text-[#888]">search</span>
-          <span className="text-[13px] text-[#888]">Buscar destinos...</span>
+        <div className="flex-1 max-w-xl mx-6 flex items-center gap-3 px-5 py-3 rounded-2xl cursor-pointer hover:border-white/15 transition-colors" style={{ background: "rgba(42,42,44,0.8)", border: "1px solid rgba(255,255,255,0.08)" }}>
+          <span className="material-symbols-outlined text-[20px] text-[#888]">search</span>
+          <span className="text-[14px] text-[#888]">Buscar destinos...</span>
         </div>
         <div className="flex items-center gap-3">
           <button className="w-10 h-10 rounded-xl flex items-center justify-center hover:bg-white/5" style={{ border: "1px solid rgba(255,255,255,0.06)" }}>
