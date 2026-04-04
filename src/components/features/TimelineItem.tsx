@@ -13,11 +13,14 @@ interface TimelineItemProps {
   isFirst?: boolean
   isLast?: boolean
   isCurrent?: boolean
+  nextActivity?: TimelineActivity | null
+  destination?: string
   onClick?: (activity: TimelineActivity) => void
   onEdit?: (activityId: string, patch: { name: string; time: string; duration: number }) => Promise<void>
 }
 
-export function TimelineItem({ activity, index, isFirst = false, isLast = false, isCurrent = false, onClick, onEdit }: TimelineItemProps) {
+export function TimelineItem({ activity, index, isFirst = false, isLast = false, isCurrent = false, nextActivity, destination, onClick, onEdit }: TimelineItemProps) {
+  const [showDirections, setShowDirections] = useState(false)
   const emoji = ACTIVITY_EMOJIS[activity.type] ?? ACTIVITY_EMOJIS.default
   const [editing, setEditing] = useState(false)
   const [saved, setSaved] = useState(false)
@@ -171,6 +174,60 @@ export function TimelineItem({ activity, index, isFirst = false, isLast = false,
             </button>
           )}
         </AnimatePresence>
+
+        {/* "Cómo llegar" CTA — only show when there's a next activity */}
+        {nextActivity && !isLast && !editing && (
+          <div className="mb-3">
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); setShowDirections(!showDirections) }}
+              className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-[12px] font-semibold transition-all"
+              style={{
+                background: showDirections ? "rgba(10,132,255,0.12)" : "rgba(255,255,255,0.03)",
+                border: `1px solid ${showDirections ? "rgba(10,132,255,0.3)" : "rgba(255,255,255,0.06)"}`,
+                color: showDirections ? "#0A84FF" : "#888",
+              }}
+            >
+              <span className="material-symbols-outlined text-[16px]">directions</span>
+              Cómo llegar a la siguiente actividad
+              <span className="material-symbols-outlined text-[14px]">{showDirections ? "expand_less" : "expand_more"}</span>
+            </button>
+
+            {showDirections && (() => {
+              const fromCoords = activity.lat && activity.lng ? `${activity.lat},${activity.lng}` : encodeURIComponent(`${activity.name}, ${destination ?? ""}`)
+              const toCoords = nextActivity.lat && nextActivity.lng ? `${nextActivity.lat},${nextActivity.lng}` : encodeURIComponent(`${nextActivity.name}, ${destination ?? ""}`)
+
+              const modes = [
+                { icon: "directions_walk", label: "A pie", mode: "walking", color: "#30D158" },
+                { icon: "directions_transit", label: "Transporte público", mode: "transit", color: "#0A84FF" },
+                { icon: "directions_car", label: "Coche / Taxi", mode: "driving", color: "#FF9F0A" },
+                { icon: "directions_bike", label: "Bicicleta", mode: "bicycling", color: "#BF5AF2" },
+              ]
+
+              return (
+                <div className="mt-2 grid grid-cols-2 gap-2">
+                  {modes.map((m) => (
+                    <a
+                      key={m.mode}
+                      href={`https://www.google.com/maps/dir/?api=1&origin=${fromCoords}&destination=${toCoords}&travelmode=${m.mode}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-[12px] font-medium transition-all hover:scale-[1.02] active:scale-[0.98]"
+                      style={{
+                        background: "rgba(255,255,255,0.04)",
+                        border: "1px solid rgba(255,255,255,0.08)",
+                        color: m.color,
+                      }}
+                    >
+                      <span className="material-symbols-outlined text-[18px]">{m.icon}</span>
+                      {m.label}
+                    </a>
+                  ))}
+                </div>
+              )
+            })()}
+          </div>
+        )}
       </div>
     </div>
   )

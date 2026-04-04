@@ -104,6 +104,8 @@ function SortableTimelineItem({
             isFirst={isFirst}
             isLast={isLast}
             isCurrent={isCurrent}
+            nextActivity={next ?? null}
+            destination={destination}
             onClick={onClick}
             onEdit={onEdit}
           />
