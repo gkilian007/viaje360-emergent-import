@@ -85,7 +85,7 @@ function ActivityImage({ imageUrl, loading, name, type }: { imageUrl?: string | 
 export function ActivityDetailModal({ activity, tripId, currentDayNumber, onClose }: ActivityDetailModalProps) {
   const track = useActivityEvent(tripId ?? null)
   const trackedRef = useRef<string | null>(null)
-  const { currentTrip, setCurrentTrip, setGeneratedItinerary, replaceChatMessages } = useAppStore()
+  const { currentTrip, setCurrentTrip, setGeneratedItinerary, replaceChatMessages, updateActivity } = useAppStore()
   const { data: assets, loading: assetsLoading } = useActivityAssets({
     name: activity?.name ?? "",
     location: activity?.location ?? "",
@@ -149,58 +149,76 @@ export function ActivityDetailModal({ activity, tripId, currentDayNumber, onClos
   }
 
   async function toggleLock() {
-    if (!activity || !tripId || isTogglingLock) return
+    if (!activity || isTogglingLock) return
 
     setIsTogglingLock(true)
-    try {
-      const nextLocked = !activity.isLocked
-      const res = await fetch("/api/activity-lock", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          tripId,
-          activityId: activity.id,
-          locked: nextLocked,
-        }),
-      })
+    const nextLocked = !activity.isLocked
 
-      if (res.ok) {
-        await refreshActiveTripState()
-        setAdaptationMessage(nextLocked ? "Actividad fijada. No se tocará en próximas adaptaciones." : "Actividad desbloqueada. Ya se podrá reajustar si hace falta.")
+    try {
+      if (tripId) {
+        const res = await fetch("/api/activity-lock", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            tripId,
+            activityId: activity.id,
+            locked: nextLocked,
+          }),
+        })
+
+        if (res.ok) {
+          await refreshActiveTripState()
+        } else {
+          updateActivity(activity.id, { isLocked: nextLocked })
+        }
       } else {
-        setAdaptationMessage("No he podido cambiar el bloqueo de esta actividad ahora mismo.")
+        updateActivity(activity.id, { isLocked: nextLocked })
       }
+
+      setAdaptationMessage(nextLocked ? "Actividad fijada. No se tocará en próximas adaptaciones." : "Actividad desbloqueada. Ya se podrá reajustar si hace falta.")
     } catch {
-      setAdaptationMessage("No he podido cambiar el bloqueo de esta actividad ahora mismo.")
+      updateActivity(activity.id, { isLocked: nextLocked })
+      setAdaptationMessage(nextLocked ? "Actividad fijada (sin conexión)." : "Actividad desbloqueada.")
     } finally {
       setIsTogglingLock(false)
     }
   }
 
   async function toggleBooked() {
-    if (!activity || !tripId || isTogglingBooked) return
+    if (!activity || isTogglingBooked) return
 
     setIsTogglingBooked(true)
-    try {
-      const nextBooked = !activity.booked
-      const res = await fetch("/api/activity-booking", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          tripId,
-          activityId: activity.id,
-          booked: nextBooked,
-        }),
-      })
+    const nextBooked = !activity.booked
 
-      if (res.ok) {
-        await refreshActiveTripState()
-        setAdaptationMessage(nextBooked ? "Actividad marcada como reservada." : "Reserva eliminada de esta actividad.")
+    try {
+      if (tripId) {
+        // Persist to server
+        const res = await fetch("/api/activity-booking", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            tripId,
+            activityId: activity.id,
+            booked: nextBooked,
+          }),
+        })
+
+        if (res.ok) {
+          await refreshActiveTripState()
+        } else {
+          // Server failed — still update locally
+          updateActivity(activity.id, { booked: nextBooked })
+        }
       } else {
-        setAdaptationMessage("No he podido actualizar el estado de reserva ahora mismo.")
+        // No tripId (guest user) — update locally only
+        updateActivity(activity.id, { booked: nextBooked })
       }
+
+      setAdaptationMessage(nextBooked ? "Actividad marcada como reservada." : "Reserva eliminada de esta actividad.")
     } catch {
-      setAdaptationMessage("No he podido actualizar el estado de reserva ahora mismo.")
+      // Network error — update locally anyway
+      updateActivity(activity.id, { booked: nextBooked })
+      setAdaptationMessage(nextBooked ? "Marcada como reservada (sin conexión)." : "Reserva eliminada.")
     } finally {
       setIsTogglingBooked(false)
     }
