@@ -14,7 +14,7 @@ export function DesktopLayout({ leftPanel, rightPanel, companionPanel }: Desktop
     <div className="hidden lg:flex h-full w-full overflow-hidden">
       <SideNav />
       {/* Left panel: itinerary timeline */}
-      <div className="flex flex-col w-[35%] min-w-[340px] max-w-[480px] h-full shrink-0 border-r border-white/5">
+      <div className="flex flex-col w-[35%] min-w-[340px] max-w-[480px] h-full shrink-0 overflow-x-hidden border-r border-white/5">
         {leftPanel}
       </div>
       {/* Center: interactive map */}

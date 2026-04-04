@@ -290,7 +290,7 @@ export function ActivityDetailModal({ activity, tripId, currentDayNumber, onClos
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 z-[55] lg:left-[72px] lg:w-[40%] lg:right-auto lg:top-[50px]"
+            className="fixed inset-0 bg-black/50 z-[55] lg:left-[72px] lg:w-[calc(35%-72px+480px)] lg:max-w-[480px] lg:right-auto lg:top-0"
             onClick={onClose}
           />
 
@@ -300,7 +300,7 @@ export function ActivityDetailModal({ activity, tripId, currentDayNumber, onClos
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: "100%" }}
             transition={{ type: "spring", damping: 30, stiffness: 300 }}
-            className="fixed z-[60] overflow-hidden flex flex-col bottom-0 left-0 right-0 max-h-[85dvh] rounded-t-3xl lg:top-[50px] lg:bottom-0 lg:left-[72px] lg:w-[40%] lg:right-auto lg:max-h-none lg:rounded-none"
+            className="fixed z-[60] overflow-hidden flex flex-col bottom-0 left-0 right-0 max-h-[90dvh] rounded-t-3xl lg:top-0 lg:bottom-0 lg:left-[72px] lg:w-[min(480px,40vw)] lg:right-auto lg:max-h-none lg:rounded-none"
             style={{
               background: "rgba(28, 28, 30, 0.98)",
               backdropFilter: "blur(40px)",
@@ -316,7 +316,7 @@ export function ActivityDetailModal({ activity, tripId, currentDayNumber, onClos
             <ActivityImage imageUrl={assets?.imageUrl} loading={assetsLoading} name={activity.name} type={activity.type} />
 
             {/* Content */}
-            <div className="px-5 py-5 overflow-y-auto flex-1 min-h-0">
+            <div className="px-5 py-5 overflow-y-auto overflow-x-hidden flex-1 min-h-0 break-words">
               {/* Type badge + time */}
               <div className="flex items-center gap-2 mb-3">
                 <span

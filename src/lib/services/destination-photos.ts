@@ -110,7 +110,9 @@ export function getDestinationHeroUrl(city: string): string | null {
 export function getDestinationHeroThumb(city: string, width = 800): string | null {
   const url = getDestinationHeroUrl(city)
   if (!url) return null
-  return toWikimediaThumb(url, width)
+  // Use full-res URL directly — Wikimedia thumb endpoints are rate-limited (429)
+  // and Next.js Image can resize on the fly via sizes/quality props
+  return url
 }
 
 /**
@@ -139,7 +141,8 @@ export function getPoiPhotoUrl(poiName: string): string | null {
 export function getPoiPhotoThumb(poiName: string, width = 400): string | null {
   const url = getPoiPhotoUrl(poiName)
   if (!url) return null
-  return toWikimediaThumb(url, width)
+  // Use full-res URL directly — Wikimedia thumb endpoints are rate-limited (429)
+  return url
 }
 
 /**
