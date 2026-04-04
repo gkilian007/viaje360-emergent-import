@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation"
 import Image from "next/image"
 import type { TripSummary } from "@/app/api/trips/route"
 import { BottomNav } from "@/components/layout/BottomNav"
+import { SideNav } from "@/components/layout/SideNav"
+import { TopAppBar } from "@/components/layout/TopAppBar"
 import { getDestinationHeroThumb } from "@/lib/services/destination-photos"
 
 const ITEMS_PER_PAGE = 16 // 4x4
@@ -226,7 +228,16 @@ export default function TripsPage() {
   }
 
   return (
-    <div className="min-h-screen pb-28" style={{ background: "#131315" }}>
+    <div className="min-h-screen pb-28 lg:pb-0 lg:flex lg:h-screen lg:overflow-hidden" style={{ background: "#131315" }}>
+      {/* Desktop side nav */}
+      <div className="hidden lg:block">
+        <SideNav />
+      </div>
+
+      {/* Mobile top bar */}
+      <div className="lg:hidden">
+        <TopAppBar title="Mis viajes" />
+      </div>
       {/* Share toast */}
       {shareToast && (
         <div
@@ -237,7 +248,8 @@ export default function TripsPage() {
         </div>
       )}
 
-      <div className="px-4 lg:px-8 pb-4 page-header-safe-lg">
+      <div className="flex-1 lg:overflow-y-auto">
+      <div className="px-4 lg:px-8 pb-4 pt-4 lg:pt-8">
         <h1 className="text-[24px] font-bold text-white mb-1">Mis viajes</h1>
         <p className="text-[14px] text-[#9ca3af]">
           {trips.length > 0
@@ -342,7 +354,10 @@ export default function TripsPage() {
         )}
       </div>
 
-      <BottomNav />
+      </div>
+      <div className="lg:hidden">
+        <BottomNav />
+      </div>
     </div>
   )
 }
