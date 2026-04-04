@@ -74,7 +74,10 @@ const slideVariants = {
   exitToRight: { x: "60%", opacity: 0 },
 }
 
+import { useRouter } from "next/navigation"
+
 export function OnboardingWizard() {
+  const router = useRouter()
   const {
     currentStepId,
     direction,
@@ -165,9 +168,19 @@ export function OnboardingWizard() {
             <img src="/logo.svg" alt="Viaje360" className="w-5 h-5 rounded-md"/>
             <span className="text-xs text-[#c0c6d6]">Viaje360</span>
           </div>
-          <span className="text-xs text-[#c0c6d6]">
-            {displayStep}
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-[#c0c6d6]">
+              {displayStep}
+            </span>
+            <button
+              type="button"
+              onClick={() => router.push("/home")}
+              className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-white/10 transition-colors"
+              title="Salir al inicio"
+            >
+              <span className="material-symbols-outlined text-[18px] text-[#888]">close</span>
+            </button>
+          </div>
         </div>
         <ProgressBar progress={progress} />
         {inAdvanced && (
