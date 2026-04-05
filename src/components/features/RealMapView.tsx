@@ -31,6 +31,12 @@ interface GeocodedActivity {
   lng: number
 }
 
+interface RouteHighlight {
+  from: { lat: number; lng: number; name: string }
+  to: { lat: number; lng: number; name: string }
+  mode: "walking" | "transit" | "driving" | "bicycling"
+}
+
 interface RealMapViewProps {
   geocoded: GeocodedActivity[]
   center: { lat: number; lng: number } | null
@@ -43,6 +49,10 @@ interface RealMapViewProps {
   maxWalkMeters?: number
   /** City/destination name for transit route lookups */
   destination?: string
+  /** Highlighted route to show on the map */
+  routeHighlight?: RouteHighlight | null
+  /** Callback to clear the highlighted route */
+  onClearRouteHighlight?: () => void
 }
 
 // Type → emoji mapping
@@ -250,8 +260,313 @@ function UserLocation() {
   )
 }
 
+// Decode Google's encoded polyline to [lat, lng][]
+function decodePolyline(encoded: string): [number, number][] {
+  const points: [number, number][] = []
+  let index = 0
+  let lat = 0
+  let lng = 0
+  while (index < encoded.length) {
+    let b, shift = 0, result = 0
+    do { b = encoded.charCodeAt(index++) - 63; result |= (b & 0x1f) << shift; shift += 5 } while (b >= 0x20)
+    lat += (result & 1) ? ~(result >> 1) : (result >> 1)
+    shift = 0; result = 0
+    do { b = encoded.charCodeAt(index++) - 63; result |= (b & 0x1f) << shift; shift += 5 } while (b >= 0x20)
+    lng += (result & 1) ? ~(result >> 1) : (result >> 1)
+    points.push([lat / 1e5, lng / 1e5])
+  }
+  return points
+}
+
+function formatDistance(meters: number): string {
+  if (meters < 1000) return `${Math.round(meters)} m`
+  return `${(meters / 1000).toFixed(1)} km`
+}
+
+function formatDuration(seconds: number): string {
+  const h = Math.floor(seconds / 3600)
+  const m = Math.floor((seconds % 3600) / 60)
+  if (h > 0) return `${h}h ${m}min`
+  return `${m} min`
+}
+
+const MODE_ICON: Record<string, string> = {
+  walking: "directions_walk",
+  transit: "directions_transit",
+  driving: "directions_car",
+  bicycling: "directions_bike",
+}
+
+const MODE_LABEL: Record<string, string> = {
+  walking: "A pie",
+  transit: "Transporte público",
+  driving: "Coche / Taxi",
+  bicycling: "Bicicleta",
+}
+
+// Route highlight overlay — shows a chosen route on the map
+function RouteHighlightOverlay({
+  routeHighlight,
+}: {
+  routeHighlight: RouteHighlight
+}) {
+  const map = useMap()
+  const [coords, setCoords] = useState<[number, number][]>([])
+  const [error, setError] = useState(false)
+
+  const { from, to, mode } = routeHighlight
+  const key = `${from.lat},${from.lng}->${to.lat},${to.lng}:${mode}`
+
+  useEffect(() => {
+    let cancelled = false
+    setCoords([])
+    setError(false)
+
+    async function fetchRoute() {
+      try {
+        if (mode === "transit") {
+          const params = new URLSearchParams({
+            olat: from.lat.toString(),
+            olng: from.lng.toString(),
+            dlat: to.lat.toString(),
+            dlng: to.lng.toString(),
+            oname: from.name,
+            dname: to.name,
+          })
+          const res = await fetch(`/api/transit-route?${params}`)
+          if (!res.ok) throw new Error("transit failed")
+          const { data } = await res.json()
+          if (data?.steps?.length) {
+            const allCoords: [number, number][] = []
+            for (const step of data.steps) {
+              if (step.polyline) allCoords.push(...decodePolyline(step.polyline))
+            }
+            if (!cancelled) setCoords(allCoords)
+            return
+          }
+          throw new Error("no transit steps")
+        } else {
+          // OSRM
+          const profile = mode === "driving" ? "driving" : mode === "bicycling" ? "driving" : "foot"
+          const url = `https://router.project-osrm.org/route/v1/${profile}/${from.lng},${from.lat};${to.lng},${to.lat}?overview=full&geometries=geojson`
+          const res = await fetch(url)
+          if (!res.ok) throw new Error("osrm failed")
+          const data = await res.json()
+          const route = data.routes?.[0]
+          if (!route) throw new Error("no route")
+          const pts: [number, number][] = (route.geometry?.coordinates ?? []).map(
+            (c: [number, number]) => [c[1], c[0]] as [number, number]
+          )
+          if (!cancelled) setCoords(pts)
+        }
+      } catch {
+        if (!cancelled) {
+          // Fallback: straight line
+          setCoords([[from.lat, from.lng], [to.lat, to.lng]])
+          setError(true)
+        }
+      }
+    }
+
+    fetchRoute()
+    return () => { cancelled = true }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key])
+
+  // Fit bounds when coords are ready
+  useEffect(() => {
+    if (coords.length < 2) return
+    const bounds = L.latLngBounds(coords)
+    map.fitBounds(bounds, { padding: [60, 60], maxZoom: 16 })
+  }, [coords, map])
+
+  const fromIcon = L.divIcon({
+    className: "",
+    html: `<div style="width:14px;height:14px;background:#30D158;border-radius:50%;border:2.5px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.5)"></div>`,
+    iconSize: [14, 14],
+    iconAnchor: [7, 7],
+  })
+  const toIcon = L.divIcon({
+    className: "",
+    html: `<div style="width:14px;height:14px;background:#FF375F;border-radius:50%;border:2.5px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.5)"></div>`,
+    iconSize: [14, 14],
+    iconAnchor: [7, 7],
+  })
+
+  return (
+    <>
+      {/* Route polyline */}
+      {coords.length >= 2 && (
+        <Polyline
+          positions={coords}
+          pathOptions={{
+            color: "#0A84FF",
+            weight: 6,
+            opacity: 0.9,
+            dashArray: error ? "10, 8" : undefined,
+          }}
+        />
+      )}
+
+      {/* Origin marker */}
+      <Marker position={[from.lat, from.lng]} icon={fromIcon}>
+        <Popup>
+          <div style={{ fontSize: 12, fontFamily: "system-ui", color: "#e5e7eb", padding: "4px 6px" }}>
+            <span style={{ color: "#30D158", fontWeight: 700 }}>Origen</span><br />{from.name}
+          </div>
+        </Popup>
+      </Marker>
+
+      {/* Destination marker */}
+      <Marker position={[to.lat, to.lng]} icon={toIcon}>
+        <Popup>
+          <div style={{ fontSize: 12, fontFamily: "system-ui", color: "#e5e7eb", padding: "4px 6px" }}>
+            <span style={{ color: "#FF375F", fontWeight: 700 }}>Destino</span><br />{to.name}
+          </div>
+        </Popup>
+      </Marker>
+    </>
+  )
+}
+
+// Route highlight info card — shown as a floating bottom card
+function RouteHighlightCard({
+  routeHighlight,
+  onClear,
+}: {
+  routeHighlight: RouteHighlight
+  onClear?: () => void
+}) {
+  // This component renders outside the MapContainer (as a DOM overlay)
+  const [distance, setDistance] = useState<number | null>(null)
+  const [duration, setDuration] = useState<number | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  const { from, to, mode } = routeHighlight
+  const key = `${from.lat},${from.lng}->${to.lat},${to.lng}:${mode}`
+
+  useEffect(() => {
+    let cancelled = false
+    setLoading(true)
+    setDistance(null)
+    setDuration(null)
+
+    async function fetchInfo() {
+      try {
+        if (mode === "transit") {
+          const params = new URLSearchParams({
+            olat: from.lat.toString(),
+            olng: from.lng.toString(),
+            dlat: to.lat.toString(),
+            dlng: to.lng.toString(),
+            oname: from.name,
+            dname: to.name,
+          })
+          const res = await fetch(`/api/transit-route?${params}`)
+          if (res.ok) {
+            const { data } = await res.json()
+            let totalDist = 0, totalDur = 0
+            for (const step of data?.steps ?? []) {
+              if (step.distanceMeters) totalDist += step.distanceMeters
+              if (step.durationSeconds) totalDur += step.durationSeconds
+            }
+            if (!cancelled) { setDistance(totalDist || null); setDuration(totalDur || null) }
+          }
+        } else {
+          const profile = mode === "driving" ? "driving" : mode === "bicycling" ? "driving" : "foot"
+          const url = `https://router.project-osrm.org/route/v1/${profile}/${from.lng},${from.lat};${to.lng},${to.lat}?overview=full&geometries=geojson`
+          const res = await fetch(url)
+          if (res.ok) {
+            const data = await res.json()
+            const route = data.routes?.[0]
+            if (!cancelled && route) { setDistance(route.distance ?? null); setDuration(route.duration ?? null) }
+          }
+        }
+      } catch {}
+      if (!cancelled) setLoading(false)
+    }
+
+    fetchInfo()
+    return () => { cancelled = true }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key])
+
+  const modeColor = mode === "walking" ? "#30D158" : mode === "transit" ? "#0A84FF" : mode === "driving" ? "#FF9F0A" : "#BF5AF2"
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        bottom: 80,
+        left: 12,
+        right: 12,
+        zIndex: 1000,
+        background: "rgba(19,19,21,0.95)",
+        border: "1px solid rgba(255,255,255,0.10)",
+        borderRadius: 18,
+        padding: "12px 16px",
+        backdropFilter: "blur(20px)",
+        display: "flex",
+        alignItems: "center",
+        gap: 12,
+        boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
+      }}
+    >
+      {/* Mode icon */}
+      <div style={{
+        width: 40, height: 40, borderRadius: 12,
+        background: `${modeColor}18`,
+        border: `1.5px solid ${modeColor}40`,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        flexShrink: 0,
+      }}>
+        <span className="material-symbols-outlined" style={{ fontSize: 22, color: modeColor }}>
+          {MODE_ICON[mode] ?? "directions"}
+        </span>
+      </div>
+
+      {/* Route info */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: "#e4e2e4", marginBottom: 2 }}>
+          {MODE_LABEL[mode] ?? mode}
+        </div>
+        <div style={{ fontSize: 11, color: "#c0c6d6" }}>
+          {loading ? (
+            <span style={{ color: "#888" }}>Calculando...</span>
+          ) : (
+            <>
+              {distance != null && <span>{formatDistance(distance)}</span>}
+              {distance != null && duration != null && <span style={{ margin: "0 6px", color: "#444" }}>·</span>}
+              {duration != null && <span>{formatDuration(duration)}</span>}
+              {distance == null && duration == null && <span style={{ color: "#888" }}>Ruta aproximada</span>}
+            </>
+          )}
+        </div>
+        <div style={{ fontSize: 10, color: "#666", marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+          {from.name.slice(0, 20)}{from.name.length > 20 ? "…" : ""} → {to.name.slice(0, 20)}{to.name.length > 20 ? "…" : ""}
+        </div>
+      </div>
+
+      {/* Close button */}
+      <button
+        type="button"
+        onClick={onClear}
+        style={{
+          flexShrink: 0, width: 32, height: 32, borderRadius: 10,
+          background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)",
+          color: "#888", display: "flex", alignItems: "center", justifyContent: "center",
+          cursor: "pointer",
+        }}
+        aria-label="Cerrar ruta"
+      >
+        <span className="material-symbols-outlined" style={{ fontSize: 16 }}>close</span>
+      </button>
+    </div>
+  )
+}
+
 // Route segments with transport-mode-aware styling
-function RealRouteSegments({ geocoded, transportPrefs = [], maxWalkMeters = 1500, destination = "" }: { geocoded: GeocodedActivity[]; transportPrefs?: string[]; maxWalkMeters?: number; destination?: string }) {
+function RealRouteSegments({ geocoded, transportPrefs = [], maxWalkMeters = 1500, destination = "", hasHighlight = false }: { geocoded: GeocodedActivity[]; transportPrefs?: string[]; maxWalkMeters?: number; destination?: string; hasHighlight?: boolean }) {
   // Stabilize reference — only recompute when the set of activity IDs changes
   const geoKey = geocoded.map(g => g.activity.id).join(",")
   const activities = useMemo(
@@ -297,7 +612,7 @@ function RealRouteSegments({ geocoded, transportPrefs = [], maxWalkMeters = 1500
             pathOptions={{
               color: seg.color,
               weight: isTransit ? 5 : 3.5,
-              opacity: isTransit ? 0.9 : 0.85,
+              opacity: hasHighlight ? (isTransit ? 0.35 : 0.25) : (isTransit ? 0.9 : 0.85),
               dashArray: isCar ? "12, 4" : undefined,
             }}
           >
@@ -445,6 +760,8 @@ export function RealMapView({
   transportPrefs,
   maxWalkMeters,
   destination,
+  routeHighlight,
+  onClearRouteHighlight,
 }: RealMapViewProps) {
   const defaultCenter = center ?? { lat: 0, lng: 0 } // will be overridden by FitBounds
 
@@ -501,8 +818,13 @@ export function RealMapView({
         {/* Fly to selected */}
         <FlyToSelected geocoded={geocoded} selectedActivityId={selectedActivityId} />
 
-        {/* Route segments with gradient colors */}
-        <RealRouteSegments geocoded={geocoded} transportPrefs={transportPrefs} maxWalkMeters={maxWalkMeters} destination={destination} />
+        {/* Route segments with gradient colors — dimmed when a highlight is active */}
+        <RealRouteSegments geocoded={geocoded} transportPrefs={transportPrefs} maxWalkMeters={maxWalkMeters} destination={destination} hasHighlight={!!routeHighlight} />
+
+        {/* Route highlight overlay */}
+        {routeHighlight && (
+          <RouteHighlightOverlay routeHighlight={routeHighlight} />
+        )}
 
         {/* User location */}
         <UserLocation />
@@ -638,6 +960,11 @@ export function RealMapView({
           })}
         </MarkerClusterGroup>
       </MapContainer>
+
+      {/* Route highlight info card */}
+      {routeHighlight && (
+        <RouteHighlightCard routeHighlight={routeHighlight} onClear={onClearRouteHighlight} />
+      )}
 
       {/* Loading overlay */}
       {loading && (

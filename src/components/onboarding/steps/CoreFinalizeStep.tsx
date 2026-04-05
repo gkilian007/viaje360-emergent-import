@@ -19,7 +19,7 @@ export function CoreFinalizeStep() {
       <div className="space-y-4">
         {/* First time toggle */}
         <div>
-          <label className="block text-xs font-medium text-[#c0c6d6] uppercase tracking-wider mb-3">
+          <label className="block text-xs font-medium text-[color:var(--on-surface-variant)] uppercase tracking-wider mb-3">
             ¿Es tu primera vez en el destino?
           </label>
           <div className="flex gap-3">
@@ -29,7 +29,7 @@ export function CoreFinalizeStep() {
                 flex-1 py-3 px-4 rounded-2xl border text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2
                 ${data.firstTime === true
                   ? "border-[#0A84FF] bg-[#0A84FF]/15 text-[#0A84FF]"
-                  : "border-white/8 bg-[rgba(31,31,33,0.9)] text-[#c0c6d6] hover:border-white/20"
+                  : "border-white/8 bg-[var(--surface-container)] text-[color:var(--on-surface-variant)] hover:border-white/20"
                 }
               `}
             >
@@ -41,7 +41,7 @@ export function CoreFinalizeStep() {
                 flex-1 py-3 px-4 rounded-2xl border text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2
                 ${data.firstTime === false
                   ? "border-[#0A84FF] bg-[#0A84FF]/15 text-[#0A84FF]"
-                  : "border-white/8 bg-[rgba(31,31,33,0.9)] text-[#c0c6d6] hover:border-white/20"
+                  : "border-white/8 bg-[var(--surface-container)] text-[color:var(--on-surface-variant)] hover:border-white/20"
                 }
               `}
             >
@@ -52,8 +52,8 @@ export function CoreFinalizeStep() {
 
         {/* Must see */}
         <div>
-          <label className="block text-xs font-medium text-[#c0c6d6] uppercase tracking-wider mb-2">
-            Lugares imprescindibles <span className="text-white/30 normal-case font-normal">(opcional)</span>
+          <label className="block text-xs font-medium text-[color:var(--on-surface-variant)] uppercase tracking-wider mb-2">
+            Lugares imprescindibles <span className="text-[color:var(--on-surface)]/30 normal-case font-normal">(opcional)</span>
           </label>
           <div className="glass-panel p-4">
             <textarea
@@ -61,15 +61,15 @@ export function CoreFinalizeStep() {
               placeholder="Ej: La Sagrada Familia, el barrio gótico..."
               value={data.mustSee}
               onChange={(e) => setField("mustSee", e.target.value)}
-              className="w-full bg-transparent text-[#e4e2e4] placeholder:text-[#c0c6d6]/50 text-sm resize-none"
+              className="w-full bg-transparent text-[color:var(--on-surface)] placeholder:text-[color:var(--on-surface-variant)] text-sm resize-none"
             />
           </div>
         </div>
 
         {/* Must avoid */}
         <div>
-          <label className="block text-xs font-medium text-[#c0c6d6] uppercase tracking-wider mb-2">
-            ¿Algo que prefieras evitar? <span className="text-white/30 normal-case font-normal">(opcional)</span>
+          <label className="block text-xs font-medium text-[color:var(--on-surface-variant)] uppercase tracking-wider mb-2">
+            ¿Algo que prefieras evitar? <span className="text-[color:var(--on-surface)]/30 normal-case font-normal">(opcional)</span>
           </label>
           <div className="glass-panel p-4">
             <textarea
@@ -77,7 +77,7 @@ export function CoreFinalizeStep() {
               placeholder="Ej: Sitios masificados, museos, comida picante..."
               value={data.mustAvoid}
               onChange={(e) => setField("mustAvoid", e.target.value)}
-              className="w-full bg-transparent text-[#e4e2e4] placeholder:text-[#c0c6d6]/50 text-sm resize-none"
+              className="w-full bg-transparent text-[color:var(--on-surface)] placeholder:text-[color:var(--on-surface-variant)] text-sm resize-none"
             />
           </div>
         </div>

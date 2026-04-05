@@ -150,10 +150,10 @@ export function GeneratingStep() {
         <div className="w-24 h-24 rounded-3xl bg-red-500/20 border border-red-500/30 flex items-center justify-center mb-8">
           <span className="material-symbols-outlined text-red-400 text-5xl">error</span>
         </div>
-        <h1 className="text-xl font-bold text-[#e4e2e4] mb-2 text-center">
+        <h1 className="text-xl font-bold text-[color:var(--on-surface)] mb-2 text-center">
           Algo salió mal
         </h1>
-        <p className="text-sm text-[#c0c6d6] mb-8 text-center max-w-xs">{error}</p>
+        <p className="text-sm text-[color:var(--on-surface-variant)] mb-8 text-center max-w-xs">{error}</p>
         <button
           onClick={generate}
           className="px-6 py-3 rounded-2xl font-semibold text-white transition-all hover:scale-105 active:scale-95"
@@ -183,7 +183,7 @@ export function GeneratingStep() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.4 }}
-          className="text-[28px] font-bold text-white mb-3 text-center"
+          className="text-[28px] font-bold text-[color:var(--on-surface)] mb-3 text-center"
         >
           ¡Tu itinerario está listo!
         </motion.h1>
@@ -193,7 +193,7 @@ export function GeneratingStep() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.55, duration: 0.4 }}
-          className="text-[15px] text-[#c0c6d6] text-center capitalize"
+          className="text-[15px] text-[color:var(--on-surface-variant)] text-center capitalize"
         >
           {celebration.days} días · {celebration.activities} actividades · {celebration.destination}
         </motion.p>
@@ -214,7 +214,7 @@ export function GeneratingStep() {
               style={{ width: "100%", background: "linear-gradient(90deg, #0A84FF, #5856D6)" }}
             />
           </div>
-          <p className="text-[11px] text-[#9ca3af] text-right mt-1">100%</p>
+          <p className="text-[11px] text-[color:var(--on-surface-variant)] text-right mt-1">100%</p>
         </motion.div>
       </div>
     )

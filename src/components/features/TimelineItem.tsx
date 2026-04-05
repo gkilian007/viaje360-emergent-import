@@ -17,9 +17,10 @@ interface TimelineItemProps {
   destination?: string
   onClick?: (activity: TimelineActivity) => void
   onEdit?: (activityId: string, patch: { name: string; time: string; duration: number }) => Promise<void>
+  onShowRoute?: (from: { lat: number; lng: number; name: string }, to: { lat: number; lng: number; name: string }, mode: "walking" | "transit" | "driving" | "bicycling") => void
 }
 
-export function TimelineItem({ activity, index, isFirst = false, isLast = false, isCurrent = false, nextActivity, destination, onClick, onEdit }: TimelineItemProps) {
+export function TimelineItem({ activity, index, isFirst = false, isLast = false, isCurrent = false, nextActivity, destination, onClick, onEdit, onShowRoute }: TimelineItemProps) {
   const [showDirections, setShowDirections] = useState(false)
   const emoji = ACTIVITY_EMOJIS[activity.type] ?? ACTIVITY_EMOJIS.default
   const [editing, setEditing] = useState(false)
@@ -204,25 +205,51 @@ export function TimelineItem({ activity, index, isFirst = false, isLast = false,
                 { icon: "directions_bike", label: "Bicicleta", mode: "bicycling", color: "#BF5AF2" },
               ]
 
+              const hasCoords = !!(activity.lat && activity.lng && nextActivity.lat && nextActivity.lng)
+
               return (
                 <div className="mt-2 grid grid-cols-2 gap-2">
-                  {modes.map((m) => (
-                    <a
-                      key={m.mode}
-                      href={`https://www.google.com/maps/dir/?api=1&origin=${fromCoords}&destination=${toCoords}&travelmode=${m.mode}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-[12px] font-medium transition-all hover:scale-[1.02] active:scale-[0.98]"
-                      style={{
-                        background: "rgba(255,255,255,0.04)",
-                        border: "1px solid rgba(255,255,255,0.08)",
-                        color: m.color,
-                      }}
-                    >
-                      <span className="material-symbols-outlined text-[18px]">{m.icon}</span>
-                      {m.label}
-                    </a>
-                  ))}
+                  {modes.map((m) => {
+                    if (hasCoords && onShowRoute) {
+                      return (
+                        <button
+                          key={m.mode}
+                          type="button"
+                          onClick={() => onShowRoute(
+                            { lat: activity.lat!, lng: activity.lng!, name: activity.name },
+                            { lat: nextActivity.lat!, lng: nextActivity.lng!, name: nextActivity.name },
+                            m.mode as "walking" | "transit" | "driving" | "bicycling"
+                          )}
+                          className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-[12px] font-medium transition-all hover:scale-[1.02] active:scale-[0.98] text-left"
+                          style={{
+                            background: "rgba(255,255,255,0.04)",
+                            border: "1px solid rgba(255,255,255,0.08)",
+                            color: m.color,
+                          }}
+                        >
+                          <span className="material-symbols-outlined text-[18px]">{m.icon}</span>
+                          {m.label}
+                        </button>
+                      )
+                    }
+                    return (
+                      <a
+                        key={m.mode}
+                        href={`https://www.google.com/maps/dir/?api=1&origin=${fromCoords}&destination=${toCoords}&travelmode=${m.mode}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-[12px] font-medium transition-all hover:scale-[1.02] active:scale-[0.98]"
+                        style={{
+                          background: "rgba(255,255,255,0.04)",
+                          border: "1px solid rgba(255,255,255,0.08)",
+                          color: m.color,
+                        }}
+                      >
+                        <span className="material-symbols-outlined text-[18px]">{m.icon}</span>
+                        {m.label}
+                      </a>
+                    )
+                  })}
                 </div>
               )
             })()}

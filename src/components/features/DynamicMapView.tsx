@@ -20,6 +20,12 @@ const RealMapView = dynamic(
   }
 )
 
+export interface RouteHighlight {
+  from: { lat: number; lng: number; name: string }
+  to: { lat: number; lng: number; name: string }
+  mode: "walking" | "transit" | "driving" | "bicycling"
+}
+
 interface DynamicMapViewProps {
   activities: TimelineActivity[]
   destination: string
@@ -27,6 +33,8 @@ interface DynamicMapViewProps {
   onMarkerClick?: (activityId: string) => void
   transportPrefs?: string[]
   maxWalkMeters?: number
+  routeHighlight?: RouteHighlight | null
+  onClearRouteHighlight?: () => void
 }
 
 export function DynamicMapView({
@@ -36,6 +44,8 @@ export function DynamicMapView({
   onMarkerClick,
   transportPrefs,
   maxWalkMeters,
+  routeHighlight,
+  onClearRouteHighlight,
 }: DynamicMapViewProps) {
   const { geocoded, center, loading } = useGeocodedActivities(activities, destination)
 
@@ -61,6 +71,8 @@ export function DynamicMapView({
       transportPrefs={transportPrefs}
       maxWalkMeters={maxWalkMeters}
       destination={destination}
+      routeHighlight={routeHighlight}
+      onClearRouteHighlight={onClearRouteHighlight}
     />
   )
 }

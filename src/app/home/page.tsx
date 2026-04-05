@@ -77,26 +77,26 @@ function ProfileHeader({
           {/* Mobile: horizontal layout */}
           <div className="flex items-center gap-4 lg:hidden">
             <div
-              className="w-16 h-16 rounded-2xl flex items-center justify-center text-[22px] font-bold text-white shrink-0 ring-4 ring-[#131315]"
+              className="w-16 h-16 rounded-2xl flex items-center justify-center text-[22px] font-bold text-white shrink-0 ring-4 ring-[var(--surface)]"
               style={{ background: "linear-gradient(135deg, #0A84FF, #5856D6)" }}
             >
               {initials}
             </div>
             <div className="flex-1 min-w-0">
-              <h1 className="text-[18px] font-bold text-white truncate">{displayName}</h1>
-              <p className="text-[12px] text-[#9ca3af] truncate">{email}</p>
+              <h1 className="text-[18px] font-bold text-[var(--on-surface)] truncate">{displayName}</h1>
+              <p className="text-[12px] text-[var(--on-surface-variant)] truncate">{email}</p>
               <div className="flex gap-4 mt-2">
                 <div className="text-center">
-                  <p className="text-[16px] font-bold text-white">{tripCount}</p>
-                  <p className="text-[10px] text-[#888]">Viajes</p>
+                  <p className="text-[16px] font-bold text-[var(--on-surface)]">{tripCount}</p>
+                  <p className="text-[10px] text-[var(--on-surface-variant)]">Viajes</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-[16px] font-bold text-white">{totalDays}</p>
-                  <p className="text-[10px] text-[#888]">Días</p>
+                  <p className="text-[16px] font-bold text-[var(--on-surface)]">{totalDays}</p>
+                  <p className="text-[10px] text-[var(--on-surface-variant)]">Días</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-[16px] font-bold text-white">{tripCount > 0 ? 1 : 0}</p>
-                  <p className="text-[10px] text-[#888]">Países</p>
+                  <p className="text-[16px] font-bold text-[var(--on-surface)]">{tripCount > 0 ? 1 : 0}</p>
+                  <p className="text-[10px] text-[var(--on-surface-variant)]">Países</p>
                 </div>
               </div>
             </div>
@@ -105,20 +105,20 @@ function ProfileHeader({
               className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 hover:bg-white/5 transition-colors"
               style={{ border: "1px solid var(--border-color)" }}
             >
-              <span className="material-symbols-outlined text-[18px] text-[#888]">logout</span>
+              <span className="material-symbols-outlined text-[18px] text-[var(--on-surface-variant)]">logout</span>
             </button>
           </div>
 
           {/* Desktop: centered vertical layout */}
           <div className="hidden lg:flex flex-col items-center text-center">
             <div
-              className="w-24 h-24 rounded-2xl flex items-center justify-center text-[32px] font-bold text-white ring-4 ring-[#131315] mb-4"
+              className="w-24 h-24 rounded-2xl flex items-center justify-center text-[32px] font-bold text-white ring-4 ring-[var(--surface)] mb-4"
               style={{ background: "linear-gradient(135deg, #0A84FF, #5856D6)" }}
             >
               {initials}
             </div>
-            <h1 className="text-[24px] font-bold text-white">{displayName}</h1>
-            <p className="text-[13px] text-[#9ca3af] mt-0.5">{email}</p>
+            <h1 className="text-[24px] font-bold text-[var(--on-surface)]">{displayName}</h1>
+            <p className="text-[13px] text-[var(--on-surface-variant)] mt-0.5">{email}</p>
 
             {/* Stats */}
             <div className="flex justify-center gap-8 mt-5 w-full">
@@ -128,8 +128,8 @@ function ProfileHeader({
                 { value: tripCount > 0 ? 1 : 0, label: "Países" },
               ].map((s) => (
                 <div key={s.label} className="flex-1">
-                  <p className="text-[22px] font-bold text-white">{s.value}</p>
-                  <p className="text-[11px] text-[#888] mt-0.5">{s.label}</p>
+                  <p className="text-[22px] font-bold text-[var(--on-surface)]">{s.value}</p>
+                  <p className="text-[11px] text-[var(--on-surface-variant)] mt-0.5">{s.label}</p>
                 </div>
               ))}
             </div>
@@ -137,7 +137,7 @@ function ProfileHeader({
             {/* Logout */}
             <button
               onClick={onLogout}
-              className="mt-5 flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] text-[#888] hover:text-red-400 hover:bg-red-500/10 transition-colors"
+              className="mt-5 flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] text-[var(--on-surface-variant)] hover:text-red-400 hover:bg-red-500/10 transition-colors"
               style={{ border: "1px solid var(--border-color)" }}
             >
               <span className="material-symbols-outlined text-[18px]">logout</span>
@@ -171,7 +171,7 @@ function CreatePostCTA({ onNewTrip }: { onNewTrip: () => void }) {
         >
           <span className="material-symbols-outlined text-[20px] text-white">add_location_alt</span>
         </div>
-        <p className="text-[14px] text-[#888]">¿A dónde quieres ir?</p>
+        <p className="text-[14px] text-[var(--on-surface-variant)]">¿A dónde quieres ir?</p>
         <div className="ml-auto px-4 py-2 rounded-xl text-[13px] font-semibold text-white"
           style={{ background: "linear-gradient(135deg, #0A84FF, #5856D6)" }}
         >
@@ -259,7 +259,7 @@ function TripCard({
 
       {/* Trip info */}
       <div className="p-4">
-        <p className="text-[12px] text-[#888]">
+        <p className="text-[12px] text-[var(--on-surface-variant)]">
           {trip.totalDays} días · {trip.totalActivities} actividades · €{trip.budget}
         </p>
 
@@ -267,14 +267,14 @@ function TripCard({
         <div className="flex items-center gap-3 mt-4 pt-3" style={{ borderTop: "1px solid var(--border-color)" }}>
           <button
             onClick={onShare}
-            className="flex items-center gap-1.5 text-[12px] text-[#888] hover:text-white transition-colors"
+            className="flex items-center gap-1.5 text-[12px] text-[var(--on-surface-variant)] hover:text-[var(--on-surface)] transition-colors"
           >
             <span className="material-symbols-outlined text-[18px]">share</span>
             Compartir
           </button>
           <button
             onClick={onArchive}
-            className="flex items-center gap-1.5 text-[12px] text-[#888] hover:text-[#FF9F0A] transition-colors"
+            className="flex items-center gap-1.5 text-[12px] text-[var(--on-surface-variant)] hover:text-[#FF9F0A] transition-colors"
           >
             <span className="material-symbols-outlined text-[18px]">archive</span>
             Archivar
@@ -282,7 +282,7 @@ function TripCard({
           {!isCompleted && (
             <button
               onClick={onViewRecap}
-              className="flex items-center gap-1.5 text-[12px] text-[#888] hover:text-white transition-colors"
+              className="flex items-center gap-1.5 text-[12px] text-[var(--on-surface-variant)] hover:text-[var(--on-surface)] transition-colors"
             >
               <span className="material-symbols-outlined text-[18px]">auto_stories</span>
               Recap
@@ -329,8 +329,8 @@ function EmptyFeed({ onNewTrip }: { onNewTrip: () => void }) {
       }}
     >
       <span className="text-[56px] block mb-3">🗺️</span>
-      <h3 className="text-[18px] font-bold text-white mb-2">Tu aventura empieza aquí</h3>
-      <p className="text-[13px] text-[#888] max-w-sm mx-auto mb-6">
+      <h3 className="text-[18px] font-bold text-[var(--on-surface)] mb-2">Tu aventura empieza aquí</h3>
+      <p className="text-[13px] text-[var(--on-surface-variant)] max-w-sm mx-auto mb-6">
         Crea tu primer itinerario personalizado con IA y empieza a explorar el mundo.
       </p>
       <button
@@ -359,7 +359,7 @@ function TrendingWidget({ onSelect }: { onSelect: (companion?: string, destinati
     >
       <div className="flex items-center gap-2 mb-4">
         <span className="material-symbols-outlined text-[18px] text-[#FF9F0A]">trending_up</span>
-        <h3 className="text-[14px] font-bold text-white">Destinos populares</h3>
+        <h3 className="text-[14px] font-bold text-[var(--on-surface)]">Destinos populares</h3>
       </div>
       <div className="space-y-2">
         {TRENDING.map((dest) => (
@@ -376,10 +376,10 @@ function TrendingWidget({ onSelect }: { onSelect: (companion?: string, destinati
               {dest.emoji}
             </div>
             <div className="text-left">
-              <p className="text-[13px] font-semibold text-white">{dest.name}</p>
-              <p className="text-[11px] text-[#888]">{dest.country}</p>
+              <p className="text-[13px] font-semibold text-[var(--on-surface)]">{dest.name}</p>
+              <p className="text-[11px] text-[var(--on-surface-variant)]">{dest.country}</p>
             </div>
-            <span className="material-symbols-outlined text-[16px] text-[#555] ml-auto">chevron_right</span>
+            <span className="material-symbols-outlined text-[16px] text-[var(--on-surface-variant)] ml-auto">chevron_right</span>
           </motion.button>
         ))}
       </div>
@@ -398,7 +398,7 @@ function StylesWidget({ onNewTrip }: { onNewTrip: (companion?: string, destinati
     >
       <div className="flex items-center gap-2 mb-4">
         <span className="material-symbols-outlined text-[18px] text-[#BF5AF2]">travel_explore</span>
-        <h3 className="text-[14px] font-bold text-white">Tipo de viaje</h3>
+        <h3 className="text-[14px] font-bold text-[var(--on-surface)]">Tipo de viaje</h3>
       </div>
       <div className="grid grid-cols-2 gap-2">
         {QUICK_STYLES.map((style) => (
@@ -410,8 +410,8 @@ function StylesWidget({ onNewTrip }: { onNewTrip: (companion?: string, destinati
             style={{ border: "1px solid var(--border-color)" }}
           >
             <span className="text-[24px]">{style.emoji}</span>
-            <span className="text-[12px] font-semibold text-white">{style.label}</span>
-            <span className="text-[10px] text-[#888]">{style.desc}</span>
+            <span className="text-[12px] font-semibold text-[var(--on-surface)]">{style.label}</span>
+            <span className="text-[10px] text-[var(--on-surface-variant)]">{style.desc}</span>
           </motion.button>
         ))}
       </div>
@@ -430,7 +430,7 @@ function TipsWidget() {
     >
       <div className="flex items-center gap-2 mb-3">
         <span className="material-symbols-outlined text-[18px] text-[#30D158]">tips_and_updates</span>
-        <h3 className="text-[14px] font-bold text-white">Tips de viaje</h3>
+        <h3 className="text-[14px] font-bold text-[var(--on-surface)]">Tips de viaje</h3>
       </div>
       <div className="space-y-3">
         {[
@@ -643,11 +643,11 @@ export default function HomePage() {
       >
         <div className="flex items-center gap-3">
           <img src="/logo.svg" alt="Viaje360" className="w-8 h-8 rounded-xl"/>
-          <span className="text-[18px] font-bold text-white">Viaje360</span>
+          <span className="text-[18px] font-bold text-[var(--on-surface)]">Viaje360</span>
         </div>
         <div className="flex-1 max-w-xl mx-6 flex items-center gap-3 px-5 py-3 rounded-2xl cursor-pointer hover:border-white/15 transition-colors" style={{ background: "var(--surface-container-high)", border: "1px solid var(--border-color)" }}>
-          <span className="material-symbols-outlined text-[20px] text-[#888]">search</span>
-          <span className="text-[14px] text-[#888]">Buscar destinos...</span>
+          <span className="material-symbols-outlined text-[20px] text-[var(--on-surface-variant)]">search</span>
+          <span className="text-[14px] text-[var(--on-surface-variant)]">Buscar destinos...</span>
         </div>
         <div className="flex items-center gap-3">
           <button className="w-10 h-10 rounded-xl flex items-center justify-center hover:bg-white/5" style={{ border: "1px solid var(--border-color)" }}>
@@ -665,11 +665,11 @@ export default function HomePage() {
             {showAvatarMenu && (
               <div
                 className="absolute right-0 top-12 w-56 rounded-2xl p-2 z-[60] shadow-2xl"
-                style={{ background: "rgba(36,36,38,0.98)", border: "1px solid rgba(255,255,255,0.1)", backdropFilter: "blur(20px)" }}
+                style={{ background: "var(--surface-container)", border: "1px solid var(--border-color)", backdropFilter: "blur(20px)" }}
               >
                 <div className="px-3 py-2 mb-1">
-                  <p className="text-[13px] font-semibold text-white truncate">{displayName}</p>
-                  <p className="text-[11px] text-[#888] truncate">{email}</p>
+                  <p className="text-[13px] font-semibold text-[var(--on-surface)] truncate">{displayName}</p>
+                  <p className="text-[11px] text-[var(--on-surface-variant)] truncate">{email}</p>
                 </div>
                 <div style={{ borderTop: "1px solid var(--border-color)" }} />
                 <button
@@ -715,7 +715,7 @@ export default function HomePage() {
       <header className="lg:hidden flex items-center justify-between px-4 pb-3 page-header-safe-lg">
         <div className="flex items-center gap-2">
           <img src="/logo.svg" alt="Viaje360" className="w-7 h-7 rounded-lg"/>
-          <span className="text-[16px] font-bold text-white">Viaje360</span>
+          <span className="text-[16px] font-bold text-[var(--on-surface)]">Viaje360</span>
         </div>
         <button className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "var(--surface-container-high)", border: "1px solid var(--border-color)" }}>
           <span className="material-symbols-outlined text-[18px] text-[color:var(--on-surface-variant)]">notifications</span>

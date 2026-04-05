@@ -9,7 +9,7 @@ import { AdaptInput } from "@/components/features/AdaptInput"
 import { AchievementOverlay } from "@/components/features/AchievementOverlay"
 import { useAppStore } from "@/store/useAppStore"
 import { DesktopLayout } from "@/components/layout/DesktopLayout"
-import { DynamicMapView } from "@/components/features/DynamicMapView"
+import { DynamicMapView, type RouteHighlight } from "@/components/features/DynamicMapView"
 import { TimelineItem } from "@/components/features/TimelineItem"
 import { SortableTimeline } from "@/components/features/SortableTimeline"
 import { ActivityDetailModal } from "@/components/features/ActivityDetailModal"
@@ -73,7 +73,7 @@ function DaySelector({
             className={`relative shrink-0 px-4 py-2 rounded-xl text-[13px] font-semibold transition-all ${
               selectedDay === day
                 ? "bg-[#0A84FF] text-white shadow-[0_0_12px_rgba(10,132,255,0.4)]"
-                : "bg-[#2a2a2c] text-[#c0c6d6] hover:bg-[#3a3a3c]"
+                : "bg-[var(--surface-container)] text-[var(--on-surface-variant)] hover:bg-[var(--surface-container-high)]"
             }`}
           >
             Día {day}
@@ -95,34 +95,34 @@ function MobileStats({ trip, totalDays }: { trip: Trip; totalDays: number }) {
       {/* Budget */}
       <div
         className="shrink-0 px-4 py-3 rounded-2xl flex items-center gap-2.5"
-        style={{ background: "rgba(42,42,44,0.8)", border: "1px solid rgba(255,255,255,0.06)" }}
+        style={{ background: "var(--surface-container)", border: "1px solid var(--border-color)" }}
       >
         <span className="material-symbols-outlined text-[18px] text-[#30D158]">payments</span>
         <div>
-          <p className="text-[13px] font-bold text-white">€{trip.budget}</p>
-          <p className="text-[10px] text-[#c0c6d6]">Presupuesto</p>
+          <p className="text-[13px] font-bold text-[var(--on-surface)]">€{trip.budget}</p>
+          <p className="text-[10px] text-[var(--on-surface-variant)]">Presupuesto</p>
         </div>
       </div>
       {/* Days */}
       <div
         className="shrink-0 px-4 py-3 rounded-2xl flex items-center gap-2.5"
-        style={{ background: "rgba(42,42,44,0.8)", border: "1px solid rgba(255,255,255,0.06)" }}
+        style={{ background: "var(--surface-container)", border: "1px solid var(--border-color)" }}
       >
         <span className="material-symbols-outlined text-[18px] text-purple-400">calendar_month</span>
         <div>
-          <p className="text-[13px] font-bold text-white">{totalDays} días</p>
-          <p className="text-[10px] text-[#c0c6d6] capitalize">{trip.destination}</p>
+          <p className="text-[13px] font-bold text-[var(--on-surface)]">{totalDays} días</p>
+          <p className="text-[10px] text-[var(--on-surface-variant)] capitalize">{trip.destination}</p>
         </div>
       </div>
       {/* Activities count */}
       <div
         className="shrink-0 px-4 py-3 rounded-2xl flex items-center gap-2.5"
-        style={{ background: "rgba(42,42,44,0.8)", border: "1px solid rgba(255,255,255,0.06)" }}
+        style={{ background: "var(--surface-container)", border: "1px solid var(--border-color)" }}
       >
         <span className="material-symbols-outlined text-[18px] text-[#0A84FF]">pin_drop</span>
         <div>
-          <p className="text-[13px] font-bold text-white">{trip.startDate?.slice(5)}</p>
-          <p className="text-[10px] text-[#c0c6d6]">al {trip.endDate?.slice(5)}</p>
+          <p className="text-[13px] font-bold text-[var(--on-surface)]">{trip.startDate?.slice(5)}</p>
+          <p className="text-[10px] text-[var(--on-surface-variant)]">al {trip.endDate?.slice(5)}</p>
         </div>
       </div>
     </div>
@@ -164,9 +164,9 @@ function MiniMapStrip({ activities, destination }: { activities: TimelineActivit
 
 function PlanSkeleton() {
   return (
-    <div className="min-h-screen bg-[#0f1117] lg:hidden">
+    <div className="min-h-screen bg-[var(--surface)] lg:hidden">
       <div className="fixed top-0 left-0 right-0 z-40 flex items-center gap-3 px-5 h-[72px]"
-        style={{ background: "rgba(19,19,21,0.92)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+        style={{ background: "var(--surface-container)", borderBottom: "1px solid var(--border-color)" }}>
         <div className="w-8 h-8 rounded-full bg-white/10 animate-pulse" />
         <div className="flex-1 h-4 rounded-full bg-white/10 animate-pulse max-w-[140px]" />
       </div>
@@ -203,6 +203,7 @@ function PlanPageContent() {
   const searchParams = useSearchParams()
   const itinerary = generatedItinerary ?? []
   const [selectedDay, setSelectedDay] = useState(1)
+  const [routeHighlight, setRouteHighlight] = useState<RouteHighlight | null>(null)
   const [hydrated, setHydrated] = useState(false)
   const [selectedActivityId, setSelectedActivityId] = useState<string | null>(null)
   const [showDiarySaved, setShowDiarySaved] = useState(false)
@@ -226,6 +227,14 @@ function PlanPageContent() {
     setSelectedActivityId(activity.id)
     trackEvent(activity.id, "detail_opened", { source: "timeline-card", dayNumber: selectedDay })
   }
+
+  const handleShowRoute = useCallback((
+    from: { lat: number; lng: number; name: string },
+    to: { lat: number; lng: number; name: string },
+    mode: "walking" | "transit" | "driving" | "bicycling"
+  ) => {
+    setRouteHighlight({ from, to, mode })
+  }, [])
 
   const handleActivityEdit = useCallback(async (
     activityId: string,
@@ -378,6 +387,15 @@ function PlanPageContent() {
     }
   }, [searchParams])
 
+  // Clear route highlight when day changes
+  const prevSelectedDayRef = useRef(selectedDay)
+  useEffect(() => {
+    if (prevSelectedDayRef.current !== selectedDay) {
+      prevSelectedDayRef.current = selectedDay
+      setRouteHighlight(null)
+    }
+  }, [selectedDay])
+
   // ALL hooks must be before any conditional return
   const today = itinerary[selectedDay - 1]
   const { getSegment } = useWalkingTimes(today?.activities ?? [])
@@ -478,10 +496,10 @@ function PlanPageContent() {
 
   if (!currentTrip || totalDays === 0) {
     return (
-      <div className="min-h-screen bg-[#0f1117] flex flex-col items-center justify-center px-6 text-center">
+      <div className="min-h-screen bg-[var(--surface)] flex flex-col items-center justify-center px-6 text-center">
         <span className="material-symbols-outlined text-[56px] text-[#0A84FF] mb-4">travel_explore</span>
-        <h1 className="text-[22px] font-bold text-white mb-2">Aún no hay itinerario</h1>
-        <p className="text-[#c0c6d6] max-w-sm mb-6">
+        <h1 className="text-[22px] font-bold text-[var(--on-surface)] mb-2">Aún no hay itinerario</h1>
+        <p className="text-[var(--on-surface-variant)] max-w-sm mb-6">
           Genera un viaje desde el onboarding y aquí verás tu plan detallado día a día.
         </p>
         <a
@@ -498,7 +516,7 @@ function PlanPageContent() {
   return (
     <>
       {/* ── Mobile Layout ── */}
-      <div className="lg:hidden flex flex-col h-screen bg-[#0f1117]">
+      <div className="lg:hidden flex flex-col h-screen bg-[var(--surface)]">
         {/* Top bar */}
         <TopAppBar onShare={currentTrip?.id ? handleShare : undefined} onCalendarExport={currentTrip?.id ? handleCalendarExport : undefined} />
 
@@ -557,7 +575,7 @@ function PlanPageContent() {
                   </span>
                   {todayWeather && <WeatherBadge weather={todayWeather} compact />}
                 </div>
-                <p className="text-[14px] font-semibold text-white">
+                <p className="text-[14px] font-semibold text-[var(--on-surface)]">
                   {today.activities.length} actividades planificadas
                 </p>
               </div>
@@ -587,7 +605,7 @@ function PlanPageContent() {
                   backdropFilter: "blur(12px)",
                 }}
               >
-                <p className="text-[13px] text-[#c0c6d6] flex-1">
+                <p className="text-[13px] text-[var(--on-surface-variant)] flex-1">
                   💾 ¿Quieres guardar este itinerario? Inicia sesión para no perderlo.
                 </p>
                 <div className="flex items-center gap-2 shrink-0">
@@ -625,7 +643,7 @@ function PlanPageContent() {
                   backdropFilter: "blur(12px)",
                 }}
               >
-                <p className="text-[13px] text-[#c0c6d6] flex-1">
+                <p className="text-[13px] text-[var(--on-surface-variant)] flex-1">
                   💡 Pulsa cualquier actividad para ver más detalles, reservar y adaptar
                 </p>
                 <button
@@ -690,6 +708,7 @@ function PlanPageContent() {
               isCurrent={(id) => id === liveStatus.current?.id}
               onClick={handleActivityClick}
               onEdit={currentTrip?.id ? handleActivityEdit : undefined}
+              onShowRoute={handleShowRoute}
               getSegment={(fromId, toId) => getSegment(fromId, toId)}
               shouldOfferTransit={(distanceMeters) =>
                 shouldOfferTransitChoice(distanceMeters, mobilityProfile.key)
@@ -723,8 +742,8 @@ function PlanPageContent() {
             <div className="px-5 pb-2">
               <a
                 href={`/recap/${currentTrip.id}`}
-                className="flex items-center gap-2 w-full py-3 px-4 rounded-2xl text-[12px] text-[#888] hover:text-white transition-colors"
-                style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
+                className="flex items-center gap-2 w-full py-3 px-4 rounded-2xl text-[12px] text-[var(--on-surface-variant)] hover:text-[var(--on-surface)] transition-colors"
+                style={{ background: "var(--surface-container)", border: "1px solid var(--border-color)" }}
               >
                 <span className="material-symbols-outlined text-[16px] text-[#BF5AF2]">auto_stories</span>
                 <span>Ver recap del viaje</span>
@@ -751,7 +770,7 @@ function PlanPageContent() {
                 <span className="material-symbols-outlined text-[18px] text-[#0A84FF]">
                   {shareCopied ? "check_circle" : "share"}
                 </span>
-                <span className="text-[13px] font-medium text-white flex-1 text-left">
+                <span className="text-[13px] font-medium text-[var(--on-surface)] flex-1 text-left">
                   {shareCopied ? "¡Enlace copiado!" : "Compartir plan"}
                 </span>
                 {!shareCopied && (
@@ -782,7 +801,7 @@ function PlanPageContent() {
                 }}
               >
                 <span className="text-[20px]">🔒</span>
-                <span className="text-[13px] text-[#666]">
+                <span className="text-[13px] text-[var(--on-surface-variant)]">
                   Desbloquea para adaptar tu itinerario con IA
                 </span>
               </button>
@@ -813,10 +832,10 @@ function PlanPageContent() {
                 <div className="px-6 pt-4 pb-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-[11px] uppercase tracking-widest text-[#c0c6d6] font-medium mb-1 capitalize">
+                    <p className="text-[11px] uppercase tracking-widest text-[var(--on-surface-variant)] font-medium mb-1 capitalize">
                       {currentTrip?.destination}{currentTrip?.country ? `, ${currentTrip.country}` : ""}
                     </p>
-                    <h1 className="text-[20px] font-bold text-white">{currentTrip?.name}</h1>
+                    <h1 className="text-[20px] font-bold text-[var(--on-surface)]">{currentTrip?.name}</h1>
                   </div>
                   <div className="flex items-center gap-2">
                     {currentTrip?.id && (
@@ -825,7 +844,7 @@ function PlanPageContent() {
                         className="w-9 h-9 rounded-xl flex items-center justify-center bg-white/5 hover:bg-white/10 transition-colors"
                         title="Exportar calendario"
                       >
-                        <span className="material-symbols-outlined text-[18px] text-[#c0c6d6]">calendar_month</span>
+                        <span className="material-symbols-outlined text-[18px] text-[var(--on-surface-variant)]">calendar_month</span>
                       </button>
                     )}
                     {currentTrip?.id && (
@@ -834,7 +853,7 @@ function PlanPageContent() {
                         className="w-9 h-9 rounded-xl flex items-center justify-center bg-white/5 hover:bg-white/10 transition-colors"
                         title="Compartir"
                       >
-                        <span className="material-symbols-outlined text-[18px] text-[#c0c6d6]">{shareCopied ? "check" : "share"}</span>
+                        <span className="material-symbols-outlined text-[18px] text-[var(--on-surface-variant)]">{shareCopied ? "check" : "share"}</span>
                       </button>
                     )}
                   </div>
@@ -843,15 +862,15 @@ function PlanPageContent() {
                 <div className="flex items-center gap-4 mt-3">
                   <div className="flex items-center gap-1.5">
                     <span className="material-symbols-outlined text-[14px] text-[#30D158]">payments</span>
-                    <span className="text-[12px] text-[#c0c6d6]">€{currentTrip?.budget}</span>
+                    <span className="text-[12px] text-[var(--on-surface-variant)]">€{currentTrip?.budget}</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <span className="material-symbols-outlined text-[14px] text-purple-400">calendar_month</span>
-                    <span className="text-[12px] text-[#c0c6d6]">{totalDays} días</span>
+                    <span className="text-[12px] text-[var(--on-surface-variant)]">{totalDays} días</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <span className="material-symbols-outlined text-[14px] text-[#0A84FF]">pin_drop</span>
-                    <span className="text-[12px] text-[#c0c6d6]">{currentTrip?.startDate?.slice(5)} → {currentTrip?.endDate?.slice(5)}</span>
+                    <span className="text-[12px] text-[var(--on-surface-variant)]">{currentTrip?.startDate?.slice(5)} → {currentTrip?.endDate?.slice(5)}</span>
                   </div>
                   {todayWeather && <WeatherBadge weather={todayWeather} compact />}
                 </div>
@@ -894,6 +913,7 @@ function PlanPageContent() {
                   isCurrent={(id) => id === liveStatus.current?.id}
                   onClick={handleActivityClick}
                   onEdit={currentTrip?.id ? handleActivityEdit : undefined}
+                  onShowRoute={handleShowRoute}
                   getSegment={(fromId, toId) => getSegment(fromId, toId)}
                   shouldOfferTransit={(distanceMeters) =>
                     shouldOfferTransitChoice(distanceMeters, mobilityProfile.key)
@@ -924,7 +944,7 @@ function PlanPageContent() {
                     }}
                   >
                     <span className="text-[20px]">🔒</span>
-                    <span className="text-[13px] text-[#666]">
+                    <span className="text-[13px] text-[var(--on-surface-variant)]">
                       Desbloquea para adaptar tu itinerario
                     </span>
                   </button>
@@ -943,6 +963,8 @@ function PlanPageContent() {
               }}
               transportPrefs={onboardingData.transport}
               maxWalkMeters={mobilityProfile.maxComfortableWalkMeters}
+              routeHighlight={routeHighlight}
+              onClearRouteHighlight={() => setRouteHighlight(null)}
             />
           }
           companionPanel={
@@ -951,7 +973,7 @@ function PlanPageContent() {
               <div className="px-5 pt-5 pb-3 border-b border-white/5">
                 <div className="flex items-center gap-2">
                   <span className="material-symbols-outlined text-[18px] text-[#0A84FF]">assistant</span>
-                  <h2 className="text-[14px] font-semibold text-white">Companion</h2>
+                  <h2 className="text-[14px] font-semibold text-[var(--on-surface)]">Companion</h2>
                 </div>
               </div>
 
@@ -1019,8 +1041,8 @@ function PlanPageContent() {
                   {currentTrip?.id && (
                     <a
                       href={`/recap/${currentTrip.id}`}
-                      className="flex items-center gap-2 w-full py-3 px-4 rounded-2xl text-[12px] text-[#888] hover:text-white transition-colors"
-                      style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
+                      className="flex items-center gap-2 w-full py-3 px-4 rounded-2xl text-[12px] text-[var(--on-surface-variant)] hover:text-[var(--on-surface)] transition-colors"
+                      style={{ background: "var(--surface-container)", border: "1px solid var(--border-color)" }}
                     >
                       <span className="material-symbols-outlined text-[16px] text-[#BF5AF2]">auto_stories</span>
                       <span>Ver recap del viaje</span>
@@ -1098,8 +1120,8 @@ function PlanPageContent() {
                 <span className="material-symbols-outlined text-[20px] text-[#0A84FF]">link</span>
               </div>
               <div>
-                <p className="text-[14px] font-semibold text-white">¡Enlace copiado!</p>
-                <p className="text-[11px] text-[#c0c6d6]">Comparte tu plan con quien quieras</p>
+                <p className="text-[14px] font-semibold text-[var(--on-surface)]">¡Enlace copiado!</p>
+                <p className="text-[11px] text-[var(--on-surface-variant)]">Comparte tu plan con quien quieras</p>
               </div>
             </div>
           </motion.div>
@@ -1124,8 +1146,8 @@ function PlanPageContent() {
               <span className="material-symbols-outlined text-[20px] text-[#30D158]">check_circle</span>
             </div>
             <div>
-              <p className="text-[14px] font-semibold text-white">¡Diario guardado!</p>
-              <p className="text-[11px] text-[#c0c6d6]">Tus impresiones del Día {selectedDay} se han guardado</p>
+              <p className="text-[14px] font-semibold text-[var(--on-surface)]">¡Diario guardado!</p>
+              <p className="text-[11px] text-[var(--on-surface-variant)]">Tus impresiones del Día {selectedDay} se han guardado</p>
             </div>
           </div>
         </div>

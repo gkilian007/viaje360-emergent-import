@@ -37,6 +37,7 @@ interface SortableTimelineItemProps {
   isCurrent: boolean
   onClick?: (activity: TimelineActivity) => void
   onEdit?: (activityId: string, patch: { name: string; time: string; duration: number }) => Promise<void>
+  onShowRoute?: (from: { lat: number; lng: number; name: string }, to: { lat: number; lng: number; name: string }, mode: "walking" | "transit" | "driving" | "bicycling") => void
   next?: TimelineActivity
   segment?: WalkingSegment
   offerTransit?: boolean
@@ -52,6 +53,7 @@ function SortableTimelineItem({
   isCurrent,
   onClick,
   onEdit,
+  onShowRoute,
   next,
   segment,
   offerTransit,
@@ -108,6 +110,7 @@ function SortableTimelineItem({
             destination={destination}
             onClick={onClick}
             onEdit={onEdit}
+            onShowRoute={onShowRoute}
           />
           {segment && offerTransit && next && (
             <TransitChoiceCard
@@ -140,6 +143,7 @@ interface SortableTimelineProps {
   isCurrent?: (id: string) => boolean
   onClick?: (activity: TimelineActivity) => void
   onEdit?: (activityId: string, patch: { name: string; time: string; duration: number }) => Promise<void>
+  onShowRoute?: (from: { lat: number; lng: number; name: string }, to: { lat: number; lng: number; name: string }, mode: "walking" | "transit" | "driving" | "bicycling") => void
   getSegment?: (fromId: string, toId: string) => WalkingSegment | undefined
   shouldOfferTransit?: (distanceMeters: number) => boolean
   destination?: string
@@ -153,6 +157,7 @@ export function SortableTimeline({
   isCurrent,
   onClick,
   onEdit,
+  onShowRoute,
   getSegment,
   shouldOfferTransit,
   destination,
@@ -221,6 +226,7 @@ export function SortableTimeline({
               isCurrent={isCurrent ? isCurrent(activity.id) : false}
               onClick={onClick}
               onEdit={onEdit}
+              onShowRoute={onShowRoute}
               next={next}
               segment={seg}
               offerTransit={offerTransit}

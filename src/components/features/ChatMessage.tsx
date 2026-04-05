@@ -24,7 +24,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
           >
             <p className="text-[14px] text-white leading-relaxed">{message.content}</p>
           </div>
-          <p className="text-[10px] text-[#c0c6d6] text-right mt-1">{formatTime(message.timestamp)}</p>
+          <p className="text-[10px] text-[var(--on-surface-variant)] text-right mt-1">{formatTime(message.timestamp)}</p>
         </div>
       </div>
     )
@@ -49,11 +49,11 @@ export function ChatMessage({ message }: ChatMessageProps) {
         <div
           className="px-4 py-3 rounded-2xl rounded-tl-sm"
           style={{
-            background: "rgba(42, 42, 44, 0.9)",
-            border: "1px solid rgba(255,255,255,0.06)",
+            background: "var(--surface-container)",
+            border: "1px solid var(--border-color)",
           }}
         >
-          <p className="text-[14px] text-[#e4e2e4] leading-relaxed">{message.content}</p>
+          <p className="text-[14px] text-[var(--on-surface)] leading-relaxed">{message.content}</p>
         </div>
         {/* Suggestion cards */}
         {message.suggestions && message.suggestions.length > 0 && (
@@ -63,7 +63,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
             ))}
           </div>
         )}
-        <p className="text-[10px] text-[#c0c6d6] mt-1">{formatTime(message.timestamp)}</p>
+        <p className="text-[10px] text-[var(--on-surface-variant)] mt-1">{formatTime(message.timestamp)}</p>
       </div>
     </div>
   )

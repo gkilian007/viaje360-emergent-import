@@ -98,7 +98,7 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
         />
       </head>
-      <body className="h-full font-[family-name:var(--font-inter)]">
+      <body className="h-full font-[family-name:var(--font-inter)] bg-[var(--surface)] text-[var(--on-surface)]">
         <PHProvider>
           <I18nProvider>
             <ThemeProvider>

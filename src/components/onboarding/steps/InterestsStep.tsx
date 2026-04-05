@@ -52,12 +52,12 @@ export function InterestsStep() {
                 aspect-square rounded-2xl border p-3 flex flex-col items-center justify-center gap-1.5 transition-all duration-200
                 ${isSelected
                   ? "border-[#0A84FF] bg-[#0A84FF]/12 glow-blue ring-1 ring-[#0A84FF]/20"
-                  : "border-white/6 bg-[rgba(31,31,33,0.85)] hover:border-white/15"
+                  : "border-white/6 bg-[var(--surface-container)] hover:border-white/15"
                 }
               `}
             >
               <span className="text-3xl">{item.emoji}</span>
-              <span className={`text-[16px] font-medium text-center leading-tight ${isSelected ? "text-[#0A84FF]" : "text-[#c0c6d6]"}`}>
+              <span className={`text-[16px] font-medium text-center leading-tight ${isSelected ? "text-[#0A84FF]" : "text-[color:var(--on-surface-variant)]"}`}>
                 {item.label}
               </span>
             </motion.button>

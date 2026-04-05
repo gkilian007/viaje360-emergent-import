@@ -119,7 +119,7 @@ export default function ExplorePage() {
   const hasResults = filteredDestinations.length > 0 || filteredGems.length > 0
 
   return (
-    <div className="flex min-h-screen" style={{ background: "#0f1117" }}>
+    <div className="flex min-h-screen" style={{ background: "var(--surface)" }}>
     <div className="hidden lg:block"><SideNav /></div>
     <div className="flex flex-col flex-1 min-h-screen overflow-y-auto pb-28 lg:pb-8">
 
@@ -127,14 +127,14 @@ export default function ExplorePage() {
       <header
         className="hidden lg:flex items-center justify-between px-6 py-3 sticky top-0 z-50"
         style={{
-          background: "rgba(15,17,23,0.92)",
+          background: "var(--surface-container)",
           backdropFilter: "blur(20px)",
           borderBottom: "1px solid var(--border-color)",
         }}
       >
         <div className="flex items-center gap-3">
           <img src="/logo.svg" alt="Viaje360" className="w-8 h-8 rounded-xl" />
-          <span className="text-[18px] font-bold text-white">Explorar</span>
+          <span className="text-[18px] font-bold text-[var(--on-surface)]">Explorar</span>
         </div>
         <div className="relative">
           <button
@@ -148,12 +148,12 @@ export default function ExplorePage() {
           {showAvatarMenu && (
             <div
               className="absolute right-0 top-12 w-56 rounded-2xl p-2 z-[60] shadow-2xl"
-              style={{ background: "rgba(36,36,38,0.98)", border: "1px solid rgba(255,255,255,0.1)", backdropFilter: "blur(20px)" }}
+              style={{ background: "var(--surface-container)", border: "1px solid var(--border-color)", backdropFilter: "blur(20px)" }}
             >
               {email && (
                 <div className="px-3 py-2 mb-1">
-                  <p className="text-[13px] font-semibold text-white truncate">{displayName}</p>
-                  <p className="text-[11px] text-[#888] truncate">{email}</p>
+                  <p className="text-[13px] font-semibold text-[var(--on-surface)] truncate">{displayName}</p>
+                  <p className="text-[11px] text-[var(--on-surface-variant)] truncate">{email}</p>
                 </div>
               )}
               <div style={{ borderTop: "1px solid var(--border-color)" }} />
@@ -181,24 +181,24 @@ export default function ExplorePage() {
       {/* Mobile Header */}
       <div className="px-5 pb-5 page-header-safe-lg lg:hidden">
         <p className="text-[11px] uppercase tracking-widest text-[#0A84FF] font-medium mb-1">Descubrir</p>
-        <h1 className="text-[28px] font-black text-white">Explorar</h1>
-        <p className="text-[13px] text-[#888] mt-1">Inspírate y planea tu próximo viaje</p>
+        <h1 className="text-[28px] font-black text-[var(--on-surface)]">Explorar</h1>
+        <p className="text-[13px] text-[var(--on-surface-variant)] mt-1">Inspírate y planea tu próximo viaje</p>
       </div>
 
       {/* Search */}
       <div className="px-5 mb-5">
         <div className="flex items-center gap-3 px-4 py-3 rounded-2xl"
           style={{ background: "rgba(255,255,255,0.05)", border: "1px solid var(--border-color)" }}>
-          <span className="material-symbols-outlined text-[20px] text-[#666]">search</span>
+          <span className="material-symbols-outlined text-[20px] text-[var(--on-surface-variant)]">search</span>
           <input
             type="text"
             placeholder="Buscar destinos, estilos..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="flex-1 bg-transparent text-[14px] text-white placeholder:text-[#555] outline-none"
+            className="flex-1 bg-transparent text-[14px] text-[var(--on-surface)] placeholder:text-[var(--on-surface-variant)] outline-none"
           />
           {search && (
-            <button onClick={() => setSearch("")} className="text-[#555] hover:text-white transition-colors">
+            <button onClick={() => setSearch("")} className="text-[var(--on-surface-variant)] hover:text-[var(--on-surface)] transition-colors">
               <span className="material-symbols-outlined text-[18px]">close</span>
             </button>
           )}
@@ -210,7 +210,7 @@ export default function ExplorePage() {
         <div className="px-5 space-y-4">
           {filteredDestinations.length > 0 && (
             <div>
-              <p className="text-[11px] uppercase tracking-widest text-[#666] font-medium mb-3">
+              <p className="text-[11px] uppercase tracking-widest text-[var(--on-surface-variant)] font-medium mb-3">
                 Destinos ({filteredDestinations.length})
               </p>
               <div className="space-y-2">
@@ -224,10 +224,10 @@ export default function ExplorePage() {
                   >
                     <span className="text-[28px]">{dest.emoji}</span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-[14px] font-bold text-white">{dest.name}</p>
-                      <p className="text-[11px] text-[#888]">{dest.country} · {dest.tag}</p>
+                      <p className="text-[14px] font-bold text-[var(--on-surface)]">{dest.name}</p>
+                      <p className="text-[11px] text-[var(--on-surface-variant)]">{dest.country} · {dest.tag}</p>
                     </div>
-                    <span className="material-symbols-outlined text-[16px] text-[#444]">arrow_forward</span>
+                    <span className="material-symbols-outlined text-[16px] text-[var(--on-surface-variant)]">arrow_forward</span>
                   </motion.button>
                 ))}
               </div>
@@ -235,7 +235,7 @@ export default function ExplorePage() {
           )}
           {filteredGems.length > 0 && (
             <div>
-              <p className="text-[11px] uppercase tracking-widest text-[#666] font-medium mb-3">
+              <p className="text-[11px] uppercase tracking-widest text-[var(--on-surface-variant)] font-medium mb-3">
                 Gemas ocultas ({filteredGems.length})
               </p>
               <div className="space-y-2">
@@ -249,9 +249,9 @@ export default function ExplorePage() {
                   >
                     <span className="text-[24px] shrink-0 mt-0.5">{gem.emoji}</span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-[13px] font-bold text-white">{gem.name}</p>
-                      <p className="text-[11px] text-[#888]">{gem.country}</p>
-                      <p className="text-[11px] text-[#666] mt-1 leading-relaxed">{gem.desc}</p>
+                      <p className="text-[13px] font-bold text-[var(--on-surface)]">{gem.name}</p>
+                      <p className="text-[11px] text-[var(--on-surface-variant)]">{gem.country}</p>
+                      <p className="text-[11px] text-[var(--on-surface-variant)] mt-1 leading-relaxed">{gem.desc}</p>
                     </div>
                   </motion.button>
                 ))}
@@ -261,8 +261,8 @@ export default function ExplorePage() {
           {!hasResults && (
             <div className="text-center py-12">
               <span className="text-[48px]">🌍</span>
-              <p className="text-white font-semibold mt-3">No encontrado</p>
-              <p className="text-[#888] text-[13px] mt-1">Prueba con otro nombre de ciudad o país</p>
+              <p className="text-[var(--on-surface)] font-semibold mt-3">No encontrado</p>
+              <p className="text-[var(--on-surface-variant)] text-[13px] mt-1">Prueba con otro nombre de ciudad o país</p>
             </div>
           )}
         </div>
@@ -276,8 +276,8 @@ export default function ExplorePage() {
             {/* Featured destinations */}
             <div className="lg:flex-1 mb-6 lg:mb-0">
               <div className="mb-3 flex items-center justify-between">
-                <p className="text-[13px] font-bold text-white">✈️ Destinos populares</p>
-                <p className="text-[11px] text-[#555]">Toca para planear</p>
+                <p className="text-[13px] font-bold text-[var(--on-surface)]">✈️ Destinos populares</p>
+                <p className="text-[11px] text-[var(--on-surface-variant)]">Toca para planear</p>
               </div>
               <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none lg:grid lg:grid-cols-3 lg:overflow-visible">
                 {FEATURED_DESTINATIONS.map((dest, idx) => (
@@ -289,7 +289,7 @@ export default function ExplorePage() {
                     whileTap={{ scale: 0.95 }}
                     onClick={() => handleDestinationSelect(dest.name)}
                     className="shrink-0 w-36 lg:w-auto rounded-2xl overflow-hidden text-left"
-                    style={{ background: "rgba(22,22,30,0.95)", border: "1px solid var(--border-color)" }}
+                    style={{ background: "var(--surface-container)", border: "1px solid var(--border-color)" }}
                   >
                     <div
                       className="h-20 relative flex items-center justify-center overflow-hidden"
@@ -309,8 +309,8 @@ export default function ExplorePage() {
                       )}
                     </div>
                     <div className="p-3">
-                      <p className="text-[13px] font-bold text-white">{dest.name}</p>
-                      <p className="text-[10px] text-[#666] mt-0.5">{dest.tag}</p>
+                      <p className="text-[13px] font-bold text-[var(--on-surface)]">{dest.name}</p>
+                      <p className="text-[10px] text-[var(--on-surface-variant)] mt-0.5">{dest.tag}</p>
                     </div>
                   </motion.button>
                 ))}
@@ -319,7 +319,7 @@ export default function ExplorePage() {
 
             {/* Travel styles */}
             <div className="lg:flex-1">
-              <p className="text-[13px] font-bold text-white mb-3">🧭 Estilo de viaje</p>
+              <p className="text-[13px] font-bold text-[var(--on-surface)] mb-3">🧭 Estilo de viaje</p>
               <div className="grid grid-cols-2 gap-2">
                 {TRAVEL_STYLES.map(style => (
                   <motion.button
@@ -327,11 +327,11 @@ export default function ExplorePage() {
                     whileTap={{ scale: 0.96 }}
                     onClick={() => handleStyleSelect(style.companion)}
                     className="flex flex-col items-center gap-1.5 p-4 rounded-2xl"
-                    style={{ background: "rgba(22,22,30,0.95)", border: "1px solid var(--border-color)" }}
+                    style={{ background: "var(--surface-container)", border: "1px solid var(--border-color)" }}
                   >
                     <span className="text-[32px]">{style.emoji}</span>
-                    <p className="text-[13px] font-bold text-white">{style.label}</p>
-                    <p className="text-[10px] text-[#666]">{style.desc}</p>
+                    <p className="text-[13px] font-bold text-[var(--on-surface)]">{style.label}</p>
+                    <p className="text-[10px] text-[var(--on-surface-variant)]">{style.desc}</p>
                   </motion.button>
                 ))}
               </div>
@@ -342,7 +342,7 @@ export default function ExplorePage() {
           <div className="px-5 mb-6 lg:flex lg:gap-6">
             {/* Hidden gems */}
             <div className="lg:flex-1 mb-6 lg:mb-0">
-              <p className="text-[13px] font-bold text-white mb-3">💎 Gemas ocultas</p>
+              <p className="text-[13px] font-bold text-[var(--on-surface)] mb-3">💎 Gemas ocultas</p>
               <div className="space-y-2">
                 {HIDDEN_GEMS.map(gem => (
                   <motion.button
@@ -350,17 +350,17 @@ export default function ExplorePage() {
                     whileTap={{ scale: 0.98 }}
                     onClick={() => handleDestinationSelect(gem.name)}
                     className="w-full flex items-start gap-3 p-4 rounded-2xl text-left"
-                    style={{ background: "rgba(22,22,30,0.95)", border: "1px solid var(--border-color)" }}
+                    style={{ background: "var(--surface-container)", border: "1px solid var(--border-color)" }}
                   >
                     <span className="text-[28px] shrink-0">{gem.emoji}</span>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-baseline gap-2">
-                        <p className="text-[14px] font-bold text-white">{gem.name}</p>
-                        <p className="text-[11px] text-[#555]">{gem.country}</p>
+                        <p className="text-[14px] font-bold text-[var(--on-surface)]">{gem.name}</p>
+                        <p className="text-[11px] text-[var(--on-surface-variant)]">{gem.country}</p>
                       </div>
-                      <p className="text-[12px] text-[#888] mt-1 leading-relaxed">{gem.desc}</p>
+                      <p className="text-[12px] text-[var(--on-surface-variant)] mt-1 leading-relaxed">{gem.desc}</p>
                     </div>
-                    <span className="material-symbols-outlined text-[16px] text-[#333] shrink-0 mt-1">arrow_forward</span>
+                    <span className="material-symbols-outlined text-[16px] text-[var(--on-surface-variant)] shrink-0 mt-1">arrow_forward</span>
                   </motion.button>
                 ))}
               </div>
@@ -368,7 +368,7 @@ export default function ExplorePage() {
 
             {/* Tips */}
             <div className="lg:flex-1">
-              <p className="text-[13px] font-bold text-white mb-3">💡 ¿Sabías que...?</p>
+              <p className="text-[13px] font-bold text-[var(--on-surface)] mb-3">💡 ¿Sabías que...?</p>
               <div className="space-y-2">
                 {TRAVEL_TIPS.map((tip, i) => (
                   <div
@@ -377,7 +377,7 @@ export default function ExplorePage() {
                     style={{ background: "rgba(255,255,255,0.03)", border: "1px solid var(--border-color)" }}
                   >
                     <span className="text-[18px] shrink-0">{tip.icon}</span>
-                    <p className="text-[12px] text-[#aaa] leading-relaxed">{tip.tip}</p>
+                    <p className="text-[12px] text-[var(--on-surface-variant)] leading-relaxed">{tip.tip}</p>
                   </div>
                 ))}
               </div>
@@ -387,7 +387,7 @@ export default function ExplorePage() {
           {/* Collected monuments (if any) */}
           {monuments.length > 0 && (
             <div className="px-5 mb-6">
-              <p className="text-[13px] font-bold text-white mb-3">📍 Lugares visitados</p>
+              <p className="text-[13px] font-bold text-[var(--on-surface)] mb-3">📍 Lugares visitados</p>
               <div className="space-y-2">
                 {monuments.filter(m => m.collected).map(m => (
                   <div
@@ -398,8 +398,8 @@ export default function ExplorePage() {
                     <span className="material-symbols-outlined text-[18px] text-[#30D158]"
                       style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
                     <div>
-                      <p className="text-[13px] font-semibold text-white">{m.name}</p>
-                      <p className="text-[11px] text-[#888]">{m.location}</p>
+                      <p className="text-[13px] font-semibold text-[var(--on-surface)]">{m.name}</p>
+                      <p className="text-[11px] text-[var(--on-surface-variant)]">{m.location}</p>
                     </div>
                   </div>
                 ))}

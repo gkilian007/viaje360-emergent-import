@@ -34,7 +34,7 @@ export function BudgetStep() {
                 w-full p-5 rounded-3xl border text-left transition-all duration-200
                 ${isSelected
                   ? "border-[#0A84FF] bg-[#0A84FF]/10"
-                  : "border-white/6 bg-[rgba(31,31,33,0.85)] hover:border-white/15"
+                  : "border-white/6 bg-[var(--surface-container)] hover:border-white/15"
                 }
               `}
               style={isSelected ? { boxShadow: `0 0 20px ${budget.glowColor}, 0 0 60px ${budget.glowColor}` } : {}}
@@ -43,8 +43,8 @@ export function BudgetStep() {
                 <div className="flex items-center gap-3">
                   <span className="text-3xl">{budget.emoji}</span>
                   <div>
-                    <div className="font-semibold text-[#e4e2e4]">{budget.label}</div>
-                    <div className="text-sm text-[#c0c6d6] mt-0.5">{budget.range}</div>
+                    <div className="font-semibold text-[color:var(--on-surface)]">{budget.label}</div>
+                    <div className="text-sm text-[color:var(--on-surface-variant)] mt-0.5">{budget.range}</div>
                   </div>
                 </div>
                 {isSelected && (

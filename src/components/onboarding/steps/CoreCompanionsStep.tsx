@@ -66,17 +66,17 @@ export function CoreCompanionsStep() {
 
       {needsCount && (
         <div className="mt-5">
-          <label className="block text-xs font-medium text-[#c0c6d6] uppercase tracking-wider mb-3">
+          <label className="block text-xs font-medium text-[color:var(--on-surface-variant)] uppercase tracking-wider mb-3">
             ¿Cuántos sois?
           </label>
           <div className="glass-panel p-4 flex items-center justify-between">
             <button
               onClick={() => setField("groupSize", Math.max(2, data.groupSize - 1))}
-              className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-[#e4e2e4] hover:bg-white/20 transition-colors text-xl font-light"
+              className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-[color:var(--on-surface)] hover:bg-white/20 transition-colors text-xl font-light"
             >
               −
             </button>
-            <span className="text-2xl font-bold text-[#e4e2e4]">{data.groupSize}</span>
+            <span className="text-2xl font-bold text-[color:var(--on-surface)]">{data.groupSize}</span>
             <button
               onClick={() => setField("groupSize", Math.min(20, data.groupSize + 1))}
               className="w-10 h-10 rounded-full bg-[#0A84FF]/20 flex items-center justify-center text-[#0A84FF] hover:bg-[#0A84FF]/30 transition-colors text-xl"
@@ -90,7 +90,7 @@ export function CoreCompanionsStep() {
       {/* Inline kids/pets if familia */}
       {isFamily && (
         <div className="mt-5">
-          <label className="block text-xs font-medium text-[#c0c6d6] uppercase tracking-wider mb-3">
+          <label className="block text-xs font-medium text-[color:var(--on-surface-variant)] uppercase tracking-wider mb-3">
             ¿Con niños o mascotas?
           </label>
           <ChipSelector
