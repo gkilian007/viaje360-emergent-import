@@ -48,17 +48,17 @@ export function DietaryStep() {
       />
 
       <div className="mt-5">
-        <label className="block text-xs font-medium text-[#c0c6d6] uppercase tracking-wider mb-2">
+        <label className="block text-xs font-medium text-[color:var(--on-surface-variant)] uppercase tracking-wider mb-2">
           Alergias específicas
         </label>
         <div className="glass-pill px-4 py-3 flex items-center gap-3">
-          <span className="material-symbols-outlined text-[#c0c6d6] text-xl">warning</span>
+          <span className="material-symbols-outlined text-[color:var(--on-surface-variant)] text-xl">warning</span>
           <input
             type="text"
             placeholder="Alergias específicas (ej: nueces, mariscos...)"
             value={data.allergies}
             onChange={(e) => setField("allergies", e.target.value)}
-            className="flex-1 bg-transparent text-[#e4e2e4] placeholder:text-[#c0c6d6]/50 text-sm"
+            className="flex-1 bg-transparent text-[color:var(--on-surface)] placeholder:text-[color:var(--on-surface-variant)] text-sm"
           />
         </div>
       </div>

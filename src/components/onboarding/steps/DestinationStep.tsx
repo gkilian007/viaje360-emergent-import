@@ -28,7 +28,7 @@ function TimeChips({
             px-4 py-2 rounded-full border text-sm font-medium transition-all duration-200 flex items-center gap-1.5
             ${value === chip.id
               ? "border-[#0A84FF] bg-[#0A84FF]/15 text-[#0A84FF]"
-              : "border-white/8 bg-[rgba(31,31,33,0.9)] text-[#c0c6d6] hover:border-white/20"
+              : "border-white/8 bg-[var(--surface-container)] text-[color:var(--on-surface-variant)] hover:border-white/20"
             }
           `}
         >
@@ -53,7 +53,7 @@ export function DestinationStep() {
       <div className="space-y-5">
         {/* Destination */}
         <div>
-          <label className="block text-xs font-medium text-[#c0c6d6] uppercase tracking-wider mb-2">
+          <label className="block text-xs font-medium text-[color:var(--on-surface-variant)] uppercase tracking-wider mb-2">
             Destino
           </label>
           <div className="glass-pill px-4 py-3 flex items-center gap-3">
@@ -63,7 +63,7 @@ export function DestinationStep() {
               placeholder="Ciudad, país o región..."
               value={data.destination}
               onChange={(e) => setField("destination", e.target.value)}
-              className="flex-1 bg-transparent text-[#e4e2e4] placeholder:text-[#c0c6d6]/50 text-sm"
+              className="flex-1 bg-transparent text-[color:var(--on-surface)] placeholder:text-[color:var(--on-surface-variant)] text-sm"
             />
           </div>
         </div>
@@ -71,7 +71,7 @@ export function DestinationStep() {
         {/* Dates */}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-medium text-[#c0c6d6] uppercase tracking-wider mb-2">
+            <label className="block text-xs font-medium text-[color:var(--on-surface-variant)] uppercase tracking-wider mb-2">
               Llegada
             </label>
             <div className="glass-panel px-4 py-3">
@@ -79,12 +79,12 @@ export function DestinationStep() {
                 type="date"
                 value={data.startDate}
                 onChange={(e) => setField("startDate", e.target.value)}
-                className="w-full bg-transparent text-[#e4e2e4] text-sm [color-scheme:dark]"
+                className="w-full bg-transparent text-[color:var(--on-surface)] text-sm [color-scheme:dark]"
               />
             </div>
           </div>
           <div>
-            <label className="block text-xs font-medium text-[#c0c6d6] uppercase tracking-wider mb-2">
+            <label className="block text-xs font-medium text-[color:var(--on-surface-variant)] uppercase tracking-wider mb-2">
               Salida
             </label>
             <div className="glass-panel px-4 py-3">
@@ -92,7 +92,7 @@ export function DestinationStep() {
                 type="date"
                 value={data.endDate}
                 onChange={(e) => setField("endDate", e.target.value)}
-                className="w-full bg-transparent text-[#e4e2e4] text-sm [color-scheme:dark]"
+                className="w-full bg-transparent text-[color:var(--on-surface)] text-sm [color-scheme:dark]"
               />
             </div>
           </div>
@@ -100,7 +100,7 @@ export function DestinationStep() {
 
         {/* Arrival time */}
         <div>
-          <label className="block text-xs font-medium text-[#c0c6d6] uppercase tracking-wider mb-2">
+          <label className="block text-xs font-medium text-[color:var(--on-surface-variant)] uppercase tracking-wider mb-2">
             Hora de llegada
           </label>
           <TimeChips
@@ -111,7 +111,7 @@ export function DestinationStep() {
 
         {/* Departure time */}
         <div>
-          <label className="block text-xs font-medium text-[#c0c6d6] uppercase tracking-wider mb-2">
+          <label className="block text-xs font-medium text-[color:var(--on-surface-variant)] uppercase tracking-wider mb-2">
             Hora de salida
           </label>
           <TimeChips

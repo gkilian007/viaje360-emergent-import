@@ -9,7 +9,7 @@ const HotelMapPicker = dynamic(() => import("./HotelMapPicker").then(m => m.Hote
   ssr: false,
   loading: () => (
     <div className="w-full h-[220px] rounded-2xl bg-white/5 flex items-center justify-center">
-      <span className="text-sm text-[#c0c6d6]">Cargando mapa...</span>
+      <span className="text-sm text-[color:var(--on-surface-variant)]">Cargando mapa...</span>
     </div>
   ),
 })
@@ -118,7 +118,7 @@ export function AccommodationStep() {
       {/* Popular quick-select chips */}
       {!data.accommodationZone && (
         <div className="mb-4">
-          <p className="text-[11px] uppercase tracking-widest text-[#c0c6d6] font-medium mb-2.5">
+          <p className="text-[11px] uppercase tracking-widest text-[color:var(--on-surface-variant)] font-medium mb-2.5">
             Tipo de alojamiento
           </p>
           <div className="flex flex-wrap gap-2">
@@ -129,9 +129,9 @@ export function AccommodationStep() {
                 onClick={() => handleSelectPopular(opt.label)}
                 className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[13px] font-medium transition-all hover:border-white/20"
                 style={{
-                  background: "rgba(31,31,33,0.9)",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                  color: "#c0c6d6",
+                  background: "var(--surface-container)",
+                  border: "1px solid var(--border-color)",
+                  color: "var(--on-surface-variant)",
                 }}
               >
                 <span>{opt.emoji}</span>
@@ -153,10 +153,10 @@ export function AccommodationStep() {
             value={data.accommodationZone}
             onChange={(e) => handleInputChange(e.target.value)}
             onFocus={() => { if (searchResults.length > 0) setShowDropdown(true) }}
-            className="flex-1 bg-transparent text-[#e4e2e4] placeholder:text-[#c0c6d6]/50 text-sm outline-none"
+            className="flex-1 bg-transparent text-[color:var(--on-surface)] placeholder:text-[color:var(--on-surface-variant)] text-sm outline-none"
           />
           {searching && (
-            <span className="material-symbols-outlined text-[#c0c6d6] text-lg animate-spin">progress_activity</span>
+            <span className="material-symbols-outlined text-[color:var(--on-surface-variant)] text-lg animate-spin">progress_activity</span>
           )}
           {hasPinned && (
             <span className="material-symbols-outlined text-[#30D158] text-lg">check_circle</span>
@@ -172,7 +172,7 @@ export function AccommodationStep() {
                 setSearchResults([])
                 setResolvedAddress(null)
               }}
-              className="text-[#888] hover:text-white"
+              className="text-[color:var(--on-surface-variant)] hover:text-[color:var(--on-surface)]"
             >
               <span className="material-symbols-outlined text-[18px]">close</span>
             </button>
@@ -184,8 +184,8 @@ export function AccommodationStep() {
           <div
             className="absolute z-20 left-0 right-0 top-full mt-1 rounded-xl overflow-hidden max-h-[240px] overflow-y-auto"
             style={{
-              background: "rgba(30,30,34,0.98)",
-              border: "1px solid rgba(255,255,255,0.1)",
+              background: "var(--surface-container)",
+              border: "1px solid var(--border-color)",
               boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
             }}
           >
@@ -203,8 +203,8 @@ export function AccommodationStep() {
                 >
                   <span className="material-symbols-outlined text-[#0A84FF] text-[20px] mt-0.5 shrink-0">location_on</span>
                   <div className="min-w-0">
-                    <p className="text-[13px] text-[#e4e2e4] truncate">{primary}</p>
-                    {secondary && <p className="text-[11px] text-[#888] truncate">{secondary}</p>}
+                    <p className="text-[13px] text-[color:var(--on-surface)] truncate">{primary}</p>
+                    {secondary && <p className="text-[11px] text-[color:var(--on-surface-variant)] truncate">{secondary}</p>}
                   </div>
                 </button>
               )
@@ -255,12 +255,12 @@ export function AccommodationStep() {
           <span className="material-symbols-outlined text-[#30D158] text-[20px] mt-0.5 shrink-0">pin_drop</span>
           <div className="min-w-0">
             <p className="text-[11px] uppercase tracking-widest text-[#30D158] font-medium mb-1">Ubicación seleccionada</p>
-            <p className="text-[13px] text-[#e4e2e4] leading-relaxed">{resolvedAddress}</p>
+            <p className="text-[13px] text-[color:var(--on-surface)] leading-relaxed">{resolvedAddress}</p>
           </div>
         </div>
       )}
 
-      <p className="mt-3 text-xs text-[#c0c6d6]/60 text-center">
+      <p className="mt-3 text-xs text-[color:var(--on-surface-variant)] text-center">
         {hasPinned
           ? "📍 Ubicación guardada — las rutas saldrán desde aquí"
           : "Puedes dejarlo en blanco y añadirlo más tarde"}

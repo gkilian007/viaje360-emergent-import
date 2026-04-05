@@ -32,12 +32,12 @@ export function MobilityStep() {
               w-full p-4 rounded-2xl border text-left transition-all duration-200 flex items-center gap-3
               ${data.mobility === chip.id
                 ? "border-[#0A84FF] bg-[#0A84FF]/10 glow-blue"
-                : "border-white/6 bg-[rgba(31,31,33,0.85)] hover:border-white/15"
+                : "border-white/6 bg-[var(--surface-container)] hover:border-white/15"
               }
             `}
           >
             <span className="text-2xl">{chip.emoji}</span>
-            <span className="text-sm font-medium text-[#e4e2e4]">{chip.label}</span>
+            <span className="text-sm font-medium text-[color:var(--on-surface)]">{chip.label}</span>
           </button>
         ))}
       </div>

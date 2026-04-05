@@ -28,16 +28,16 @@ export function FamousLocalStep() {
 
         <div className="mt-5 text-center">
           {data.famousLocal <= 25 && (
-            <p className="text-sm text-[#c0c6d6]">Principalmente <span className="text-[#ffdb3c] font-medium">highlights turísticos</span></p>
+            <p className="text-sm text-[color:var(--on-surface-variant)]">Principalmente <span className="text-[#ffdb3c] font-medium">highlights turísticos</span></p>
           )}
           {data.famousLocal > 25 && data.famousLocal <= 50 && (
-            <p className="text-sm text-[#c0c6d6]">Mezcla con <span className="text-[#e4e2e4] font-medium">más turístico</span></p>
+            <p className="text-sm text-[color:var(--on-surface-variant)]">Mezcla con <span className="text-[color:var(--on-surface)] font-medium">más turístico</span></p>
           )}
           {data.famousLocal > 50 && data.famousLocal <= 75 && (
-            <p className="text-sm text-[#c0c6d6]">Mezcla con <span className="text-[#0A84FF] font-medium">más local</span></p>
+            <p className="text-sm text-[color:var(--on-surface-variant)]">Mezcla con <span className="text-[#0A84FF] font-medium">más local</span></p>
           )}
           {data.famousLocal > 75 && (
-            <p className="text-sm text-[#c0c6d6]">Principalmente <span className="text-[#0A84FF] font-medium">joyitas locales</span></p>
+            <p className="text-sm text-[color:var(--on-surface-variant)]">Principalmente <span className="text-[#0A84FF] font-medium">joyitas locales</span></p>
           )}
         </div>
       </div>

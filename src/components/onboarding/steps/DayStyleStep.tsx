@@ -16,7 +16,7 @@ export function DayStyleStep() {
       />
 
       <div className="glass-card p-6 mb-4">
-        <p className="text-xs font-medium text-[#c0c6d6] uppercase tracking-wider mb-4">
+        <p className="text-xs font-medium text-[color:var(--on-surface-variant)] uppercase tracking-wider mb-4">
           ¿A qué hora empiezas el día?
         </p>
         <GlassSlider
@@ -42,8 +42,8 @@ export function DayStyleStep() {
       <div className="glass-card p-5">
         <div className="flex items-center justify-between">
           <div>
-            <p className="font-medium text-[#e4e2e4]">¿Siesta a mediodía?</p>
-            <p className="text-xs text-[#c0c6d6] mt-0.5">Bloqueamos 1-2h tras el almuerzo</p>
+            <p className="font-medium text-[color:var(--on-surface)]">¿Siesta a mediodía?</p>
+            <p className="text-xs text-[color:var(--on-surface-variant)] mt-0.5">Bloqueamos 1-2h tras el almuerzo</p>
           </div>
           <button
             onClick={() => setField("wantsSiesta", !data.wantsSiesta)}

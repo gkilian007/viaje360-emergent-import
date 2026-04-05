@@ -23,13 +23,13 @@ export function FirstTimeStep() {
             w-full p-6 rounded-3xl border text-left transition-all duration-200
             ${data.firstTime === true
               ? "border-[#0A84FF] bg-[#0A84FF]/10 glow-blue"
-              : "border-white/6 bg-[rgba(31,31,33,0.85)] hover:border-white/15"
+              : "border-white/6 bg-[var(--surface-container)] hover:border-white/15"
             }
           `}
         >
           <div className="text-3xl mb-2">🆕</div>
-          <div className="font-semibold text-[#e4e2e4]">Primera vez</div>
-          <p className="text-sm text-[#c0c6d6] mt-1">
+          <div className="font-semibold text-[color:var(--on-surface)]">Primera vez</div>
+          <p className="text-sm text-[color:var(--on-surface-variant)] mt-1">
             Más highlights, orientación y contexto histórico
           </p>
         </motion.button>
@@ -41,13 +41,13 @@ export function FirstTimeStep() {
             w-full p-6 rounded-3xl border text-left transition-all duration-200
             ${data.firstTime === false
               ? "border-[#0A84FF] bg-[#0A84FF]/10 glow-blue"
-              : "border-white/6 bg-[rgba(31,31,33,0.85)] hover:border-white/15"
+              : "border-white/6 bg-[var(--surface-container)] hover:border-white/15"
             }
           `}
         >
           <div className="text-3xl mb-2">🔄</div>
-          <div className="font-semibold text-[#e4e2e4]">Ya conozco el destino</div>
-          <p className="text-sm text-[#c0c6d6] mt-1">
+          <div className="font-semibold text-[color:var(--on-surface)]">Ya conozco el destino</div>
+          <p className="text-sm text-[color:var(--on-surface-variant)] mt-1">
             Más joyitas, lugares profundos y fuera de ruta
           </p>
         </motion.button>

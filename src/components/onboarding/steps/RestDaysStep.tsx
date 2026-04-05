@@ -25,8 +25,8 @@ export function RestDaysStep() {
       <div className="glass-card p-5 mb-4">
         <div className="flex items-center justify-between">
           <div>
-            <p className="font-medium text-[#e4e2e4]">¿Quieres días libres intercalados?</p>
-            <p className="text-xs text-[#c0c6d6] mt-0.5">Sin planificar — solo explorar</p>
+            <p className="font-medium text-[color:var(--on-surface)]">¿Quieres días libres intercalados?</p>
+            <p className="text-xs text-[color:var(--on-surface-variant)] mt-0.5">Sin planificar — solo explorar</p>
           </div>
           <button
             onClick={() => setField("wantsRestDays", !data.wantsRestDays)}
@@ -55,7 +55,7 @@ export function RestDaysStep() {
                 w-full p-4 rounded-2xl border text-left text-sm font-medium transition-all duration-200
                 ${data.restDayFrequency === opt.id
                   ? "border-[#0A84FF] bg-[#0A84FF]/10 text-[#0A84FF]"
-                  : "border-white/6 bg-[rgba(31,31,33,0.85)] text-[#c0c6d6] hover:border-white/15"
+                  : "border-white/6 bg-[var(--surface-container)] text-[color:var(--on-surface-variant)] hover:border-white/15"
                 }
               `}
             >

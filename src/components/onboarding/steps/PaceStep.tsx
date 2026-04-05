@@ -31,7 +31,7 @@ export function PaceStep() {
             <p className="text-sm text-[#0A84FF] font-medium">Ritmo relajado — tiempo para improvisar</p>
           )}
           {data.pace > 33 && data.pace <= 66 && (
-            <p className="text-sm text-[#e4e2e4] font-medium">Ritmo equilibrado — lo mejor de los dos mundos</p>
+            <p className="text-sm text-[color:var(--on-surface)] font-medium">Ritmo equilibrado — lo mejor de los dos mundos</p>
           )}
           {data.pace > 66 && (
             <p className="text-sm text-[#ffdb3c] font-medium">Ritmo intenso — ¡no te perderás nada!</p>
