@@ -1,26 +1,33 @@
 {
   "framework": "nextjs",
+  "git": {
+    "deploymentEnabled": {
+      "main": true,
+      "*": false
+    }
+  },
+  "ignoreCommand": "node scripts/vercel-ignore-build.mjs",
   "functions": {
     "src/app/api/itinerary/generate/route.ts": {
-      "maxDuration": 60
+      "maxDuration": 45
     },
     "src/app/api/itinerary/adapt/route.ts": {
-      "maxDuration": 60
+      "maxDuration": 45
     },
     "src/app/api/chat/route.ts": {
-      "maxDuration": 30
+      "maxDuration": 20
     },
     "src/app/api/cron/dispatch-notifications/route.ts": {
-      "maxDuration": 30
+      "maxDuration": 20
     },
     "src/app/api/proactive/evaluate/route.ts": {
       "maxDuration": 15
     },
     "src/app/api/cron/process-notifications/route.ts": {
-      "maxDuration": 30
+      "maxDuration": 20
     },
     "src/app/api/cron/unified/route.ts": {
-      "maxDuration": 60
+      "maxDuration": 45
     }
   },
   "crons": [
