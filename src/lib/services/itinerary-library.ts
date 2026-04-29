@@ -1,6 +1,7 @@
 import type { OnboardingData } from "@/lib/onboarding-types"
-import type { GeneratedItinerary, DbOnboardingProfile, DbItineraryVersion } from "@/lib/supabase/database.types"
+import type { GeneratedItinerary, DbOnboardingProfile } from "@/lib/supabase/database.types"
 import { createServiceClient } from "@/lib/supabase/server"
+import curatedSeeds from "@/../knowledge/seed-itineraries/curated-seeds.json"
 
 interface ItineraryLibraryMatch {
   itinerary: GeneratedItinerary
@@ -9,6 +10,13 @@ interface ItineraryLibraryMatch {
   sourceDestination: string
   score: number
   reasons: string[]
+}
+
+interface CuratedSeedEntry {
+  destination: string
+  targetProfiles: string[]
+  notes: string
+  seedIds: string[]
 }
 
 interface LibraryCandidate {
@@ -43,6 +51,14 @@ function firstTripRelation(row: VersionRow): { destination: string; onboarding_i
   return Array.isArray(row.trips) ? (row.trips[0] ?? null) : row.trips
 }
 
+const DESTINATION_ALIASES: Record<string, string> = {
+  "new york": "nueva york",
+  "nueva york": "nueva york",
+  "nyc": "nueva york",
+  "saint petersburg": "saint petersburg",
+  "st petersburg": "saint petersburg",
+}
+
 function normalizeText(value: string | null | undefined): string {
   return (value ?? "")
     .normalize("NFD")
@@ -51,12 +67,32 @@ function normalizeText(value: string | null | undefined): string {
     .trim()
 }
 
+function normalizeDestination(value: string | null | undefined): string {
+  const normalized = normalizeText(value)
+  return DESTINATION_ALIASES[normalized] ?? normalized
+}
+
 function normalizeList(values: string[] | null | undefined): string[] {
   return (values ?? []).map(normalizeText).filter(Boolean)
 }
 
 function unique<T>(values: T[]): T[] {
   return [...new Set(values)]
+}
+
+function slugify(value: string | null | undefined): string {
+  return normalizeText(value).replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")
+}
+
+function buildSeedKey(destination: string, tripId: string, versionNumber = 1): string {
+  return `${slugify(destination)}-${tripId}-v${versionNumber}`
+}
+
+function getRequestedDayCount(input: OnboardingData): number {
+  const start = new Date(`${input.startDate}T00:00:00Z`)
+  const end = new Date(`${input.endDate}T00:00:00Z`)
+  const diffMs = end.getTime() - start.getTime()
+  return Math.max(1, Math.round(diffMs / 86400000) + 1)
 }
 
 function remapDateKeepingTime(originalDate: string, targetDate: string, itinerary: GeneratedItinerary): GeneratedItinerary {
@@ -77,56 +113,75 @@ function remapDateKeepingTime(originalDate: string, targetDate: string, itinerar
   }
 }
 
+function buildCuratedSeedBoostMap(): Map<string, CuratedSeedEntry> {
+  const map = new Map<string, CuratedSeedEntry>()
+  for (const entry of curatedSeeds as CuratedSeedEntry[]) {
+    for (const seedId of entry.seedIds) {
+      map.set(seedId, entry)
+    }
+  }
+  return map
+}
+
+const curatedSeedBoostMap = buildCuratedSeedBoostMap()
+
 function scoreCandidate(input: OnboardingData, candidate: LibraryCandidate): { score: number; reasons: string[] } {
   const reasons: string[] = []
   let score = 0
 
-  const inputDestination = normalizeText(input.destination)
-  const candidateDestination = normalizeText(candidate.destination)
+  const inputDestination = normalizeDestination(input.destination)
+  const candidateDestination = normalizeDestination(candidate.destination)
   if (inputDestination !== candidateDestination) {
     return { score: -1, reasons: ["destination-mismatch"] }
   }
   score += 50
   reasons.push("same-destination")
 
+  const requestedDayCount = getRequestedDayCount(input)
+  const candidateDayCount = candidate.snapshot.days.length
+  if (candidateDayCount === requestedDayCount) {
+    score += 12
+    reasons.push("same-day-count")
+  } else if (Math.abs(candidateDayCount - requestedDayCount) === 1) {
+    score += 6
+    reasons.push("near-day-count")
+  }
+
   if (!candidate.onboarding) {
     score += 5
     reasons.push("no-profile-fallback")
-    return { score, reasons }
-  }
-
-  if ((input.companion ?? "") === candidate.onboarding.companion) {
+  } else if ((input.companion ?? "") === candidate.onboarding.companion) {
     score += 10
     reasons.push("same-companion")
   }
 
-  if ((input.groupSize ?? 1) === (candidate.onboarding.group_size ?? 1)) {
+  if (candidate.onboarding && (input.groupSize ?? 1) === (candidate.onboarding.group_size ?? 1)) {
     score += 6
     reasons.push("same-group-size")
   }
 
-  if ((input.mobility ?? "") === (candidate.onboarding.mobility ?? "")) {
+  if (candidate.onboarding && (input.mobility ?? "") === (candidate.onboarding.mobility ?? "")) {
     score += 10
     reasons.push("same-mobility")
   }
 
-  if ((input.travelerStyle ?? "") === (candidate.onboarding.traveler_style ?? "")) {
+  if (candidate.onboarding && (input.travelerStyle ?? "") === (candidate.onboarding.traveler_style ?? "")) {
     score += 8
     reasons.push("same-style")
   }
 
-  if ((input.budget ?? "") === (candidate.onboarding.budget_level ?? "")) {
+  if (candidate.onboarding && (input.budget ?? "") === (candidate.onboarding.budget_level ?? "")) {
     score += 8
     reasons.push("same-budget")
   }
 
-  if ((input.firstTime ?? null) === (candidate.onboarding.first_time ?? null)) {
+  if (candidate.onboarding && (input.firstTime ?? null) === (candidate.onboarding.first_time ?? null)) {
     score += 5
     reasons.push("same-first-time")
   }
 
   const inputInterests = new Set(normalizeList(input.interests))
-  const candidateInterests = new Set(normalizeList(candidate.onboarding.interests))
+  const candidateInterests = new Set(normalizeList(candidate.onboarding?.interests))
   const sharedInterests = [...inputInterests].filter((interest) => candidateInterests.has(interest))
   if (sharedInterests.length > 0) {
     score += Math.min(18, sharedInterests.length * 4)
@@ -134,7 +189,7 @@ function scoreCandidate(input: OnboardingData, candidate: LibraryCandidate): { s
   }
 
   const inputTransport = new Set(normalizeList(input.transport))
-  const candidateTransport = new Set(normalizeList(candidate.onboarding.transport))
+  const candidateTransport = new Set(normalizeList(candidate.onboarding?.transport))
   const sharedTransport = [...inputTransport].filter((item) => candidateTransport.has(item))
   if (sharedTransport.length > 0) {
     score += Math.min(8, sharedTransport.length * 3)
@@ -142,11 +197,27 @@ function scoreCandidate(input: OnboardingData, candidate: LibraryCandidate): { s
   }
 
   const inputKidsPets = new Set(normalizeList(input.kidsPets))
-  const candidateKidsPets = new Set(normalizeList(candidate.onboarding.kids_pets))
+  const candidateKidsPets = new Set(normalizeList(candidate.onboarding?.kids_pets))
   const sharedKidsPets = [...inputKidsPets].filter((item) => candidateKidsPets.has(item))
   if (sharedKidsPets.length > 0) {
     score += Math.min(8, sharedKidsPets.length * 4)
     reasons.push(`shared-kids-pets:${sharedKidsPets.join(",")}`)
+  }
+
+  const curatedSeed = curatedSeedBoostMap.get(buildSeedKey(candidate.destination, candidate.tripId))
+  if (curatedSeed) {
+    score += 20
+    reasons.push("curated-seed")
+
+    const profileText = normalizeText(curatedSeed.targetProfiles.join(" "))
+    if (input.companion && profileText.includes(normalizeText(input.companion))) {
+      score += 6
+      reasons.push("curated-profile-companion")
+    }
+    if (input.budget && profileText.includes(normalizeText(input.budget))) {
+      score += 4
+      reasons.push("curated-profile-budget")
+    }
   }
 
   return { score, reasons }
@@ -179,9 +250,9 @@ export async function findReusableItinerary(
     return null
   }
 
-  const destination = normalizeText(input.destination)
+  const destination = normalizeDestination(input.destination)
   const rows = data as VersionRow[]
-  const filtered = rows.filter((row) => normalizeText(firstTripRelation(row)?.destination) === destination)
+  const filtered = rows.filter((row) => normalizeDestination(firstTripRelation(row)?.destination) === destination)
   if (filtered.length === 0) return null
 
   const onboardingIds = unique(
