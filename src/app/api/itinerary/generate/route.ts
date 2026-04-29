@@ -36,9 +36,13 @@ export async function POST(req: NextRequest) {
     const body = await parseJsonBody(req, onboardingRequestSchema)
     const identity = await resolveRequestIdentity()
 
-    // Access guard: check canGenerate
-    const guard = await requireAccess(identity.userId, body.destination, "canGenerate", body.startDate)
-    if (!guard.ok) return guard.response
+    // Access guard: authenticated users go through the paywall/trial system.
+    // Anonymous onboarding users are allowed to generate locally (rate-limited)
+    // so the public funnel can be tested and used before login.
+    if (identity.userId) {
+      const guard = await requireAccess(identity.userId, body.destination, "canGenerate", body.startDate)
+      if (!guard.ok) return guard.response
+    }
 
     const personalization = await getPersonalRecommendationContext({
       userId: identity.userId,
