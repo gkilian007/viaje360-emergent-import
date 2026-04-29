@@ -41,6 +41,13 @@ Curated seed file:
 
 This file groups the best currently available reusable itineraries by destination and intended profile.
 
+It is no longer only one entry per destination. The curated layer can contain multiple entries per city so Viaje360 can prefer better-matched seeds for profiles such as:
+
+- pareja / familia / solo
+- economico / moderado / premium
+- historia / gastronomia / arte / mix
+- movilidad reducida / accesible when relevant
+
 Initial destinations covered:
 
 - Roma
@@ -101,8 +108,9 @@ Suggested first batch:
 ### Short term
 1. normalize destination aliases (`New York` / `Nueva York`, etc.)
 2. score curated seeds above raw historic library entries
-3. expose library-hit telemetry in analytics/dashboard
-4. add one command/script to materialize curated seeds into a DB table if needed later
+3. allow curated seeds to act as reusable fallback before AI when DB match is weak/missing
+4. expose library-hit telemetry in analytics/dashboard
+5. add one command/script to materialize curated seeds into a DB table if needed later
 
 ### Medium term
 Add a dedicated table such as `itinerary_library` when the curated catalog grows enough that it should stop depending on `itinerary_versions` as the only source.

@@ -325,13 +325,13 @@ export async function findReusableItinerary(
 
   if (error || !data) {
     console.warn("[itinerary-library] version lookup failed", error)
-    return null
+    return findCuratedSeedFallback(input)
   }
 
   const destination = normalizeDestination(input.destination)
   const rows = data as VersionRow[]
   const filtered = rows.filter((row) => normalizeDestination(firstTripRelation(row)?.destination) === destination)
-  if (filtered.length === 0) return null
+  if (filtered.length === 0) return findCuratedSeedFallback(input)
 
   const onboardingIds = unique(
     filtered.map((row) => firstTripRelation(row)?.onboarding_id).filter((value): value is string => Boolean(value))

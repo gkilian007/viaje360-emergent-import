@@ -1,65 +1,118 @@
 [
   {
     "destination": "Roma",
-    "targetProfiles": ["pareja", "cultural", "moderado"],
-    "notes": "Base fuerte para histórico/gastronómico y primera visita.",
+    "targetProfiles": ["pareja", "historia", "gastronomia", "moderado", "primera-visita"],
+    "notes": "Ruta fuerte para pareja cultural con mezcla de clásicos y comida.",
+    "seedIds": [
+      "roma-795ab9d5-1022-4004-8039-e8891226b2c7-v1",
+      "roma-9d2a108e-5bbb-405f-bf16-5c3c1c377125-v1"
+    ]
+  },
+  {
+    "destination": "Roma",
+    "targetProfiles": ["familia", "mix", "moderado", "highlights"],
+    "notes": "Base familiar y cómoda para primera visita a Roma.",
     "seedIds": [
       "roma-600279d8-3b45-4671-9e54-59067b8c391a-v1",
-      "roma-5336fb5b-055d-42b5-8f98-f1c84ac06635-v1",
-      "roma-9d2a108e-5bbb-405f-bf16-5c3c1c377125-v1",
-      "roma-795ab9d5-1022-4004-8039-e8891226b2c7-v1"
+      "roma-5336fb5b-055d-42b5-8f98-f1c84ac06635-v1"
+    ]
+  },
+  {
+    "destination": "Roma",
+    "targetProfiles": ["solo", "cultural", "economico", "explorador"],
+    "notes": "Buena base para viajero solo con energía de exploración.",
+    "seedIds": [
+      "roma-c4c6f43d-8964-4ef4-924d-e019ff8df6cb-v1",
+      "roma-4f81eb7f-a928-45fb-a18b-e746088fadc4-v1"
     ]
   },
   {
     "destination": "Barcelona",
-    "targetProfiles": ["solo", "pareja", "gastronomia"],
-    "notes": "Buenas opciones para highlights + comida + paseo urbano.",
+    "targetProfiles": ["pareja", "gastronomia", "moderado", "historia"],
+    "notes": "Encaje fuerte para escapada de pareja con highlights y comida.",
     "seedIds": [
-      "barcelona-7a9eae93-a177-433d-845e-e7481120c928-v1",
       "barcelona-4704304e-9a67-4863-be00-8ead54702dd1-v1",
       "barcelona-97959edf-8a94-4f7e-bacf-86968dc6b249-v1"
     ]
   },
   {
+    "destination": "Barcelona",
+    "targetProfiles": ["familia", "mix", "moderado", "highlights"],
+    "notes": "Ruta simple y reutilizable para primera visita familiar.",
+    "seedIds": [
+      "barcelona-7a9eae93-a177-433d-845e-e7481120c928-v1"
+    ]
+  },
+  {
+    "destination": "Barcelona",
+    "targetProfiles": ["solo", "arte", "premium", "design"],
+    "notes": "Semilla orientada a perfil creativo/urbano.",
+    "seedIds": [
+      "barcelona-19dd1817-6d17-47a0-92c2-d4d8ef161618-v1"
+    ]
+  },
+  {
     "destination": "Paris",
-    "targetProfiles": ["familia", "cultural", "premium"],
-    "notes": "Base útil para variantes family y clásico París.",
+    "targetProfiles": ["pareja", "clasico", "premium", "cultural"],
+    "notes": "París clásico de alto valor para pareja cultural.",
+    "seedIds": [
+      "paris-c982e033-8f37-4525-9b8e-795eeebd461a-v1",
+      "paris-97847754-2448-4cbb-be44-aa58b9c8d620-v1"
+    ]
+  },
+  {
+    "destination": "Paris",
+    "targetProfiles": ["familia", "highlights", "moderado", "fotografia"],
+    "notes": "Semilla family/highlights reutilizable para París.",
     "seedIds": [
       "paris-161f7782-95c3-4af7-9d17-9711ad9715b2-v1",
-      "paris-97847754-2448-4cbb-be44-aa58b9c8d620-v1",
-      "paris-c982e033-8f37-4525-9b8e-795eeebd461a-v1"
+      "paris-1ad1b28d-5f56-4bb8-8d1d-b45d6272b77e-v1"
     ]
   },
   {
     "destination": "Madrid",
-    "targetProfiles": ["cultural", "movilidad-reducida", "mix"],
-    "notes": "Muy valioso por la capa nueva de transporte/movilidad Madrid.",
+    "targetProfiles": ["cultural", "mix", "moderado", "historia"],
+    "notes": "Muy valiosa por transporte y centro clásico.",
     "seedIds": [
-      "madrid-6e113154-029a-4fa8-8cfb-7d04a6fe2d0d-v1",
       "madrid-1f9aa2fb-c342-4831-8f25-737726e732fd-v1"
     ]
   },
   {
+    "destination": "Madrid",
+    "targetProfiles": ["movilidad-reducida", "accesible", "moderado", "cultural"],
+    "notes": "Semilla importante para accesibilidad y prueba del layer Madrid.",
+    "seedIds": [
+      "madrid-6e113154-029a-4fa8-8cfb-7d04a6fe2d0d-v1"
+    ]
+  },
+  {
     "destination": "Lisboa",
-    "targetProfiles": ["pareja", "historia", "gastronomia"],
-    "notes": "Útil como semilla única mientras crece catálogo.",
+    "targetProfiles": ["pareja", "historia", "gastronomia", "moderado"],
+    "notes": "Base única pero de alta reutilización probable.",
     "seedIds": [
       "lisboa-c194f1ff-1c94-44d5-80c8-9961b79882e3-v1"
     ]
   },
   {
     "destination": "Nueva York",
-    "targetProfiles": ["familia", "highlights", "primera-visita"],
-    "notes": "Conviene unificar New York/Nueva York como alias posteriores.",
+    "targetProfiles": ["familia", "highlights", "premium", "primera-visita"],
+    "notes": "Semilla principal para familia/highlights en Nueva York.",
     "seedIds": [
-      "new-york-e9cd3cd8-3c83-45b8-a07a-363f8af864fa-v1",
+      "new-york-e9cd3cd8-3c83-45b8-a07a-363f8af864fa-v1"
+    ]
+  },
+  {
+    "destination": "Nueva York",
+    "targetProfiles": ["pareja", "historia", "gastronomia", "moderado"],
+    "notes": "Variante más urbana/cultural para reutilización en Nueva York.",
+    "seedIds": [
       "nueva-york-44f550f5-8501-45f2-996d-047007cb0843-v1"
     ]
   },
   {
     "destination": "Tokyo",
-    "targetProfiles": ["explorador", "mix", "urbano"],
-    "notes": "Base temprana para destino de alto valor futuro.",
+    "targetProfiles": ["explorador", "urbano", "moderado", "mix"],
+    "notes": "Base útil para destino de alto valor futuro.",
     "seedIds": [
       "tokyo-52eedf79-4329-40e2-9db1-52ff42079241-v2",
       "tokyo-52eedf79-4329-40e2-9db1-52ff42079241-v1"
@@ -67,24 +120,24 @@
   },
   {
     "destination": "Toledo",
-    "targetProfiles": ["familia", "historia"],
-    "notes": "Buen ejemplo de escapada corta.",
+    "targetProfiles": ["familia", "historia", "moderado"],
+    "notes": "Escapada corta clara y muy reusable.",
     "seedIds": [
       "toledo-b2b97928-722b-4511-8c86-062143889b35-v1"
     ]
   },
   {
     "destination": "Saint Petersburg",
-    "targetProfiles": ["cultural", "premium"],
-    "notes": "Semilla única, mantener mientras no haya más variedad.",
+    "targetProfiles": ["cultural", "premium", "historia"],
+    "notes": "Mantener como seed única mientras el catálogo crece.",
     "seedIds": [
       "saint-petersburg-5756e534-b8b6-47a3-96c9-85df7223b724-v1"
     ]
   },
   {
     "destination": "Las Batuecas",
-    "targetProfiles": ["naturaleza", "aventura"],
-    "notes": "Ejemplo útil para categoría outdoor/escapada natural.",
+    "targetProfiles": ["naturaleza", "aventura", "escapada"],
+    "notes": "Seed específica de naturaleza/outdoor.",
     "seedIds": [
       "las-batuecas-6a134403-a971-4ad6-a9cd-106352f2b34c-v1"
     ]
