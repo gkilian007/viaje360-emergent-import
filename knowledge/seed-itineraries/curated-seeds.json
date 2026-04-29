@@ -17,7 +17,7 @@
     "seedIds": [
       "barcelona-7a9eae93-a177-433d-845e-e7481120c928-v1",
       "barcelona-4704304e-9a67-4863-be00-8ead54702dd1-v1",
-      "barcelona-0bc347d4-4db3-4d5f-b5f3-f3b0f11c14de-v1"
+      "barcelona-97959edf-8a94-4f7e-bacf-86968dc6b249-v1"
     ]
   },
   {
@@ -27,7 +27,7 @@
     "seedIds": [
       "paris-161f7782-95c3-4af7-9d17-9711ad9715b2-v1",
       "paris-97847754-2448-4cbb-be44-aa58b9c8d620-v1",
-      "paris-64aee2d8-1e65-43b4-a85c-3f71e675bf4f-v1"
+      "paris-c982e033-8f37-4525-9b8e-795eeebd461a-v1"
     ]
   },
   {
@@ -61,8 +61,8 @@
     "targetProfiles": ["explorador", "mix", "urbano"],
     "notes": "Base temprana para destino de alto valor futuro.",
     "seedIds": [
-      "tokyo-4c95f661-0dbe-44af-8d3e-99a34c8b0e72-v1",
-      "tokyo-346700df-d445-4f06-9b7a-274f0f8296e1-v1"
+      "tokyo-52eedf79-4329-40e2-9db1-52ff42079241-v2",
+      "tokyo-52eedf79-4329-40e2-9db1-52ff42079241-v1"
     ]
   },
   {
