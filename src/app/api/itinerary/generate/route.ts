@@ -52,6 +52,17 @@ export async function POST(req: NextRequest) {
     })
 
     const reusableItinerary = await findReusableItinerary(body)
+    const generationSource = reusableItinerary
+      ? {
+          type: reusableItinerary.sourceType ?? "library",
+          sourceTripId: reusableItinerary.sourceTripId,
+          sourceVersionId: reusableItinerary.sourceVersionId,
+          score: reusableItinerary.score,
+          reasons: reusableItinerary.reasons,
+        }
+      : {
+          type: "ai" as const,
+        }
     const generatedItinerary = reusableItinerary?.itinerary ?? await generateItinerary(body, { userId: identity.userId, personalization })
 
     // Quick inline geocoding pass: only validate LLM coords (fast, no Nominatim calls).
@@ -206,8 +217,27 @@ export async function POST(req: NextRequest) {
             days: generatedItinerary.days.length,
             companion: body.companion ?? "solo",
             budget: body.budget ?? "moderado",
+            generation_source_type: generationSource.type,
+            generation_source_score: generationSource.type === "ai" ? null : generationSource.score,
+            generation_source_reason_count: generationSource.type === "ai" ? 0 : generationSource.reasons.length,
+            library_reused: generationSource.type !== "ai",
           },
         })
+
+        if (generationSource.type !== "ai") {
+          ph.capture({
+            distinctId,
+            event: "itinerary_library_hit",
+            properties: {
+              destination: body.destination,
+              generation_source_type: generationSource.type,
+              generation_source_score: generationSource.score,
+              source_trip_id: generationSource.sourceTripId,
+              source_version_id: generationSource.sourceVersionId,
+              reasons: generationSource.reasons,
+            },
+          })
+        }
         await ph.shutdown()
       }
     } catch {
@@ -223,17 +253,7 @@ export async function POST(req: NextRequest) {
       itinerary: generatedItinerary,
       tripId: resolvedTripId,
       identity,
-      generationSource: reusableItinerary
-        ? {
-            type: reusableItinerary.sourceType ?? "library",
-            sourceTripId: reusableItinerary.sourceTripId,
-            sourceVersionId: reusableItinerary.sourceVersionId,
-            score: reusableItinerary.score,
-            reasons: reusableItinerary.reasons,
-          }
-        : {
-            type: "ai",
-          },
+      generationSource,
     })
   } catch (error) {
     console.error("itinerary/generate error:", error)
