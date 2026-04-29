@@ -246,7 +246,11 @@ export async function createTrip(
   itinerary: GeneratedItinerary,
   startDate: string,
   endDate: string,
-  destination: string
+  destination: string,
+  options?: {
+    initialVersionReason?: string | null
+    initialVersionSource?: ItineraryVersionSource
+  }
 ): Promise<DbTrip | null> {
   try {
     const supabase = createServiceClient()
@@ -278,8 +282,8 @@ export async function createTrip(
       tripId: trip.id as string,
       itinerary,
       createdBy: userId,
-      reason: "Initial generated itinerary",
-      source: "generate",
+      reason: options?.initialVersionReason ?? "Initial generated itinerary",
+      source: options?.initialVersionSource ?? "generate",
     })
 
     // Cache curated destination image asynchronously (non-blocking)

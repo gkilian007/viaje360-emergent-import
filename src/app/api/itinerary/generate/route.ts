@@ -133,7 +133,14 @@ export async function POST(req: NextRequest) {
             generatedItinerary,
             body.startDate,
             body.endDate,
-            body.destination
+            body.destination,
+            {
+              initialVersionSource: generationSource.type === "ai" ? "generate" : "system",
+              initialVersionReason:
+                generationSource.type === "ai"
+                  ? "Initial generated itinerary"
+                  : `Initial itinerary reused from ${generationSource.type} (score ${generationSource.score})`,
+            }
           )
 
           if (dbTrip) {
