@@ -10,6 +10,7 @@ interface ItineraryLibraryMatch {
   sourceDestination: string
   score: number
   reasons: string[]
+  sourceType?: "library" | "curated-seed"
 }
 
 interface CuratedSeedEntry {
@@ -113,6 +114,17 @@ function remapDateKeepingTime(originalDate: string, targetDate: string, itinerar
   }
 }
 
+interface ExportedLibraryEntry {
+  id: string
+  tripId: string
+  versionId: string
+  destination: string
+  tripName?: string
+  dayCount: number
+  createdAt: string
+  snapshot: GeneratedItinerary
+}
+
 function buildCuratedSeedBoostMap(): Map<string, CuratedSeedEntry> {
   const map = new Map<string, CuratedSeedEntry>()
   for (const entry of curatedSeeds as CuratedSeedEntry[]) {
@@ -124,6 +136,7 @@ function buildCuratedSeedBoostMap(): Map<string, CuratedSeedEntry> {
 }
 
 const curatedSeedBoostMap = buildCuratedSeedBoostMap()
+const exportedLibrary = new Map<string, ExportedLibraryEntry>()
 
 function scoreCandidate(input: OnboardingData, candidate: LibraryCandidate): { score: number; reasons: string[] } {
   const reasons: string[] = []
@@ -223,6 +236,71 @@ function scoreCandidate(input: OnboardingData, candidate: LibraryCandidate): { s
   return { score, reasons }
 }
 
+async function loadExportedLibrary(): Promise<Map<string, ExportedLibraryEntry>> {
+  if (exportedLibrary.size > 0) return exportedLibrary
+  const data = (await import("@/../knowledge/seed-itineraries/library.json")).default as ExportedLibraryEntry[]
+  for (const entry of data) exportedLibrary.set(entry.id, entry)
+  return exportedLibrary
+}
+
+async function findCuratedSeedFallback(input: OnboardingData): Promise<ItineraryLibraryMatch | null> {
+  const destination = normalizeDestination(input.destination)
+  const requestedDayCount = getRequestedDayCount(input)
+  const library = await loadExportedLibrary()
+
+  let best: ItineraryLibraryMatch | null = null
+  for (const entry of curatedSeeds as CuratedSeedEntry[]) {
+    if (normalizeDestination(entry.destination) !== destination) continue
+
+    const profileText = normalizeText(entry.targetProfiles.join(" "))
+    for (const seedId of entry.seedIds) {
+      const seed = library.get(seedId)
+      if (!seed?.snapshot?.days?.length) continue
+
+      let score = 60
+      const reasons = ["curated-destination-match"]
+      if (seed.dayCount === requestedDayCount) {
+        score += 12
+        reasons.push("same-day-count")
+      } else if (Math.abs(seed.dayCount - requestedDayCount) === 1) {
+        score += 6
+        reasons.push("near-day-count")
+      }
+      if (input.companion && profileText.includes(normalizeText(input.companion))) {
+        score += 6
+        reasons.push("curated-profile-companion")
+      }
+      if (input.budget && profileText.includes(normalizeText(input.budget))) {
+        score += 4
+        reasons.push("curated-profile-budget")
+      }
+      if (input.travelerStyle && profileText.includes(normalizeText(input.travelerStyle))) {
+        score += 4
+        reasons.push("curated-profile-style")
+      }
+      const sharedInterests = normalizeList(input.interests).filter((interest) => profileText.includes(interest))
+      if (sharedInterests.length > 0) {
+        score += Math.min(12, sharedInterests.length * 4)
+        reasons.push(`curated-shared-interests:${sharedInterests.join(",")}`)
+      }
+
+      const remapped = remapDateKeepingTime(seed.snapshot.days[0]?.date ?? input.startDate, input.startDate, seed.snapshot)
+      const candidate: ItineraryLibraryMatch = {
+        itinerary: remapped,
+        sourceTripId: seed.tripId,
+        sourceVersionId: seed.versionId,
+        sourceDestination: seed.destination,
+        score,
+        reasons,
+        sourceType: "curated-seed",
+      }
+      if (!best || candidate.score > best.score) best = candidate
+    }
+  }
+
+  return best
+}
+
 export async function findReusableItinerary(
   input: OnboardingData,
   options?: { minScore?: number; limit?: number }
@@ -301,5 +379,6 @@ export async function findReusableItinerary(
     }
   }
 
-  return best
+  if (best) return best
+  return findCuratedSeedFallback(input)
 }

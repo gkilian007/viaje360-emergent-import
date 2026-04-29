@@ -225,7 +225,7 @@ export async function POST(req: NextRequest) {
       identity,
       generationSource: reusableItinerary
         ? {
-            type: "library",
+            type: reusableItinerary.sourceType ?? "library",
             sourceTripId: reusableItinerary.sourceTripId,
             sourceVersionId: reusableItinerary.sourceVersionId,
             score: reusableItinerary.score,
