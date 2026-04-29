@@ -565,6 +565,110 @@ function RouteHighlightCard({
   )
 }
 
+
+function getDistanceMeters(a: { lat: number; lng: number }, b: { lat: number; lng: number }) {
+  const earthRadius = 6371000
+  const dLat = ((b.lat - a.lat) * Math.PI) / 180
+  const dLng = ((b.lng - a.lng) * Math.PI) / 180
+  const lat1 = (a.lat * Math.PI) / 180
+  const lat2 = (b.lat * Math.PI) / 180
+  const h =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2
+  return 2 * earthRadius * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h))
+}
+
+function getBearingDegrees(a: { lat: number; lng: number }, b: { lat: number; lng: number }) {
+  const lat1 = (a.lat * Math.PI) / 180
+  const lat2 = (b.lat * Math.PI) / 180
+  const dLng = ((b.lng - a.lng) * Math.PI) / 180
+  const y = Math.sin(dLng) * Math.cos(lat2)
+  const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLng)
+  return ((Math.atan2(y, x) * 180) / Math.PI + 360) % 360
+}
+
+function formatHudDistance(meters: number) {
+  if (meters >= 1000) return `${(meters / 1000).toFixed(1)} km`
+  return `${Math.round(meters)} m`
+}
+
+function MobileGtaNavigationHud({ geocoded, selectedActivityId }: { geocoded: GeocodedActivity[]; selectedActivityId?: string | null }) {
+  const valid = geocoded.filter(g => isFinite(g.lat) && isFinite(g.lng))
+  if (valid.length < 2) return null
+
+  const selectedIndex = selectedActivityId ? valid.findIndex(g => g.activity.id === selectedActivityId) : -1
+  const currentIndex = Math.max(0, selectedIndex >= 0 ? selectedIndex : 0)
+  const from = valid[currentIndex] ?? valid[0]
+  const to = valid[currentIndex + 1] ?? valid[currentIndex]
+  if (!from || !to || from.activity.id === to.activity.id) return null
+
+  const distance = getDistanceMeters(from, to)
+  const bearing = getBearingDegrees(from, to)
+  const visiblePoints = valid.slice(Math.max(0, currentIndex - 1), Math.min(valid.length, currentIndex + 5))
+  const spanLat = Math.max(0.0012, Math.max(...visiblePoints.map(g => g.lat)) - Math.min(...visiblePoints.map(g => g.lat)))
+  const spanLng = Math.max(0.0012, Math.max(...visiblePoints.map(g => g.lng)) - Math.min(...visiblePoints.map(g => g.lng)))
+  const minLat = Math.min(...visiblePoints.map(g => g.lat))
+  const minLng = Math.min(...visiblePoints.map(g => g.lng))
+
+  return (
+    <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[1100] md:hidden">
+      <div className="absolute left-3 bottom-3 h-[122px] w-[122px] overflow-hidden rounded-full border border-white/18 bg-[#05070d]/88 shadow-[0_20px_60px_rgba(0,0,0,0.62)] backdrop-blur-xl">
+        <div className="absolute inset-[10px] rounded-full border border-white/10 bg-[radial-gradient(circle_at_center,rgba(10,132,255,0.20),rgba(4,8,18,0.95)_60%)]" />
+        <div className="absolute left-1/2 top-[12px] -translate-x-1/2 text-[9px] font-black tracking-[0.22em] text-white/55">N</div>
+        <div className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-white/8" />
+        <div className="absolute left-0 top-1/2 h-px w-full -translate-y-1/2 bg-white/8" />
+        <div className="absolute left-1/2 top-1/2 h-8 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#0A84FF]/55 bg-[#0A84FF]/18 shadow-[0_0_18px_rgba(10,132,255,0.65)]">
+          <div className="absolute left-1/2 top-1/2 h-0 w-0 -translate-x-1/2 -translate-y-[58%] border-x-[6px] border-b-[16px] border-x-transparent border-b-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
+        </div>
+        <div className="absolute left-1/2 top-1/2 h-[2px] w-[42px] origin-left bg-[#30D158] shadow-[0_0_12px_rgba(48,209,88,0.85)]" style={{ transform: `rotate(${bearing - 90}deg)` }} />
+        {visiblePoints.map((point, index) => {
+          const x = 16 + ((point.lng - minLng) / spanLng) * 86
+          const y = 102 - ((point.lat - minLat) / spanLat) * 86
+          const isCurrent = point.activity.id === from.activity.id
+          const isTarget = point.activity.id === to.activity.id
+          return (
+            <div
+              key={point.activity.id}
+              className={`absolute flex items-center justify-center rounded-full text-[8px] font-black text-white ${isTarget ? "h-4 w-4 bg-[#30D158]" : isCurrent ? "h-4 w-4 bg-[#0A84FF]" : "h-3 w-3 bg-white/28"}`}
+              style={{ left: x, top: y, boxShadow: isTarget ? "0 0 14px rgba(48,209,88,0.8)" : isCurrent ? "0 0 12px rgba(10,132,255,0.8)" : undefined }}
+            >
+              {isCurrent || isTarget ? index + 1 : ""}
+            </div>
+          )
+        })}
+        <div className="absolute inset-0 rounded-full shadow-[inset_0_0_28px_rgba(0,0,0,0.78)]" />
+      </div>
+
+      <div className="ml-[138px] mr-3 mb-3 rounded-[26px] border border-white/12 bg-[#090b12]/84 p-3 shadow-[0_18px_50px_rgba(0,0,0,0.55)] backdrop-blur-xl">
+        <div className="mb-2 flex items-center justify-between gap-3">
+          <span className="text-[9px] font-black uppercase tracking-[0.22em] text-[#30D158]">Modo ruta</span>
+          <span className="rounded-full border border-[#30D158]/30 bg-[#30D158]/12 px-2 py-0.5 text-[10px] font-bold text-[#b8ffd0]">{formatHudDistance(distance)}</span>
+        </div>
+
+        <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgba(17,23,35,0.96),rgba(5,7,12,0.98))] px-3 pb-3 pt-2">
+          <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+          <div className="mb-2 flex items-center gap-2">
+            <div className="flex h-7 w-7 items-center justify-center rounded-full border border-[#30D158]/30 bg-[#30D158]/12 text-[12px] text-[#b8ffd0]">➜</div>
+            <div className="min-w-0 flex-1">
+              <div className="truncate text-[12px] font-extrabold text-white">Ir a {to.activity.name}</div>
+              <div className="truncate text-[10px] text-white/55">Siguiente parada · {to.activity.time}</div>
+            </div>
+          </div>
+
+          <div className="relative h-[78px] overflow-hidden rounded-[18px] border border-white/8 bg-[linear-gradient(180deg,rgba(18,24,38,0.92),rgba(8,10,16,0.98))]">
+            <div className="absolute inset-x-0 bottom-0 h-10 bg-[linear-gradient(180deg,transparent,rgba(48,209,88,0.20))]" />
+            <div className="absolute left-1/2 bottom-3 h-11 w-7 -translate-x-1/2 rounded-full border border-white/20 bg-[#0A84FF] shadow-[0_0_18px_rgba(10,132,255,0.72)]" />
+            <div className="absolute left-1/2 bottom-[46px] h-3.5 w-3.5 -translate-x-1/2 rounded-full bg-[#f2d7c3]" />
+            <div className="absolute left-1/2 top-2 h-10 w-[2px] -translate-x-1/2 bg-[#30D158] shadow-[0_0_14px_rgba(48,209,88,0.95)]" />
+            <div className="absolute left-1/2 top-1 h-4 w-4 -translate-x-1/2 rounded-full border-2 border-[#30D158] bg-[#30D158]/20 shadow-[0_0_14px_rgba(48,209,88,0.88)]" />
+            <div className="absolute bottom-2 left-3 right-3 text-center text-[10px] font-bold uppercase tracking-[0.18em] text-white/78">Vista navegación</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // Route segments with transport-mode-aware styling
 function RealRouteSegments({ geocoded, transportPrefs = [], maxWalkMeters = 1500, destination = "", hasHighlight = false }: { geocoded: GeocodedActivity[]; transportPrefs?: string[]; maxWalkMeters?: number; destination?: string; hasHighlight?: boolean }) {
   // Stabilize reference — only recompute when the set of activity IDs changes
@@ -961,6 +1065,8 @@ export function RealMapView({
         </MarkerClusterGroup>
       </MapContainer>
 
+      <MobileGtaNavigationHud geocoded={offsetGeo} selectedActivityId={selectedActivityId} />
+
       {/* Route highlight info card */}
       {routeHighlight && (
         <RouteHighlightCard routeHighlight={routeHighlight} onClear={onClearRouteHighlight} />
@@ -981,7 +1087,7 @@ export function RealMapView({
       {/* Route mode legend */}
       {(transportPrefs?.includes("publico") || transportPrefs?.includes("mix") || transportPrefs?.includes("coche")) && (
         <div
-          className="absolute right-4 bottom-4 px-3 py-2 rounded-xl flex flex-col gap-1.5 z-[1000]"
+          className="absolute right-4 bottom-4 hidden px-3 py-2 rounded-xl md:flex flex-col gap-1.5 z-[1000]"
           style={{
             background: "rgba(19,19,21,0.85)",
             border: "1px solid rgba(255,255,255,0.06)",
@@ -1013,7 +1119,7 @@ export function RealMapView({
         const uniqueTypes = [...new Set(geocoded.map(g => g.activity.type))]
         return uniqueTypes.length > 0 ? (
           <div
-            className="absolute left-4 bottom-4 px-3 py-2 rounded-xl flex flex-wrap items-center gap-x-3 gap-y-1.5 z-[1000] max-w-[280px]"
+            className="absolute left-4 bottom-4 hidden px-3 py-2 rounded-xl md:flex flex-wrap items-center gap-x-3 gap-y-1.5 z-[1000] max-w-[280px]"
             style={{
               background: "rgba(19,19,21,0.85)",
               border: "1px solid rgba(255,255,255,0.06)",
