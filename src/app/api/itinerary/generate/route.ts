@@ -12,6 +12,7 @@ import {
 import { resolveRequestIdentity } from "@/lib/auth/server"
 import { geocodeItinerary } from "@/lib/services/geocode.server"
 import { generateItinerary, mapToAppTypes } from "@/lib/services/itinerary.service"
+import { findReusableItinerary } from "@/lib/services/itinerary-library"
 import { getPersonalRecommendationContext } from "@/lib/services/personal-recommendation"
 import { ingestItineraryKnowledge } from "@/lib/services/trip-learning.db"
 import { createTrip } from "@/lib/services/trip.service"
@@ -50,7 +51,8 @@ export async function POST(req: NextRequest) {
       country: null,
     })
 
-    const generatedItinerary = await generateItinerary(body, { userId: identity.userId, personalization })
+    const reusableItinerary = await findReusableItinerary(body)
+    const generatedItinerary = reusableItinerary?.itinerary ?? await generateItinerary(body, { userId: identity.userId, personalization })
 
     // Quick inline geocoding pass: only validate LLM coords (fast, no Nominatim calls).
     // Full Nominatim geocoding runs in background after the trip is saved to DB.
@@ -221,6 +223,17 @@ export async function POST(req: NextRequest) {
       itinerary: generatedItinerary,
       tripId: resolvedTripId,
       identity,
+      generationSource: reusableItinerary
+        ? {
+            type: "library",
+            sourceTripId: reusableItinerary.sourceTripId,
+            sourceVersionId: reusableItinerary.sourceVersionId,
+            score: reusableItinerary.score,
+            reasons: reusableItinerary.reasons,
+          }
+        : {
+            type: "ai",
+          },
     })
   } catch (error) {
     console.error("itinerary/generate error:", error)
