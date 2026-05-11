@@ -6,6 +6,7 @@ import { useAppStore } from "@/store/useAppStore"
 import { BottomNav } from "@/components/layout/BottomNav"
 import { SideNav } from "@/components/layout/SideNav"
 import { DynamicMapView } from "@/components/features/DynamicMapView"
+import type { RouteHighlight } from "@/components/features/DynamicMapView"
 import { ImmersiveHud } from "@/components/features/map/ImmersiveHud"
 import type { HudActivity, SegmentInfo } from "@/components/features/map/ImmersiveHud"
 import { useGeocodedActivities } from "@/lib/hooks/useGeocodedActivities"
@@ -121,6 +122,7 @@ export default function MapaPage() {
   const [hydrated, setHydrated] = useState(false)
   const [showList, setShowList] = useState(false)
   const [hudActiveIndex, setHudActiveIndex] = useState(0)
+  const [routeHighlight, setRouteHighlight] = useState<RouteHighlight | null>(null)
 
   const onboardingData = useOnboardingStore((s) => s.data)
   const mobilityProfile = resolveMobilityProfile({
@@ -310,6 +312,8 @@ export default function MapaPage() {
           onMarkerClick={handleMarkerClick}
           transportPrefs={onboardingData.transport}
           maxWalkMeters={mobilityProfile.maxComfortableWalkMeters}
+          routeHighlight={routeHighlight}
+          onClearRouteHighlight={() => setRouteHighlight(null)}
         />
 
         {/* Immersive Mobile HUD */}
@@ -336,18 +340,14 @@ export default function MapaPage() {
           onNavigate={(fromIdx, toIdx) => {
             const from = geocodedToday[fromIdx]
             const to = geocodedToday[toIdx]
-            const pair = from && to ? hudSegments.find((s) => s.fromId === from.activity.id && s.toId === to.activity.id) : null
-            const travelMode = pair?.mode === "car" ? "driving" : pair?.mode === "transit" ? "transit" : "walking"
-
             if (from && to && isFinite(from.lat) && isFinite(to.lat)) {
-              const isIOS = typeof navigator !== "undefined" && (navigator.userAgent.includes("iPhone") || navigator.userAgent.includes("iPad"))
-              const appleFlag = pair?.mode === "car" ? "d" : pair?.mode === "transit" ? "r" : "w"
-              const url = isIOS
-                ? `maps://maps.apple.com/?saddr=${from.lat},${from.lng}&daddr=${to.lat},${to.lng}&dirflg=${appleFlag}`
-                : `https://www.google.com/maps/dir/?api=1&origin=${from.lat},${from.lng}&destination=${to.lat},${to.lng}&travelmode=${travelMode}`
-              window.open(url, "_blank")
+              // Highlight route on our own map
+              setRouteHighlight({
+                from: { lat: from.lat, lng: from.lng, name: from.activity.name },
+                to: { lat: to.lat, lng: to.lng, name: to.activity.name },
+                mode: from && to ? (hudSegments.find((s) => s.fromId === from.activity.id && s.toId === to.activity.id)?.mode === "car" ? "driving" : hudSegments.find((s) => s.fromId === from.activity.id && s.toId === to.activity.id)?.mode === "transit" ? "transit" : "walking") : "walking",
+              })
             }
-
             const act = today?.activities[toIdx]
             if (act) setSelectedActivity(act)
           }}
