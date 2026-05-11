@@ -9,6 +9,8 @@ import { DynamicMapView } from "@/components/features/DynamicMapView"
 import { ImmersiveHud } from "@/components/features/map/ImmersiveHud"
 import type { HudActivity, SegmentInfo } from "@/components/features/map/ImmersiveHud"
 import { useGeocodedActivities } from "@/lib/hooks/useGeocodedActivities"
+import { useRouteGeometry } from "@/lib/hooks/useRouteGeometry"
+import type { RouteSegment } from "@/lib/hooks/useRouteGeometry"
 import { useOnboardingStore } from "@/store/useOnboardingStore"
 import { resolveMobilityProfile } from "@/lib/mobility"
 import { ActivityDetailModal } from "@/components/features/ActivityDetailModal"
@@ -196,6 +198,48 @@ export default function MapaPage() {
     currentTrip?.destination ?? ""
   )
 
+  // Route geometry for the HUD (same data the map renders)
+  const geoActivitiesForRoute = geocodedToday
+    .filter((g) => isFinite(g.lat) && isFinite(g.lng))
+    .map((g) => ({ id: g.activity.id, type: g.activity.type, lat: g.lat, lng: g.lng, name: g.activity.name }))
+  const routeSegments = useRouteGeometry(
+    geoActivitiesForRoute,
+    {}, // TYPE_COLOR not needed for HUD data
+    {
+      transportPrefs: onboardingData.transport,
+      maxWalkMeters: mobilityProfile.maxComfortableWalkMeters,
+      destination: currentTrip?.destination ?? "",
+    }
+  )
+
+  // Convert RouteSegment[] to SegmentInfo[] for the HUD
+  const hudSegments: SegmentInfo[] = routeSegments.map((seg) => ({
+    fromId: seg.fromId,
+    toId: seg.toId,
+    distanceMeters: seg.distanceMeters,
+    durationSeconds: seg.durationSeconds,
+    mode: seg.mode,
+  }))
+
+  // Auto-detect active activity based on current time
+  useEffect(() => {
+    if (!hydrated || !today?.activities?.length) return
+    const now = new Date()
+    const nowMinutes = now.getHours() * 60 + now.getMinutes()
+    let activeIdx = 0
+    for (let i = 0; i < today.activities.length; i++) {
+      const timeStr = today.activities[i].time
+      if (!timeStr) continue
+      const [h, m] = timeStr.split(":").map(Number)
+      if (isNaN(h) || isNaN(m)) continue
+      const actMinutes = h * 60 + m
+      if (actMinutes <= nowMinutes) activeIdx = i
+      else break
+    }
+    setHudActiveIndex(activeIdx)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hydrated, today?.activities])
+
   if (!currentTrip || totalDays === 0) {
     return (
       <div className="min-h-screen bg-[#0f1117] flex flex-col">
@@ -260,7 +304,7 @@ export default function MapaPage() {
             lng: g.lng,
           }))}
           activeIndex={hudActiveIndex}
-          segments={[]}
+          segments={hudSegments}
           onActivitySelect={(idx) => {
             setHudActiveIndex(idx)
             const act = today?.activities[idx]
@@ -269,6 +313,16 @@ export default function MapaPage() {
             }
           }}
           onNavigate={(fromIdx, toIdx) => {
+            const from = geocodedToday[fromIdx]
+            const to = geocodedToday[toIdx]
+            if (from && to && isFinite(from.lat) && isFinite(to.lat)) {
+              // Open native maps with real coordinates
+              const isIOS = typeof navigator !== "undefined" && (navigator.userAgent.includes("iPhone") || navigator.userAgent.includes("iPad"))
+              const url = isIOS
+                ? `maps://maps.apple.com/?saddr=${from.lat},${from.lng}&daddr=${to.lat},${to.lng}&dirflg=w`
+                : `https://www.google.com/maps/dir/?api=1&origin=${from.lat},${from.lng}&destination=${to.lat},${to.lng}&travelmode=walking`
+              window.open(url, "_blank")
+            }
             const act = today?.activities[toIdx]
             if (act) setSelectedActivity(act)
           }}
